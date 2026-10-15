@@ -5,6 +5,34 @@ from apps.core.admin_navigation import get_admin_nav_sections
 
 
 class AdminNavigationTests(TestCase):
+    def test_xml_import_is_visible_to_editors_on_list_and_sidebar(self):
+        from django.contrib.auth import get_user_model
+        from django.contrib.auth.models import Permission
+        from django.urls import reverse
+
+        user = get_user_model().objects.create_user(username="stockeditor", is_staff=True)
+        user.user_permissions.add(Permission.objects.get(codename="change_product"))
+        self.client.force_login(user)
+        url = reverse("admin:products_product_import_xml")
+        response = self.client.get(reverse("admin:products_product_changelist"))
+        self.assertContains(response, f'href="{url}"', count=2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        products = next(s for s in response.context["kp_admin_nav_sections"] if s.id == "products")
+        self.assertEqual([item.url for item in products.items if item.active], [url])
+
+    def test_xml_import_is_hidden_from_read_only_staff(self):
+        from django.contrib.auth import get_user_model
+        from django.contrib.auth.models import Permission
+        from django.urls import reverse
+
+        user = get_user_model().objects.create_user(username="stockviewer", is_staff=True)
+        user.user_permissions.add(Permission.objects.get(codename="view_product"))
+        self.client.force_login(user)
+        url = reverse("admin:products_product_import_xml")
+        self.assertNotContains(self.client.get(reverse("admin:products_product_changelist")), f'href="{url}"')
+        self.assertEqual(self.client.get(url).status_code, 403)
+
     def test_sections_include_orders_and_analytics(self):
         request = RequestFactory().get("/admin/")
         request.user = self._superuser()
