@@ -49,20 +49,22 @@ def unique_slug_for_translation(
 def localized_slug(obj, language: str | None = None) -> str:
     """
     Slug for the requested UI language, falling back to other translations.
-    Queries translation rows without Parler's active-language filter.
+    Reuse prefetched translation rows without Parler's active-language filter.
     """
     lang = language or get_shop_language()
 
     if hasattr(obj, "translations") and obj.pk:
-        Translation = obj.translations.model
-        queryset = Translation.objects.filter(master_id=obj.pk)
+        # .all() consumes Django's prefetch cache; filtering the translation
+        # model directly caused a fresh query for every link on the page.
+        translations = list(obj.translations.all())
+        by_language = {trans.language_code: trans for trans in translations}
         for try_lang in translation_languages_to_try(lang):
-            trans = queryset.filter(language_code=try_lang).first()
+            trans = by_language.get(try_lang)
             if trans and getattr(trans, "slug", None):
                 return trans.slug
-        trans = queryset.exclude(slug="").first()
-        if trans and trans.slug:
-            return trans.slug
+        for trans in sorted(translations, key=lambda row: row.pk):
+            if getattr(trans, "slug", None):
+                return trans.slug
 
     slug = obj.safe_translation_getter("slug", language_code=lang)
     if slug:

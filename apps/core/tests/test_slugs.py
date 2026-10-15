@@ -37,3 +37,48 @@ class UniqueSlugForTranslationTests(TestCase):
             base_override=f"pice-{suffix}",
         )
         self.assertNotEqual(trans.slug, f"pice-{suffix}")
+
+
+class PrefetchedSlugTests(TestCase):
+    def setUp(self):
+        from django.core.cache import cache
+
+        cache.clear()
+        self.addCleanup(cache.clear)
+        self.root = Category.objects.create(is_active=True)
+        self.root.set_current_language("sr")
+        self.root.name = "Hrana"
+        self.root.slug = "hrana-prefetch"
+        self.root.save()
+        self.child = Category.objects.create(parent=self.root, is_active=True)
+        self.child.set_current_language("sr")
+        self.child.name = "Voće"
+        self.child.slug = "voce-prefetch"
+        self.child.save()
+
+    def test_prefetched_slug_and_language_fallback_do_not_query(self):
+        from apps.core.slugs import localized_slug
+
+        category = Category.objects.prefetch_related("translations").get(pk=self.root.pk)
+        with self.assertNumQueries(0):
+            self.assertEqual(localized_slug(category, "sr"), "hrana-prefetch")
+            self.assertEqual(localized_slug(category, "en"), "hrana-prefetch")
+
+    def test_prefetched_category_path_reuses_parent_and_translations(self):
+        from apps.categories.selectors import category_path_for_url
+
+        child = Category.objects.select_related("parent").prefetch_related(
+            "translations", "parent__translations"
+        ).get(pk=self.child.pk)
+        with self.assertNumQueries(0):
+            self.assertEqual(category_path_for_url(child, "en"), "hrana-prefetch/voce-prefetch")
+
+    def test_uncached_parent_path_and_inactive_ancestor(self):
+        from apps.categories.selectors import category_path_for_url
+
+        child = Category.objects.prefetch_related("translations").get(pk=self.child.pk)
+        with self.assertNumQueries(2):
+            self.assertEqual(category_path_for_url(child, "sr"), "hrana-prefetch/voce-prefetch")
+        Category.objects.filter(pk=self.root.pk).update(is_active=False)
+        child = Category.objects.prefetch_related("translations").get(pk=self.child.pk)
+        self.assertEqual(category_path_for_url(child, "sr"), "")
