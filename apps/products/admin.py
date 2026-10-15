@@ -64,11 +64,20 @@ _PRODUCT_FIELDSETS = (
             "fields": (
                 "category",
                 "sku",
+                "barcode",
                 "price",
-                "main_image",
                 "stock",
+                "is_archived",
                 "minimum_stock_alert",
             ),
+        },
+    ),
+    (
+        _("Product image"),
+        {
+            "classes": ("kp-fieldset",),
+            "description": _("Optional source, author and license details shown below the main product image."),
+            "fields": ("main_image", "main_image_source_url", "main_image_attribution", "main_image_license_url"),
         },
     ),
     (
@@ -101,8 +110,9 @@ class ProductAdmin(KPTranslatableAdmin):
         "price_display",
         "stock_display",
     )
-    search_fields = ("sku", "translations__name", "translations__slug")
+    search_fields = ("sku", "barcode", "translations__name", "translations__slug")
     list_select_related = ("category",)
+    list_filter = ("is_archived",)
     inlines = [ProductImageInline]
     list_per_page = 25
     save_on_top = True
@@ -178,6 +188,21 @@ class ProductAdmin(KPTranslatableAdmin):
         urls = super().get_urls()
         custom_urls = [
             path(
+                "import-image/",
+                self.admin_site.admin_view(self.catalog_image_upload_view),
+                name="products_product_import_image",
+            ),
+            path(
+                "import-xml/",
+                self.admin_site.admin_view(self.inventory_import_view),
+                name="products_product_import_xml",
+            ),
+            path(
+                "import-xml/<uuid:batch_id>/",
+                self.admin_site.admin_view(self.inventory_import_view),
+                name="products_product_xml_preview",
+            ),
+            path(
                 "promo-sales/",
                 self.admin_site.admin_view(self.promo_sales_view),
                 name="products_product_promo_sales",
@@ -189,6 +214,16 @@ class ProductAdmin(KPTranslatableAdmin):
             ),
         ]
         return custom_urls + urls
+
+    def catalog_image_upload_view(self, request):
+        from apps.products.catalog_image_upload import catalog_image_upload
+
+        return catalog_image_upload(request, self)
+
+    def inventory_import_view(self, request, batch_id=None):
+        from apps.products.inventory_admin import inventory_import_view
+
+        return inventory_import_view(self, request, batch_id=batch_id)
 
     def _product_admin_queryset(self, request):
         return (

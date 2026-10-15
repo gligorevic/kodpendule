@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}{{ block.super }}<link rel="stylesheet" href="{% static 'admin/css/inventory-import.css' %}">{% endblock %}
+{% block extrahead %}{{ block.super }}<script src="{% static 'admin/js/inventory-import.js' %}" defer></script>{% endblock %}
+{% block breadcrumbs %}
+<div class="breadcrumbs"><a href="{% url 'admin:index' %}">{% trans "Home" %}</a> &rsaquo; <a href="{% url 'admin:products_product_changelist' %}">{% trans "Products" %}</a> &rsaquo; {% trans "Import inventory XML" %}</div>
+{% endblock %}
+{% block content %}
+<div class="kp-inventory-import">
+    <p>{% trans "Match by SKU and verify product identity. Existing products: update stock only when it differs. Prices, descriptions, images and categories stay unchanged. Products missing from the XML stay unchanged." %}</p>
+    <p>{% trans "New products require a category and use the XML name, barcode and price. Invalid or restricted records are excluded and listed for review." %}</p>
+    {% if upload_form %}
+    <form method="post" enctype="multipart/form-data" class="kp-card">
+        {% csrf_token %}
+        {{ upload_form.non_field_errors }}
+        <div class="kp-xml-dropzone" id="xml-dropzone">
+            <p><strong>{% trans "Drag your XML file here or choose a file" %}</strong></p>
+            {{ upload_form.xml_file.errors }}
+            {{ upload_form.xml_file.label_tag }} {{ upload_form.xml_file }}
+            <p class="help">{{ upload_form.xml_file.help_text }}</p>
+            <p id="xml-file-name" aria-live="polite"></p>
+        </div>
+        <button type="submit" class="default">{% trans "Preview import" %}</button>
+    </form>
+    {% if recent_batches %}
+    <h2>{% trans "Recent imports" %}</h2>
+    <ul>{% for recent in recent_batches %}<li><a href="{% url 'admin:products_product_xml_preview' recent.pk %}">{{ recent.filename }}</a> — {{ recent.created_at|date:"d/m/Y H:i" }} — {% if recent.applied_at %}{% trans "Applied" %}{% else %}{% trans "Preview" %}{% endif %}</li>{% endfor %}</ul>
+    {% endif %}
+    {% else %}
+    <p><strong>{{ batch.filename }}</strong> · {% trans "Total records" %}: {{ batch.payload.total }} · {% trans "New" %}: {{ batch.payload.counts.new|default:0 }} · {% trans "Stock changes" %}: {{ batch.payload.counts.changed|default:0 }} · {% trans "Unchanged" %}: {{ batch.payload.counts.unchanged|default:0 }} · {% trans "Excluded" %}: {{ batch.payload.rejected|length }}</p>
+    {% if error %}<p class="errornote" role="alert">{{ error }}</p>{% endif %}
+    {% if batch.applied_at %}
+        <div class="messagelist"><p class="success">{% trans "Import applied" %} — {{ batch.applied_at|date:"d/m/Y H:i" }}. {% trans "New" %}: {{ batch.result.created }} · {% trans "Stock changes" %}: {{ batch.result.updated }} · {% trans "Unchanged" %}: {{ batch.result.unchanged }} · {% trans "Excluded" %}: {{ batch.result.rejected }}.</p></div>
+    {% else %}
+        <p>{% trans "Preview expires" %}: {{ batch.expires_at|date:"d/m/Y H:i" }}. {% trans "If the catalog or stock changes after preview, upload the XML again." %}</p>
+        {% if remaining %}<p class="errornote">{% trans "New products still needing a category" %}: {{ remaining }}.</p>{% endif %}
+        {% if not can_add and batch.payload.counts.new %}<p class="errornote">{% trans "Adding new products requires the add-product permission." %}</p>{% endif %}
+    {% endif %}
+    <p><a href="?show=new">{% trans "Show new products" %}</a> · <a href="?">{% trans "Show all valid records" %}</a> · <a href="{% url 'admin:products_product_import_xml' %}">{% trans "Upload another XML" %}</a></p>
+    <form method="post">
+        {% csrf_token %}<input type="hidden" name="action" value="categories">
+        {{ category_form.non_field_errors }}
+        <div class="kp-xml-table-wrap"><table>
+            <thead><tr><th>{% trans "SKU" %}</th><th>{% trans "Name" %}</th><th>{% trans "Barcode" %}</th><th>{% trans "Current stock" %}</th><th>{% trans "XML stock" %}</th><th>{% trans "XML price" %}</th><th>{% trans "Action / category" %}</th></tr></thead>
+            <tbody>{% for row in table_rows %}<tr>
+                <td>{{ row.sku }}</td><td>{{ row.name }}</td><td>{{ row.barcode|default:"—" }}</td>
+                <td>{% if row.before %}{{ row.before.stock }}{% else %}—{% endif %}</td><td>{{ row.stock }}</td><td>{{ row.price }}</td>
+                <td>{% if row.action == "new" %}{% if batch.applied_at %}{% trans "Created" %}{% else %}{{ row.category_field.errors }}{{ row.category_field }}{% endif %}
+                {% elif row.action == "changed" %}{% trans "Update stock" %}{% else %}{% trans "No change" %}{% endif %}</td>
+            </tr>{% empty %}<tr><td colspan="7">{% trans "No records in this view." %}</td></tr>{% endfor %}</tbody>
+        </table></div>
+        {% if not batch.applied_at and has_new_on_page and can_add %}<p><button type="submit">{% trans "Save categories on this page" %}</button></p>{% endif %}
+    </form>
+    {% if page_obj.paginator.num_pages > 1 %}<nav aria-label="{% trans 'Pagination' %}">
+        {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}{% if show_new %}&amp;show=new{% endif %}">{% trans "Previous" %}</a>{% endif %}
+        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+        {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}{% if show_new %}&amp;show=new{% endif %}">{% trans "Next" %}</a>{% endif %}
+    </nav>{% endif %}
+    {% if batch.payload.rejected %}
+    <details class="kp-card"><summary>{% trans "Excluded records and reasons" %} ({{ batch.payload.rejected|length }})</summary>
+        <div class="kp-xml-table-wrap"><table><thead><tr><th>{% trans "Record" %}</th><th>{% trans "SKU" %}</th><th>{% trans "Name" %}</th><th>{% trans "Reason" %}</th></tr></thead><tbody>
+        {% for row in batch.payload.rejected %}<tr><td>{{ row.line }}</td><td>{{ row.sku }}</td><td>{{ row.name }}</td><td>{{ row.reason }}</td></tr>{% endfor %}
+        </tbody></table></div>
+    </details>
+    {% endif %}
+    {% if not batch.applied_at %}
+    <form method="post" class="kp-card" id="xml-apply-form">
+        {% csrf_token %}<input type="hidden" name="action" value="apply">
+        {% if batch.payload.rejected %}<p><label><input type="checkbox" name="acknowledge_rejected" required> {% trans "I reviewed the excluded records and agree to skip them." %}</label></p>{% endif %}
+        <p>{% trans "Save category choices before applying. All valid changes are applied together." %}</p>
+        <button type="submit" class="default" {% if remaining or not batch.payload.rows %}disabled{% endif %}>{% trans "Apply inventory import" %}</button>
+    </form>
+    {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

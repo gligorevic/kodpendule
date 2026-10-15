@@ -3,7 +3,9 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.core import mail
+from django.db import connection
 from django.test import Client, RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 
 from apps.cart.cart import SESSION_KEY, get_cart
 from apps.categories.models import Category
@@ -18,6 +20,7 @@ from apps.core.checkout_settings import (
 from apps.core.storefront_urls import shop_reverse
 from apps.orders.models import Order, PaymentMethod
 from apps.orders.services import create_order_from_checkout
+from apps.orders.services.order_service import CheckoutError
 from apps.products.models import Product
 from apps.shipping.models import City
 
@@ -106,6 +109,45 @@ class CheckoutServiceTests(TestCase):
             requested_delivery_date=checkout_today(),
         )
         self.assertEqual(price, Decimal("0"))
+
+    def test_product_archived_after_adding_to_cart_cannot_be_purchased(self) -> None:
+        Product.objects.filter(pk=self.product.pk).update(is_archived=True)
+        with self.assertRaises(CheckoutError):
+            create_order_from_checkout(
+                cart=get_cart(self.request), user=None, guest_email="guest@example.com",
+                first_name="Pera", last_name="Perić", phone="+381601112233",
+                shipping_city=self.city, shipping_street="Ulica 1",
+                order_notes="", payment_method=PaymentMethod.CASH,
+            )
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 10)
+        self.assertFalse(Order.objects.exists())
+
+    def test_multiple_products_lock_by_pk_and_keep_cart_item_order(self) -> None:
+        second = Product.objects.create(
+            category=self.product.category, sku="SECOND-LOCK-TEST",
+            price=Decimal("50.00"), stock=6,
+        )
+        cart = get_cart(self.request)
+        cart.clear()
+        cart.add(second, 2)
+        cart.add(self.product, 1)
+        with CaptureQueriesContext(connection) as queries:
+            order = create_order_from_checkout(
+                cart=cart, user=None, guest_email="guest@example.com",
+                first_name="Pera", last_name="Perić", phone="+381601112233",
+                shipping_city=self.city, shipping_street="Ulica 1",
+                order_notes="", payment_method=PaymentMethod.CASH,
+            )
+        product_lock_queries = [
+            query["sql"] for query in queries
+            if 'ORDER BY "products_product"."id" ASC' in query["sql"]
+        ]
+        self.assertEqual(len(product_lock_queries), 1)
+        self.assertEqual(list(order.items.order_by("pk").values_list("product_id", flat=True)), [second.pk, self.product.pk])
+        second.refresh_from_db()
+        self.product.refresh_from_db()
+        self.assertEqual((second.stock, self.product.stock), (4, 9))
 
     def test_scheduled_delivery_is_free_even_below_promo_threshold(self) -> None:
         future_date = min_scheduled_delivery_date()

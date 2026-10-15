@@ -1,6 +1,8 @@
 from decimal import Decimal
+import uuid
 
-from django.core.validators import MinValueValidator
+from django.conf import settings
+from django.core.validators import MinValueValidator, URLValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
@@ -16,6 +18,7 @@ class Product(TranslatableModel):
         verbose_name=_("Category"),
     )
     sku = models.CharField(_("SKU"), max_length=64, unique=True, db_index=True)
+    barcode = models.CharField(_("Barcode"), max_length=64, blank=True, db_index=True)
     price = MoneyField(
         verbose_name=_("Price"),
         validators=[MinValueValidator(Decimal("0"))],
@@ -27,7 +30,20 @@ class Product(TranslatableModel):
         validators=[MinValueValidator(Decimal("0"))],
     )
     main_image = models.ImageField(_("Main image"), upload_to="products/", blank=True)
+    main_image_source_url = models.URLField(
+        _("Image source URL"), max_length=1000, blank=True,
+        validators=[URLValidator(schemes=["http", "https"])],
+    )
+    main_image_attribution = models.CharField(_("Image attribution"), max_length=255, blank=True)
+    main_image_license_url = models.URLField(
+        _("Image license URL"), max_length=1000, blank=True,
+        validators=[URLValidator(schemes=["http", "https"])],
+    )
     stock = models.PositiveIntegerField(_("Stock"), default=0)
+    is_archived = models.BooleanField(
+        _("Archived"), default=False, db_index=True,
+        help_text=_("Archived products are hidden from the shop and cannot be purchased. Clear this option to restore them."),
+    )
     minimum_stock_alert = models.PositiveIntegerField(
         _("Minimum stock alert"),
         default=5,
@@ -61,6 +77,12 @@ class Product(TranslatableModel):
             models.Index(fields=["category"]),
             models.Index(fields=["stock"]),
             models.Index(fields=["is_recommended", "recommended_order"]),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["barcode"], condition=~models.Q(barcode=""),
+                name="products_unique_nonempty_barcode",
+            ),
         ]
 
     def __str__(self) -> str:
@@ -128,3 +150,21 @@ class ProductImage(models.Model):
         if language_code == "en":
             return self.alt_text_en or self.alt_text_sr
         return self.alt_text_sr or self.alt_text_en
+
+
+class XMLImportBatch(models.Model):
+    """Server-side preview and immutable result of an inventory import."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    filename = models.CharField(max_length=255)
+    file_sha256 = models.CharField(max_length=64, db_index=True)
+    payload = models.JSONField(default=dict)
+    categories = models.JSONField(default=dict)
+    result = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    applied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]

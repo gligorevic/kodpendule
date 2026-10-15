@@ -43,6 +43,19 @@
     min-height: 20rem;
 }
 
+.shop-gallery__attribution {
+    margin: 0;
+    padding: var(--shop-space-2) var(--shop-space-3);
+    font-size: var(--shop-font-size-sm);
+    color: var(--shop-color-text-muted);
+    overflow-wrap: anywhere;
+}
+
+.shop-gallery__attribution a {
+    color: inherit;
+    text-decoration: underline;
+}
+
 .shop-gallery__nav {
     opacity: 0.85;
 }
@@ -266,4 +279,3 @@
     padding-top: var(--shop-space-8);
     border-top: 1px solid var(--shop-color-border-subtle);
 }
-

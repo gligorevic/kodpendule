@@ -11,6 +11,7 @@ from apps.cart.cart import get_cart
 from apps.checkout.tests.test_checkout import CheckoutServiceTests
 from apps.core.storefront_urls import shop_reverse
 from apps.orders.services import create_order_from_checkout
+from apps.orders.models import PaymentMethod
 
 User = get_user_model()
 
@@ -83,6 +84,7 @@ class CustomerArchiveCheckoutIntegrationTests(CheckoutServiceTests):
             shipping_city=self.city,
             shipping_street="Ulica 1",
             order_notes="Ring the bell",
+            payment_method=PaymentMethod.CASH,
         )
         self.assertIsNotNone(order.pk)
         contact = CustomerContact.objects.get(email="guest@example.com")

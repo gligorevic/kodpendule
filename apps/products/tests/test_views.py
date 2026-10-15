@@ -8,6 +8,8 @@ from apps.categories.models import Category
 from apps.core.tests.test_utils import apply_request_middleware
 from apps.products.models import Product
 from apps.products.selectors import get_product_by_slug, search_products
+from apps.products.selectors import active_products_qs
+from apps.core.storefront_urls import shop_reverse
 from apps.products.views import ProductDetailView, ProductListView
 
 
@@ -78,3 +80,16 @@ class ProductViewTests(TestCase):
         product = get_product_by_slug(self.product_slug, "sr")
         self.assertIsNotNone(product)
         self.assertEqual(product.sku, self.product.sku)
+
+    def test_archived_product_hidden_and_can_be_restored(self) -> None:
+        self.product.is_archived = True
+        self.product.save(update_fields=["is_archived", "updated_at"])
+        self.assertFalse(active_products_qs().filter(pk=self.product.pk).exists())
+        self.assertIsNone(get_product_by_slug(self.product_slug, "sr"))
+        self.assertNotContains(self.client.get(shop_reverse("products:list")), f'id="qty-card-{self.product.pk}"')
+        self.assertEqual(self.client.get(self.product.get_absolute_url()).status_code, 404)
+        self.assertEqual(self.client.post(shop_reverse("cart:add"), {"product_id": self.product.pk, "quantity": 1}).status_code, 404)
+        self.product.is_archived = False
+        self.product.save(update_fields=["is_archived", "updated_at"])
+        self.assertTrue(active_products_qs().filter(pk=self.product.pk).exists())
+        self.assertIsNotNone(get_product_by_slug(self.product_slug, "sr"))
