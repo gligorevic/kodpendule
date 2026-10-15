@@ -1,8 +1,13 @@
+import re
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.middleware import AuthenticationMiddleware
+from django.contrib.auth.password_validation import MinimumLengthValidator
 from django.contrib.messages.middleware import MessageMiddleware
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.test import Client, RequestFactory, TestCase
+from django.utils import translation
 
 from apps.accounts.forms import LoginForm
 from apps.accounts.models import CustomerProfile
@@ -136,3 +141,60 @@ class AuthViewTests(TestCase):
         response = self.client.get(shop_reverse("accounts:register"))
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response["Location"], shop_reverse("orders:history"))
+
+class AccountLocaleTests(TestCase):
+    def setUp(self):
+        self.addCleanup(translation.deactivate)
+
+    def main_content(self, response):
+        self.assertEqual(response.status_code, 200)
+        match = re.search(r"<main\b[^>]*>(.*?)</main>", response.content.decode(), re.S)
+        self.assertIsNotNone(match)
+        return match.group(1)
+
+    def test_serbian_registration_labels_and_password_guidance_use_latin(self):
+        response = self.client.get(shop_reverse("accounts:register", language="sr"))
+        content = self.main_content(response)
+        self.assertNotRegex(content, r"[\u0400-\u04ff]")
+        self.assertIn("Potvrda lozinke", content)
+        self.assertIn("Najviše 150 znakova", content)
+        self.assertIn("najmanje 8 znakova", content)
+        self.assertIn("ne sme biti previše slična", content)
+        self.assertIn("ne sme biti često korišćena", content)
+        self.assertIn("ne sme sadržati samo cifre", content)
+        self.assertIn("Obavezna za potvrde narudžbina.", content)
+
+    def test_registration_validation_errors_use_latin(self):
+        base = {
+            "username": "new-customer", "email": "new@example.com",
+            "first_name": "Novi", "last_name": "Kupac", "phone": "+381601234567",
+        }
+        for passwords in (
+            {"password1": "123", "password2": "123"},
+            {"password1": "SecurePass123!", "password2": "DifferentPass123!"},
+        ):
+            with self.subTest(passwords=passwords):
+                response = self.client.post(
+                    shop_reverse("accounts:register", language="sr"),
+                    {**base, **passwords},
+                )
+                self.assertNotRegex(self.main_content(response), r"[\u0400-\u04ff]")
+                self.assertTrue(response.context["form"].errors)
+                self.assertFalse(User.objects.filter(username=base["username"]).exists())
+
+    def test_password_length_guidance_uses_serbian_latin_plural_forms(self):
+        with translation.override("sr"):
+            for length, ending in ((1, "1 znak."), (2, "2 znaka."), (8, "8 znakova.")):
+                with self.subTest(length=length):
+                    help_text = MinimumLengthValidator(min_length=length).get_help_text()
+                    self.assertTrue(help_text.endswith(ending), help_text)
+                    self.assertNotRegex(help_text, r"[\u0400-\u04ff]")
+
+    def test_english_account_pages_use_english_headings_and_correct_email_help(self):
+        self.client.cookies[settings.LANGUAGE_COOKIE_NAME] = "en"
+        for route, heading in (("accounts:login", "Sign in"), ("accounts:register", "Register")):
+            with self.subTest(route=route):
+                response = self.client.get(shop_reverse(route, language="en"))
+                self.assertRegex(self.main_content(response), rf"<h1[^>]*>{heading}</h1>")
+        self.assertContains(response, "Required for order confirmations.")
+        self.assertNotContains(response, "Required for order confirmations and signing in.")

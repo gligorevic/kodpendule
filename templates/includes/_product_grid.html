@@ -11,7 +11,12 @@
 {% else %}
     <div class="shop-empty-state" role="status">
         <p class="shop-empty-state__title">{% trans "No products found." %}</p>
-        <p class="shop-empty-state__text">{% trans "Try another category or adjust your search." %}</p>
+        {% if has_catalog_filters %}
+        <p class="shop-empty-state__text">{% trans "Try a shorter search or remove the availability filter." %}</p>
+        <a href="{{ catalog_form_action }}{% querystring q=None available=None sort=None page=None %}#catalog-results" class="shop-btn shop-btn--secondary">{% trans "Clear filters" %}</a>
+        {% else %}
+        <p class="shop-empty-state__text">{% trans "There are no products in this selection yet. Explore the rest of the catalog." %}</p>
+        {% endif %}
         <a href="{% shop_url 'products:list' %}" class="shop-btn shop-btn--primary">{% trans "Browse all products" %}</a>
     </div>
 {% endif %}

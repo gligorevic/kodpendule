@@ -1,16 +1,16 @@
 {% load shop_urls i18n %}
 {% if nav_categories %}
 <nav class="category-nav mb-4" aria-label="{% trans 'Categories' %}">
-    <div class="shop-category-chips" role="list">
-        <a class="shop-chip{% if not active_category %} is-active{% endif %}" href="{% shop_url 'products:list' %}" role="listitem">
+    <ul class="shop-category-chips list-unstyled mb-0">
+        <li><a class="shop-chip{% if not active_category %} is-active{% endif %}" href="{{ catalog_form_action }}{% querystring kategorija=None page=None %}"{% if not active_category %} aria-current="true"{% endif %}>
             {% trans "All products" %}
-        </a>
+        </a></li>
         {% for category in nav_categories %}
-        <a class="shop-chip{% if active_category and active_category.pk == category.pk %} is-active{% endif %}"
-           href="{{ category.get_absolute_url }}" role="listitem">
+        <li><a class="shop-chip{% if active_category_root_id == category.pk %} is-active{% endif %}"
+           href="{{ catalog_form_action }}{% querystring kategorija=category.slug page=None %}"{% if active_category_root_id == category.pk %} aria-current="true"{% endif %}>
             {{ category.name }}
-        </a>
+        </a></li>
         {% endfor %}
-    </div>
+    </ul>
 </nav>
 {% endif %}

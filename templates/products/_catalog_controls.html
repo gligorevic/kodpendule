@@ -1,0 +1,19 @@
+{% load i18n %}
+<form method="get" action="{{ catalog_form_action }}#catalog-results" class="shop-catalog-controls" role="search" aria-label="{% trans 'Filter products' %}">
+    {% if active_category %}<input type="hidden" name="kategorija" value="{{ active_category.slug }}">{% endif %}
+    <div class="shop-catalog-controls__search">
+        <label for="catalog-search">{% trans "Search products" %}</label>
+        <input id="catalog-search" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'Product name, SKU or barcode' %}" class="shop-input" autocomplete="off">
+    </div>
+    <div class="shop-catalog-controls__sort">
+        <label for="catalog-sort">{% trans "Sort by" %}</label>
+        <select id="catalog-sort" name="sort" class="shop-input">
+            {% for value, label in catalog_sort_options %}<option value="{{ value }}"{% if catalog_sort == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
+        </select>
+    </div>
+    <label class="shop-catalog-controls__available" for="catalog-available">
+        <input id="catalog-available" type="checkbox" name="available" value="1"{% if available_only %} checked{% endif %}>
+        <span>{% trans "In stock only" %}</span>
+    </label>
+    <button type="submit" class="shop-btn shop-btn--primary">{% trans "Apply filters" %}</button>
+</form>

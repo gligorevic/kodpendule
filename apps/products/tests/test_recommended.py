@@ -100,6 +100,8 @@ class RecommendedProductsTests(TestCase):
         self.assertNotContains(response, self.product_b.name)
 
     def test_header_nav_promo_and_recommended_links(self) -> None:
+        self.product_a.discount_price = Decimal("800.00")
+        self.product_a.save()
         response = self.client.get(shop_reverse("core:home"))
         self.assertContains(response, shop_reverse("products:promo"))
         self.assertContains(response, shop_reverse("products:recommended"))
@@ -110,3 +112,33 @@ class RecommendedProductsTests(TestCase):
         nav_html = html[nav_start:nav_end]
         self.assertNotIn(shop_reverse("core:terms"), nav_html)
         self.assertNotIn(shop_reverse("core:privacy"), nav_html)
+
+    def test_header_hides_empty_promo_link(self) -> None:
+        response = self.client.get(shop_reverse("core:home"))
+        html = response.content.decode()
+        nav_start = html.find("shop-header__nav-list")
+        nav_html = html[nav_start:html.find("</ul>", nav_start)]
+        self.assertNotIn(shop_reverse("products:promo"), nav_html)
+        self.assertIn(shop_reverse("products:recommended"), nav_html)
+
+    def test_navigation_flags_ignore_archived_recommendations_and_invalid_discounts(self) -> None:
+        self.product_a.is_archived = True
+        self.product_a.discount_price = Decimal("800.00")
+        self.product_a.save()
+        self.product_b.is_archived = True
+        self.product_b.save()
+        self.product_c.discount_price = self.product_c.price
+        self.product_c.save()
+
+        response = self.client.get(shop_reverse("core:home"))
+        self.assertFalse(response.context["has_promo_products"])
+        self.assertFalse(response.context["has_recommended_products"])
+        self.assertNotContains(response, f'href="{shop_reverse("products:promo")}"')
+        self.assertNotContains(response, f'href="{shop_reverse("products:recommended")}"')
+
+        # An archived recommendation becomes a real destination again on restore.
+        self.product_a.is_archived = False
+        self.product_a.save()
+        restored = self.client.get(shop_reverse("core:home"))
+        self.assertTrue(restored.context["has_promo_products"])
+        self.assertTrue(restored.context["has_recommended_products"])

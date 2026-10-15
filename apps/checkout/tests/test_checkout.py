@@ -330,6 +330,52 @@ class CheckoutViewTests(TestCase):
         self.assertNotContains(response, 'id="checkout-shipping-rules"')
         self.assertContains(response, f'"{self.vrdnik.pk}"')
 
+    def test_checkout_subtotal_is_machine_readable_and_total_waits_for_delivery(self) -> None:
+        self.product.price = Decimal("1234.56")
+        self.product.save(update_fields=["price"])
+        response = self.client.get(shop_reverse("checkout:checkout"))
+        self.assertContains(response, 'data-checkout-subtotal="1234.56"')
+        self.assertNotIn("checkout_total", response.context)
+        self.assertContains(response, "data-total-pending=")
+        self.assertContains(response, 'id="shop-delivery-date-row">')
+        self.assertNotContains(response, 'id="shop-delivery-date-row" hidden')
+        content = response.content.decode()
+        self.assertLess(content.index('class="shop-checkout__summary-col"'), content.index('id="shop-checkout-form"'))
+
+    def test_invalid_contact_keeps_shipping_quote_and_links_errors_to_fields(self) -> None:
+        data = _checkout_post_data(self.vrdnik.pk, phone="")
+        response = self.client.post(shop_reverse("checkout:checkout"), data)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["checkout_shipping"], Decimal("450.00"))
+        self.assertEqual(response.context["checkout_total"], Decimal("1450.00"))
+        self.assertContains(response, 'href="#checkout-field-phone"')
+        self.assertContains(response, 'aria-describedby="id_phone_errors"')
+        self.assertContains(response, 'id="id_phone_errors"')
+        self.assertContains(response, 'aria-invalid="true"')
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_invalid_scheduled_date_does_not_show_same_day_quote(self) -> None:
+        response = self.client.post(
+            shop_reverse("checkout:checkout"),
+            _checkout_post_data(self.vrdnik.pk, delivery_timing=DeliveryTiming.SCHEDULED, requested_delivery_date=""),
+        )
+        self.assertNotIn("checkout_shipping", response.context)
+        self.assertNotIn("checkout_total", response.context)
+        self.assertContains(response, 'href="#checkout-field-requested_delivery_date"')
+        self.assertEqual(Order.objects.count(), 0)
+
+    def test_valid_scheduled_date_keeps_free_quote_when_other_field_needs_correction(self) -> None:
+        response = self.client.post(
+            shop_reverse("checkout:checkout"),
+            _checkout_post_data(
+                self.vrdnik.pk, phone="", delivery_timing=DeliveryTiming.SCHEDULED,
+                requested_delivery_date=min_scheduled_delivery_date().isoformat(),
+            ),
+        )
+        self.assertEqual(response.context["checkout_shipping"], Decimal("0"))
+        self.assertEqual(response.context["checkout_total"], Decimal("1000.00"))
+        self.assertEqual(Order.objects.count(), 0)
+
     @override_settings(
         EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend",
         EMAIL_HOST="smtp.sendgrid.net",

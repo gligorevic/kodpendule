@@ -42,7 +42,7 @@ class RegistrationForm(UserCreationForm):
     email = forms.EmailField(
         label=_("Email"),
         required=True,
-        help_text=_("Required for order confirmations and signing in."),
+        help_text=_("Required for order confirmations."),
         widget=forms.EmailInput(
             attrs={
                 "class": "form-control",

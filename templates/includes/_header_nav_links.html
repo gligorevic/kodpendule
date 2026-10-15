@@ -16,14 +16,18 @@
     <a class="nav-link {{ link_class }}{% if request.path == products_url %} active{% endif %}"
        href="{{ products_url }}">{% trans "Products" %}</a>
 </li>
+{% if has_promo_products %}
 <li class="nav-item">
     <a class="nav-link {{ link_class }}{% if request.path == promo_url %} active{% endif %}"
        href="{{ promo_url }}">{% trans "Promo sales" %}</a>
 </li>
+{% endif %}
+{% if has_recommended_products %}
 <li class="nav-item">
     <a class="nav-link {{ link_class }}{% if request.path == recommended_url %} active{% endif %}"
        href="{{ recommended_url }}">{% trans "Recommended products" %}</a>
 </li>
+{% endif %}
 <li class="nav-item">
     <a class="nav-link {{ link_class }}{% if request.path == categories_url %} active{% endif %}"
        href="{{ categories_url }}">{% trans "Categories" %}</a>

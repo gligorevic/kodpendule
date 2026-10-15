@@ -2,7 +2,7 @@
 {% load shop_urls i18n shop_tags static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=20261015-ux3">
 {% endblock %}
 
 {% block content %}
@@ -10,7 +10,7 @@
 <div class="container shop-container py-4 py-lg-5 shop-checkout">
     <header class="shop-page-header mb-4">
         <h1 class="shop-page-header__title">{% trans "Checkout" %}</h1>
-        <p class="shop-page-header__meta mb-0">{% trans "Cash on delivery — simple and secure." %}</p>
+        <p class="shop-page-header__meta mb-0">{% trans "Review your order and choose your delivery details." %}</p>
     </header>
 
     {% if is_guest %}
@@ -25,39 +25,52 @@
     {% endif %}
 
     <div class="shop-checkout__layout">
+        <aside class="shop-checkout__summary-col" aria-label="{% trans 'Order summary' %}">
+            {% include "includes/_order_summary_card.html" %}
+
+            <div class="d-none d-lg-block mt-4">
+                {% include "includes/_checkout_trust.html" %}
+            </div>
+        </aside>
         <div class="shop-checkout__form-col">
             <form method="post" action="{% shop_url 'checkout:checkout' %}" novalidate class="shop-checkout-form" id="shop-checkout-form">
                 {% csrf_token %}
                 {% if form.errors %}
-                <div class="alert alert-danger shop-checkout-alert" role="alert">
+                <div class="alert alert-danger shop-checkout-alert" role="alert" tabindex="-1" data-checkout-errors>
                     <p class="mb-2">{% trans "Some fields need your attention before we can place the order." %}</p>
                     <ul class="shop-checkout-alert__errors mb-0">
                         {% for field in form %}
                         {% for error in field.errors %}
-                        <li><strong>{{ field.label }}:</strong> {{ error }}</li>
+                        <li><a href="#checkout-field-{{ field.name }}"><strong>{% if field.name == "accept_legal" %}{% trans "Legal consent" %}{% else %}{{ field.label }}{% endif %}:</strong> {{ error }}</a></li>
                         {% endfor %}
                         {% endfor %}
                     </ul>
+                </div>
+                {% endif %}
+                {% if checkout_error %}
+                <div class="alert alert-danger shop-checkout-alert" role="alert" tabindex="-1" data-checkout-errors>
+                    <p>{{ checkout_error }}</p><a href="{% shop_url 'cart:detail' %}">{% trans "Review cart" %}</a>
                 </div>
                 {% endif %}
                 {% if form.non_field_errors %}
                 <div class="alert alert-danger shop-checkout-alert" role="alert">{{ form.non_field_errors }}</div>
                 {% endif %}
 
+                <p class="shop-checkout-required">{% trans "Fields marked * are required." %}</p>
                 <section class="shop-checkout-section" aria-labelledby="checkout-contact-heading">
                     <h2 id="checkout-contact-heading" class="shop-checkout-section__title">{% trans "Contact" %}</h2>
                     <p class="shop-checkout-section__lead">{% trans "We will use these details to confirm your order." %}</p>
-                    {% include "includes/_shop_form_field.html" with field=form.guest_email %}
+                    {% include "checkout/_field.html" with field=form.guest_email %}
                     <div class="row g-3">
-                        <div class="col-md-6">{% include "includes/_shop_form_field.html" with field=form.first_name %}</div>
-                        <div class="col-md-6">{% include "includes/_shop_form_field.html" with field=form.last_name %}</div>
-                        <div class="col-12">{% include "includes/_shop_form_field.html" with field=form.phone %}</div>
+                        <div class="col-md-6">{% include "checkout/_field.html" with field=form.first_name %}</div>
+                        <div class="col-md-6">{% include "checkout/_field.html" with field=form.last_name %}</div>
+                        <div class="col-12">{% include "checkout/_field.html" with field=form.phone %}</div>
                     </div>
                 </section>
 
                 <section class="shop-checkout-section" aria-labelledby="checkout-timing-heading">
                     <h2 id="checkout-timing-heading" class="shop-checkout-section__title">{% trans "Delivery date" %}</h2>
-                    <p class="shop-checkout-section__lead">{% trans "Same-day delivery has a fee. Scheduling for a later date is free." %}</p>
+                    <p class="shop-checkout-section__lead">{% trans "Delivery cost depends on your city and selected date." %}</p>
                     {% include "includes/_checkout_delivery_timing.html" %}
                 </section>
 
@@ -65,13 +78,13 @@
                     <h2 id="checkout-shipping-heading" class="shop-checkout-section__title">{% trans "Delivery address" %}</h2>
                     <p class="shop-checkout-section__lead">{% trans "Where should we deliver your order?" %}</p>
                     <div class="row g-3">
-                        <div class="col-12">{% include "includes/_shop_form_field.html" with field=form.shipping_city %}</div>
-                        <div class="col-12">{% include "includes/_shop_form_field.html" with field=form.shipping_street %}</div>
+                        <div class="col-12">{% include "checkout/_field.html" with field=form.shipping_city %}</div>
+                        <div class="col-12">{% include "checkout/_field.html" with field=form.shipping_street %}</div>
                     </div>
                     <p class="shop-checkout-shipping-note mb-0" aria-live="polite">
                         <span class="shop-checkout-shipping-note__label">{% trans "Delivery cost for selected city" %}</span>
                         <span class="shop-checkout-shipping-note__value">
-                            <span class="js-shipping-price">—</span> {{ shop_currency_symbol }}
+                            <span class="js-shipping-price">{% if checkout_shipping is not None %}{{ checkout_shipping|money }}{% else %}{% trans "Select delivery details" %}{% endif %}</span>
                         </span>
                     </p>
                     {% if has_promo_delivery_threshold %}
@@ -91,19 +104,20 @@
                 <section class="shop-checkout-section" aria-labelledby="checkout-notes-heading">
                     <h2 id="checkout-notes-heading" class="shop-checkout-section__title">{% trans "Note" %}</h2>
                     <p class="shop-checkout-section__lead">{% trans "Optional — tell us anything we should know about delivery." %}</p>
-                    <div class="mb-0">{% include "includes/_shop_form_field.html" with field=form.order_notes %}</div>
+                    <div class="mb-0">{% include "checkout/_field.html" with field=form.order_notes %}</div>
                 </section>
 
                 <section class="shop-checkout-section shop-checkout-section--payment" aria-labelledby="checkout-payment-heading">
                     <h2 id="checkout-payment-heading" class="shop-checkout-section__title">{% trans "Payment" %}</h2>
-                    {% include "includes/_checkout_payment_method.html" %}
+                    <div id="checkout-field-payment_method">{% include "includes/_checkout_payment_method.html" %}</div>
                 </section>
 
                 <section class="shop-checkout-section shop-checkout-section--legal" aria-labelledby="checkout-legal-heading">
                     <h2 id="checkout-legal-heading" class="visually-hidden">{% trans "Legal consent" %}</h2>
-                    {% include "includes/_checkout_legal_consent.html" with field=form.accept_legal %}
+                    <div id="checkout-field-accept_legal">{% include "includes/_checkout_legal_consent.html" with field=form.accept_legal %}</div>
                 </section>
 
+                <p class="shop-checkout-saving" role="status" data-checkout-saving hidden>{% trans "Placing your order. Please wait…" %}</p>
                 <div class="shop-checkout-submit d-none d-lg-block">
                     <button type="submit" class="shop-btn shop-btn--primary shop-btn--lg shop-btn--block">
                         {% trans "Place order" %}
@@ -117,20 +131,12 @@
                 </div>
             </form>
 
-            <div class="d-lg-none mt-4">
-                {% include "includes/_checkout_trust.html" %}
-            </div>
         </div>
 
-        <aside class="shop-checkout__summary-col" aria-label="{% trans 'Order summary' %}">
-            {% include "includes/_order_summary_card.html" %}
 
-            <div class="d-none d-lg-block mt-4">
-                {% include "includes/_checkout_trust.html" %}
-            </div>
-        </aside>
 
         <div class="shop-checkout-mobile-bar d-lg-none">
+            <p class="shop-checkout-mobile-bar__total"><span>{% trans "Total" %}</span><strong data-checkout-total>{% if checkout_total is not None %}{{ checkout_total|money }}{% else %}{% trans "Select delivery details" %}{% endif %}</strong></p>
             <button type="submit" form="shop-checkout-form" class="shop-btn shop-btn--primary shop-btn--lg shop-btn--block">
                 {% trans "Place order" %}
             </button>
@@ -149,5 +155,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/checkout.js' %}"></script>
+<script src="{% static 'js/checkout.js' %}?v=20261015-ux3"></script>
 {% endblock %}

@@ -95,6 +95,37 @@ class CartUpdateViewTests(TestCase):
         self.assertContains(response, "cart.js")
         self.assertNotContains(response, "shop-cart-line__update")
 
+    def test_failed_quantity_edit_returns_saved_cart_without_mutating_it(self) -> None:
+        for quantity in ("2.5", "", "no", "-1", "99"):
+            with self.subTest(quantity=quantity):
+                response = self.client.post(
+                    shop_reverse("cart:update", product_id=self.product.pk),
+                    {"quantity": quantity}, HTTP_ACCEPT="application/json",
+                )
+                self.assertEqual(response.status_code, 400)
+                payload = response.json()
+                self.assertFalse(payload["ok"])
+                self.assertEqual(payload["lines"][0]["quantity"], 1)
+                self.assertEqual(payload["subtotal"], "500.00")
+                self.assertEqual(self.client.session[SESSION_KEY][str(self.product.pk)], 1)
+
+    def test_zero_quantity_still_removes_line_and_announces_result(self) -> None:
+        response = self.client.post(
+            shop_reverse("cart:update", product_id=self.product.pk),
+            {"quantity": 0}, HTTP_ACCEPT="application/json",
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["lines"], [])
+        self.assertTrue(response.json()["message"])
+
+    def test_cart_has_no_javascript_save_and_live_empty_state(self) -> None:
+        response = self.client.get(shop_reverse("cart:detail"))
+        self.assertContains(response, 'type="submit" class="shop-btn shop-btn--ghost shop-btn--sm" data-cart-save')
+        self.assertContains(response, 'data-cart-empty hidden')
+        self.assertContains(response, 'data-cart-load-error hidden')
+        self.assertContains(response, 'data-cart-quantity-form')
+        self.assertContains(response, 'data-cart-remove-form')
+
 
 class CartAddViewTests(TestCase):
     def setUp(self) -> None:
@@ -181,3 +212,32 @@ class CartAddViewTests(TestCase):
         self.assertEqual(response.status_code, 400)
         payload = json.loads(response.content)
         self.assertFalse(payload["ok"])
+
+    def test_invalid_add_quantity_does_not_silently_add_one(self) -> None:
+        for quantity in ("2.5", "", "no", "0", "-1"):
+            with self.subTest(quantity=quantity):
+                response = self.client.post(
+                    shop_reverse("cart:add"),
+                    {"product_id": self.product.pk, "quantity": quantity},
+                    HTTP_ACCEPT="application/json",
+                )
+                self.assertEqual(response.status_code, 400)
+                self.assertEqual(response.json()["lines"], [])
+                self.assertEqual(get_cart(self.client).total_items, 0)
+
+    def test_missing_product_json_is_actionable_and_does_not_change_cart(self) -> None:
+        response = self.client.post(
+            shop_reverse("cart:add"), {"product_id": "invalid", "quantity": 1},
+            HTTP_ACCEPT="application/json",
+        )
+        self.assertEqual(response.status_code, 404)
+        self.assertFalse(response.json()["ok"])
+        self.assertTrue(response.json()["error"])
+        self.assertEqual(response.json()["lines"], [])
+
+    def test_add_fallback_does_not_redirect_to_an_external_next_url(self) -> None:
+        response = self.client.post(
+            shop_reverse("cart:add"),
+            {"product_id": self.product.pk, "quantity": 1, "next": "https://example.org/"},
+        )
+        self.assertRedirects(response, shop_reverse("cart:detail"))

@@ -20,7 +20,7 @@ from apps.orders.services import (
     notify_staff_new_order,
 )
 from apps.orders.services.order_access import grant_order_access
-from apps.core.checkout_settings import checkout_today, min_scheduled_delivery_date
+from apps.core.checkout_settings import checkout_today, min_scheduled_delivery_date, resolve_checkout_shipping_price
 from apps.shipping.selectors import active_cities
 
 logger = logging.getLogger(__name__)
@@ -99,20 +99,19 @@ class CheckoutView(ShopLanguageMixin, FormView):
                 "canonical_url": self.request.build_absolute_uri(),
             }
         )
+        cleaned = getattr(context["form"], "cleaned_data", {})
+        city = cleaned.get("shipping_city")
+        delivery_date = cleaned.get("requested_delivery_date")
+        if city and cleaned.get("delivery_timing") and delivery_date:
+            shipping = resolve_checkout_shipping_price(
+                subtotal=cart.subtotal, city=city, requested_delivery_date=delivery_date
+            )
+            context["checkout_shipping"] = shipping
+            context["checkout_total"] = cart.subtotal + shipping
         return context
 
     def get_success_url(self):
         return shop_reverse("checkout:success", language=self.shop_language)
-
-    def form_invalid(self, form):
-        error_keys = set(form.errors.keys())
-        only_legal = error_keys == {"accept_legal"}
-        if form.errors and not only_legal:
-            messages.error(
-                self.request,
-                _("Please correct the highlighted fields and try again."),
-            )
-        return super().form_invalid(form)
 
     def form_valid(self, form):
         cart = get_cart(self.request)
@@ -131,15 +130,13 @@ class CheckoutView(ShopLanguageMixin, FormView):
                 requested_delivery_date=form.cleaned_data["requested_delivery_date"],
             )
         except CheckoutError as exc:
-            messages.error(self.request, exc.message)
-            return self.render_to_response(self.get_context_data(form=form))
+            return self.render_to_response(self.get_context_data(form=form, checkout_error=exc.message))
         except Exception:
             logger.exception("Unexpected checkout failure")
-            messages.error(
-                self.request,
-                _("We could not place your order. Please try again or contact us."),
-            )
-            return self.render_to_response(self.get_context_data(form=form))
+            return self.render_to_response(self.get_context_data(
+                form=form,
+                checkout_error=_("We could not place your order. Please try again or contact us."),
+            ))
 
         self.request.session["last_order_number"] = order.order_number
         self.request.session["last_order_id"] = order.pk

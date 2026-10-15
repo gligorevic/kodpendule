@@ -1,180 +1,85 @@
 (function () {
-  "use strict";
+    "use strict";
+    document.addEventListener("DOMContentLoaded", function () {
+        var form = document.getElementById("shop-checkout-form");
+        if (!form) return;
+        var errorSummary = form.querySelector("[data-checkout-errors]");
+        if (errorSummary) {
+            errorSummary.focus();
+            errorSummary.addEventListener("click", function (event) {
+                var link = event.target.closest('a[href^="#checkout-field-"]');
+                if (!link) return;
+                var field = document.getElementById(link.hash.slice(1));
+                var input = field && field.querySelector("input:not([type=hidden]):not(:disabled), select, textarea");
+                if (input) { event.preventDefault(); input.focus(); input.scrollIntoView({ block: "center" }); }
+            });
+        }
+        var submitting = false;
+        var submitButtons = document.querySelectorAll('#shop-checkout-form button[type="submit"], button[form="shop-checkout-form"]');
+        var saving = form.querySelector("[data-checkout-saving]");
+        function resetSubmit() {
+            submitting = false; form.removeAttribute("aria-busy"); saving.hidden = true;
+            submitButtons.forEach(function (button) { button.disabled = false; button.classList.remove("is-loading"); });
+        }
+        form.addEventListener("submit", function (event) {
+            if (submitting) { event.preventDefault(); return; }
+            submitting = true; form.setAttribute("aria-busy", "true"); saving.hidden = false;
+            submitButtons.forEach(function (button) { button.disabled = true; button.classList.add("is-loading"); });
+        });
+        window.addEventListener("pageshow", resetSubmit);
 
-  const citySelect = document.getElementById("id_shipping_city");
-  const deliveryEl = document.getElementById("city-delivery-data");
-  const todayEl = document.getElementById("checkout-today-data");
-  const shippingDisplays = document.querySelectorAll(".js-shipping-price");
-  const totalDisplay = document.getElementById("checkout-total-display");
-  const summaryCard = document.querySelector("[data-checkout-subtotal]");
-  const shippingHint = document.getElementById("checkout-shipping-hint");
-  const dateRow = document.getElementById("shop-delivery-date-row");
-  const dateInput = document.getElementById("id_requested_delivery_date");
-  const timingInputs = document.querySelectorAll('input[name="delivery_timing"]');
-
-  if (!deliveryEl || !citySelect) {
-    return;
-  }
-
-  const cityDelivery = JSON.parse(deliveryEl.textContent);
-  const checkoutToday = todayEl ? JSON.parse(todayEl.textContent) : null;
-  const subtotal = summaryCard
-    ? parseFloat(summaryCard.getAttribute("data-checkout-subtotal") || "0")
-    : 0;
-  const currency = summaryCard
-    ? summaryCard.getAttribute("data-currency") || ""
-    : "";
-
-  function formatPrice(value) {
-    if (value === null || value === undefined || value === "") return "—";
-    const num = parseFloat(value);
-    if (Number.isNaN(num)) return "—";
-    return num.toLocaleString("sr-RS", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+        var summary = document.querySelector("[data-checkout-subtotal]");
+        var city = document.getElementById("id_shipping_city");
+        var date = document.getElementById("id_requested_delivery_date");
+        var dateRow = document.getElementById("shop-delivery-date-row");
+        var hint = document.getElementById("checkout-shipping-hint");
+        var subtotal = Number(summary.dataset.checkoutSubtotal);
+        var cities, today;
+        try {
+            cities = JSON.parse(document.getElementById("city-delivery-data").textContent);
+            today = JSON.parse(document.getElementById("checkout-today-data").textContent);
+        } catch (error) { return; } // Keep the server-rendered form usable if pricing data is unavailable.
+        var currency = summary.dataset.currency || "RSD";
+        function amount(value) {
+            return Number(value).toLocaleString("sr-RS", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+        function money(value) { return amount(value) + " " + currency; }
+        function refresh() {
+            var selected = form.querySelector('input[name="delivery_timing"]:checked');
+            var scheduled = selected && selected.value === "scheduled";
+            dateRow.hidden = !scheduled; date.disabled = !scheduled; date.required = !!scheduled;
+            var validDate = scheduled && date.value > today && date.checkValidity();
+            var rules = cities[city.value];
+            var shipping = null, hintText = "";
+            if (rules && (!scheduled || validDate)) {
+                if (scheduled) {
+                    shipping = 0; hintText = hint.dataset.msgScheduledFree || "";
+                } else {
+                    shipping = Number(rules.base);
+                    var threshold = Number(rules.threshold);
+                    if (threshold > 0 && subtotal >= threshold) {
+                        if (rules.threshold_shipping_mode === "free") {
+                            shipping = 0; hintText = hint.dataset.msgFree || "";
+                        } else if (rules.discounted_shipping_price !== "") {
+                            shipping = Number(rules.discounted_shipping_price);
+                            hintText = hint.dataset.msgDiscounted || "";
+                        }
+                    } else if (threshold > subtotal) {
+                        hintText = (hint.dataset.msgRemaining || "").replace("__AMOUNT__", amount(threshold - subtotal));
+                    }
+                }
+            }
+            var known = shipping !== null && Number.isFinite(shipping) && Number.isFinite(subtotal);
+            var pendingText = !rules ? summary.dataset.cityPending : summary.dataset.datePending;
+            document.querySelectorAll(".js-shipping-price").forEach(function (el) { el.textContent = known ? money(shipping) : pendingText; });
+            document.querySelectorAll("[data-checkout-total]").forEach(function (el) {
+                el.textContent = known ? money(subtotal + shipping) : summary.dataset.totalPending;
+                el.classList.toggle("is-pending", !known);
+            });
+            hint.textContent = hintText; hint.hidden = !hintText;
+        }
+        city.addEventListener("change", refresh); date.addEventListener("change", refresh);
+        form.querySelectorAll('input[name="delivery_timing"]').forEach(function (radio) { radio.addEventListener("change", refresh); });
+        refresh();
     });
-  }
-
-  function selectedTiming() {
-    const checked = document.querySelector('input[name="delivery_timing"]:checked');
-    return checked ? checked.value : "same_day";
-  }
-
-  function isScheduledFree() {
-    if (selectedTiming() !== "scheduled") {
-      return false;
-    }
-    if (!dateInput || !dateInput.value || !checkoutToday) {
-      return false;
-    }
-    return dateInput.value > checkoutToday;
-  }
-
-  function cityRules(cityId) {
-    return cityDelivery[cityId] || {};
-  }
-
-  function sameDayShipping(cityId) {
-    const rules = cityRules(cityId);
-    const cityBase = rules.base ? parseFloat(rules.base) : NaN;
-    const threshold = rules.threshold ? parseFloat(rules.threshold) : NaN;
-    const discountedPrice = rules.discounted_shipping_price
-      ? parseFloat(rules.discounted_shipping_price)
-      : NaN;
-    const thresholdMode = rules.threshold_shipping_mode || "free";
-
-    if (
-      !Number.isNaN(threshold) &&
-      threshold > 0 &&
-      !Number.isNaN(subtotal) &&
-      subtotal >= threshold
-    ) {
-      if (thresholdMode === "discounted" && !Number.isNaN(discountedPrice)) {
-        return discountedPrice;
-      }
-      return 0;
-    }
-    return cityBase;
-  }
-
-  function effectiveShipping(cityId) {
-    if (isScheduledFree()) {
-      return 0;
-    }
-    return sameDayShipping(cityId);
-  }
-
-  function updateDeliveryDateVisibility() {
-    if (!dateRow) {
-      return;
-    }
-    dateRow.hidden = selectedTiming() !== "scheduled";
-  }
-
-  function updateShippingHint(cityId, appliedFree, appliedDiscount) {
-    if (!shippingHint) {
-      return;
-    }
-    if (isScheduledFree()) {
-      shippingHint.textContent =
-        shippingHint.getAttribute("data-msg-scheduled-free") || "";
-      shippingHint.hidden = !shippingHint.textContent;
-      return;
-    }
-
-    const rules = cityRules(cityId);
-    const threshold = rules.threshold ? parseFloat(rules.threshold) : NaN;
-    if (Number.isNaN(threshold) || threshold <= 0) {
-      shippingHint.hidden = true;
-      return;
-    }
-    if (subtotal >= threshold) {
-      if (appliedFree) {
-        shippingHint.textContent =
-          shippingHint.getAttribute("data-msg-free") || "";
-        shippingHint.hidden = !shippingHint.textContent;
-      } else if (appliedDiscount) {
-        shippingHint.textContent =
-          shippingHint.getAttribute("data-msg-discounted") || "";
-        shippingHint.hidden = !shippingHint.textContent;
-      } else {
-        shippingHint.hidden = true;
-      }
-    } else {
-      const remaining = threshold - subtotal;
-      const template = shippingHint.getAttribute("data-msg-remaining") || "";
-      shippingHint.textContent = template.replace("__AMOUNT__", formatPrice(remaining));
-      shippingHint.hidden = !shippingHint.textContent;
-    }
-  }
-
-  function updateShippingPrice() {
-    const id = citySelect.value;
-    const rules = cityRules(id);
-    const threshold = rules.threshold ? parseFloat(rules.threshold) : NaN;
-    const discountedPrice = rules.discounted_shipping_price
-      ? parseFloat(rules.discounted_shipping_price)
-      : NaN;
-    const thresholdMode = rules.threshold_shipping_mode || "free";
-    const shipping = effectiveShipping(id);
-    const shippingText = formatPrice(shipping);
-    const appliedFree =
-      !isScheduledFree() &&
-      !Number.isNaN(threshold) &&
-      threshold > 0 &&
-      subtotal >= threshold &&
-      thresholdMode === "free";
-    const appliedDiscount =
-      !isScheduledFree() &&
-      !Number.isNaN(threshold) &&
-      threshold > 0 &&
-      subtotal >= threshold &&
-      thresholdMode === "discounted" &&
-      !Number.isNaN(discountedPrice);
-
-    shippingDisplays.forEach(function (el) {
-      el.textContent = shippingText;
-    });
-    if (totalDisplay && !Number.isNaN(subtotal)) {
-      const amount = Number.isNaN(shipping) ? subtotal : subtotal + shipping;
-      const formatted = formatPrice(amount);
-      totalDisplay.textContent = currency ? formatted + " " + currency : formatted;
-    }
-    updateShippingHint(id, appliedFree, appliedDiscount);
-  }
-
-  citySelect.addEventListener("change", updateShippingPrice);
-  timingInputs.forEach(function (input) {
-    input.addEventListener("change", function () {
-      updateDeliveryDateVisibility();
-      updateShippingPrice();
-    });
-  });
-  if (dateInput) {
-    dateInput.addEventListener("change", updateShippingPrice);
-    dateInput.addEventListener("input", updateShippingPrice);
-  }
-
-  updateDeliveryDateVisibility();
-  updateShippingPrice();
 })();

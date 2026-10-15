@@ -6,6 +6,7 @@ from apps.core.contact_details import resolve_contact_details
 from apps.core.cookie_consent import consent_given
 from apps.core.models import FooterSettings, SiteSettings
 from apps.core.utils import get_shop_language
+from apps.products.selectors import promo_products_qs, recommended_products_qs
 
 
 def shop_globals(request):
@@ -40,6 +41,8 @@ def shop_globals(request):
         "shop_currency_symbol": settings.SHOP_CURRENCY_SYMBOL,
         "shop_language": language,
         "cart_item_count": cart.total_items,
+        "has_promo_products": promo_products_qs(language).exists(),
+        "has_recommended_products": recommended_products_qs(language).exists(),
         "google_maps_embed_url": maps_url,
         "cookie_consent_given": consent_given(request),
         "cookie_consent_cookie_name": settings.COOKIE_CONSENT_COOKIE_NAME,

@@ -22,7 +22,7 @@
                 <ul class="shop-footer__contact-list list-unstyled mb-0">
                     <li>
                         <span class="shop-footer__contact-label">{% trans "Phone" %}</span>
-                        <a href="tel:{{ contact_details.phone|cut:' ' }}">{{ contact_details.phone }}</a>
+                        {% for phone in contact_details.phones %}<a class="d-block" href="tel:{{ phone|cut:' ' }}">{{ phone }}</a>{% endfor %}
                     </li>
                     <li>
                         <span class="shop-footer__contact-label">{% trans "Email" %}</span>
@@ -40,7 +40,7 @@
                 </p>
                 {% endif %}
                 <p class="shop-footer__delivery-note mt-4 mb-0">
-                    {% trans "Nationwide delivery — shipping cost is shown at checkout." %}
+                    {% trans "Available delivery locations and costs are shown at checkout." %}
                 </p>
                 <div class="shop-contact-map">
                     {% include "includes/_google_map.html" %}

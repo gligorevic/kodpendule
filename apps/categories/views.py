@@ -18,6 +18,7 @@ from apps.core.mixins import ShopLanguageMixin
 from apps.core.utils import activate_parler_language
 from apps.core.templatetags.shop_tags import category_meta_title
 from apps.products.selectors import filter_products_by_category
+from apps.products.views import CatalogControlsMixin
 
 
 class CategoryListView(ShopLanguageMixin, ListView):
@@ -43,7 +44,7 @@ class CategoryListView(ShopLanguageMixin, ListView):
         return context
 
 
-class CategoryDetailView(ShopLanguageMixin, ListView):
+class CategoryDetailView(CatalogControlsMixin, ShopLanguageMixin, ListView):
     template_name = "categories/detail.html"
     context_object_name = "products"
     paginate_by = settings.SHOP_PRODUCTS_PER_PAGE
@@ -76,17 +77,11 @@ class CategoryDetailView(ShopLanguageMixin, ListView):
         return super().dispatch(request, *args, **kwargs)
 
     def get_queryset(self):
-        if self.child_categories:
-            return filter_products_by_category(
-                self.category,
-                self.shop_language,
-                include_children=True,
-            ).none()
-        return filter_products_by_category(
+        return self.filter_catalog(filter_products_by_category(
             self.category,
             self.shop_language,
-            include_children=False,
-        )
+            include_children=True,
+        ))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -98,6 +93,7 @@ class CategoryDetailView(ShopLanguageMixin, ListView):
                 "category": category,
                 "child_categories": self.child_categories,
                 "show_child_categories": bool(self.child_categories),
+                "category_description": (category.safe_translation_getter("description", "") or "").strip(),
                 "breadcrumb_items": category_breadcrumb_items(
                     category, self.shop_language
                 ),

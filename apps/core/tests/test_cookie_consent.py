@@ -1,7 +1,7 @@
 """Cookie consent banner and Google Maps."""
 
 from django.conf import settings
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.core.contact_details import DEFAULT_SHOP_EMAIL, DEFAULT_SHOP_PHONE
 from apps.core.cookie_consent import (
@@ -39,6 +39,7 @@ class CookieBannerViewTests(TestCase):
         self.assertContains(response, 'id="shop-cookie-banner"')
         self.assertTrue(response.context["cookie_consent_given"])
 
+    @override_settings(GOOGLE_MAPS_EMBED_URL="https://www.google.com/maps/embed?pb=test")
     def test_map_always_embedded_on_contact(self) -> None:
         response = self.client.get(shop_reverse("core:contact"))
         self.assertContains(response, "shop-map__iframe")

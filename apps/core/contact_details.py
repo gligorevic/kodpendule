@@ -8,6 +8,7 @@ from apps.core.models import FooterSettings
 
 
 DEFAULT_SHOP_PHONE = "+381 62 164 2224"
+DEFAULT_SHOP_SECONDARY_PHONE = "+381 63 8305 320"
 DEFAULT_SHOP_EMAIL = "kodpendule@gmail.com"
 
 
@@ -17,6 +18,11 @@ class ContactDetails:
     email: str
     address: str
     working_hours: str
+    secondary_phone: str = DEFAULT_SHOP_SECONDARY_PHONE
+
+    @property
+    def phones(self) -> tuple[str, ...]:
+        return tuple(dict.fromkeys(phone for phone in (self.phone, self.secondary_phone) if phone))
 
 
 def _footer_has_content(footer: FooterSettings | None) -> bool:

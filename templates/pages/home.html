@@ -1,28 +1,38 @@
 {% extends "base.html" %}
-{% load i18n static %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
-{% endblock %}
-
+{% load i18n static shop_urls %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/home.css' %}?v=20261015-ux3">{% endblock %}
 {% block pre_footer %}{% endblock %}
-
 {% block content %}
 <div class="shop-home">
     {% include "includes/_hero.html" %}
     {% include "includes/_home_categories.html" %}
-    {% include "includes/_home_trust_strip.html" %}
     {% include "includes/_home_recommended_products.html" %}
-    {% include "includes/_home_new_arrivals.html" %}
-    {% include "includes/_home_editorial.html" %}
     {% include "includes/_home_promo_sale_products.html" with products=promo_sale_products %}
-    {% include "includes/_home_how_it_works.html" %}
-    {% include "includes/_home_trust_details.html" %}
-    {% include "includes/_home_cta_band.html" %}
+    {% if everyday_products %}
+    <section class="shop-section shop-everyday" aria-labelledby="home-everyday-title">
+        <div class="container shop-container">
+            <header class="shop-section__header">
+                <div><p class="shop-eyebrow">{% trans "A good place to start" %}</p><h2 class="shop-section__title" id="home-everyday-title">{% trans "For your everyday shopping" %}</h2></div>
+                <a class="shop-text-link" href="{% shop_url 'products:list' %}">{% trans "View the full range" %} <span aria-hidden="true">↗</span></a>
+            </header>
+            {% include "includes/_product_grid.html" with products=everyday_products %}
+        </div>
+    </section>
+    {% endif %}
+    <section class="shop-home-trust shop-shopping-guide" aria-labelledby="home-guide-title">
+        <div class="container shop-container shop-shopping-guide__layout">
+            <div><p class="shop-eyebrow">{% trans "Simple, from start to finish" %}</p><h2 id="home-guide-title">{% trans "From your basket to your door." %}</h2><a class="shop-text-link" href="{% shop_url 'orders:track' %}">{% trans "Track your order" %} <span aria-hidden="true">↗</span></a></div>
+            <ol class="shop-shopping-guide__steps">
+                <li><span aria-hidden="true">01</span><div><h3>{% trans "Choose your products" %}</h3><p>{% trans "Search the shop or explore categories. Add products and adjust quantities in your basket." %}</p></div></li>
+                <li><span aria-hidden="true">02</span><div><h3>{% trans "Check your delivery" %}</h3><p>{% trans "Enter your address to see the delivery cost and total before confirming." %}</p></div></li>
+                <li><span aria-hidden="true">03</span><div><h3>{% trans "Pay when it arrives" %}</h3><p>{% trans "Order as a guest and follow your order with the number from your confirmation." %}</p></div></li>
+            </ol>
+        </div>
+    </section>
+    <section class="shop-local-note container shop-container" aria-labelledby="home-contact-title">
+        <div><p class="shop-eyebrow">{% trans "Here when you need us" %}</p><h2 id="home-contact-title">{% trans "Your neighbourhood shop. A click away." %}</h2><p>{{ footer_contact.address|linebreaksbr }}</p></div>
+        <a class="shop-btn shop-btn--secondary" href="{% shop_url 'core:contact' %}">{% trans "Contact our shop" %}<span aria-hidden="true">↗</span></a>
+    </section>
 </div>
 {% endblock %}
-
-{% block extra_js %}
-<script src="{% static 'js/home.js' %}" defer></script>
-<script src="{% static 'js/home-product-carousel.js' %}" defer></script>
-{% endblock %}
+{% block extra_js %}<script src="{% static 'js/home-product-carousel.js' %}" defer></script>{% endblock %}

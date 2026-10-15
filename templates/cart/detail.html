@@ -2,29 +2,27 @@
 {% load shop_urls i18n shop_tags static %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=20261015-ux3">
 {% endblock %}
 
 {% block content %}
 <div class="shop-page shop-page--cart">
-<div class="container shop-container py-4 py-lg-5">
+<div class="container shop-container py-4 py-lg-5" data-cart-page>
     <header class="shop-page-header mb-4">
         <h1 class="shop-page-header__title">{% trans "Cart" %}</h1>
-        {% if cart_lines %}
         <p class="shop-page-header__meta mb-0" data-cart-header-summary>
             {% blocktrans count count=cart_item_count %}{{ count }} item in your cart{% plural %}{{ count }} items in your cart{% endblocktrans %}
         </p>
-        {% endif %}
     </header>
+    <p class="visually-hidden" role="status" aria-live="polite" data-cart-status></p>
 
-    {% if cart_lines %}
-    <div class="shop-cart" data-cart-page>
+    <div class="shop-cart" data-cart-content{% if not cart_lines %} hidden{% endif %}>
         <div class="shop-cart__layout">
             <section class="shop-cart__items" aria-label="{% trans 'Cart items' %}">
                 <ul class="shop-cart-lines list-unstyled mb-0">
                     {% for line in cart_lines %}
                     <li class="shop-cart-line" data-cart-line data-product-id="{{ line.product.pk }}">
-                        <a href="{{ line.product.get_absolute_url }}" class="shop-cart-line__media">
+                        <a href="{{ line.product.get_absolute_url }}" class="shop-cart-line__media" tabindex="-1" aria-hidden="true">
                             {% if line.product.main_image %}
                             <img src="{{ line.product.main_image.url }}" alt="" loading="lazy">
                             {% else %}
@@ -44,14 +42,15 @@
                             </div>
 
                             <div class="shop-cart-line__actions">
-                                <form method="post" action="{% shop_url 'cart:update' product_id=line.product.pk %}" class="shop-cart-line__qty-form" data-shop-cart-qty>
+                                <form method="post" action="{% shop_url 'cart:update' product_id=line.product.pk %}" class="shop-cart-line__qty-form" data-cart-quantity-form>
                                     {% csrf_token %}
-                                    <div class="shop-qty shop-qty--compact" data-shop-qty>
-                                        <button class="shop-qty__btn" type="button" data-shop-qty-dec aria-label="{% trans 'Decrease quantity' %}">−</button>
+                                    <div class="shop-qty shop-qty--compact" data-cart-qty>
+                                        <button class="shop-qty__btn" type="button" data-cart-dec aria-label="{% trans 'Decrease quantity' %}: {{ line.product.name }}">−</button>
                                         <input type="number" name="quantity" value="{{ line.quantity }}" min="1" max="{{ line.product.stock }}"
-                                               class="shop-qty__input" inputmode="numeric" aria-label="{% trans 'Quantity' %}">
-                                        <button class="shop-qty__btn" type="button" data-shop-qty-inc aria-label="{% trans 'Increase quantity' %}">+</button>
+                                               class="shop-qty__input" inputmode="numeric" aria-label="{% trans 'Quantity' %}: {{ line.product.name }}">
+                                        <button class="shop-qty__btn" type="button" data-cart-inc aria-label="{% trans 'Increase quantity' %}: {{ line.product.name }}">+</button>
                                     </div>
+                                    <button type="submit" class="shop-btn shop-btn--ghost shop-btn--sm" data-cart-save>{% trans "Update quantity" %}</button>
                                 </form>
                             </div>
 
@@ -60,9 +59,9 @@
                                     <span class="shop-cart-line__total-label">{% trans "Line total" %}</span>
                                     <span class="shop-cart-line__total-value" data-cart-line-total>{{ line.line_total|money }}</span>
                                 </p>
-                                <form method="post" action="{% shop_url 'cart:remove' product_id=line.product.pk %}" class="shop-cart-line__remove-form">
+                                <form method="post" action="{% shop_url 'cart:remove' product_id=line.product.pk %}" class="shop-cart-line__remove-form" data-cart-remove-form>
                                     {% csrf_token %}
-                                    <button type="submit" class="shop-btn shop-btn--ghost shop-btn--sm">
+                                    <button type="submit" class="shop-btn shop-btn--ghost shop-btn--sm" aria-label="{% trans 'Remove' %}: {{ line.product.name }}">
                                         {% trans "Remove" %}
                                     </button>
                                 </form>
@@ -86,7 +85,7 @@
 
                     <p class="shop-summary-card__hint">{% trans "Shipping is calculated at checkout." %}</p>
 
-                    <a href="{% shop_url 'checkout:checkout' %}" class="shop-btn shop-btn--primary shop-btn--lg shop-btn--block">
+                    <a href="{% shop_url 'checkout:checkout' %}" data-cart-checkout class="shop-btn shop-btn--primary shop-btn--lg shop-btn--block">
                         {% trans "Proceed to checkout" %}
                     </a>
                     <a href="{% shop_url 'products:list' %}" class="shop-btn shop-btn--secondary shop-btn--block mt-2">
@@ -98,15 +97,13 @@
             </aside>
         </div>
     </div>
-    {% else %}
-    <div class="shop-empty-cart">
+    <div class="shop-empty-cart" data-cart-empty{% if cart_lines %} hidden{% endif %}>
         <h2 class="shop-empty-cart__title">{% trans "Your cart is empty" %}</h2>
         <p class="shop-empty-cart__text">{% trans "Browse our catalog and add products you like — checkout is simple and secure." %}</p>
         <a href="{% shop_url 'products:list' %}" class="shop-btn shop-btn--primary shop-btn--lg">
             {% trans "Browse products" %}
         </a>
     </div>
-    {% endif %}
 </div>
 </div>
 {% endblock %}

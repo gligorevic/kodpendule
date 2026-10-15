@@ -26,14 +26,14 @@ class CheckoutForm(forms.Form):
     phone = forms.CharField(
         label=_("Phone"),
         max_length=32,
-        widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": "tel"}),
+        widget=forms.TextInput(attrs={"class": "form-control", "autocomplete": "tel", "type": "tel", "inputmode": "tel"}),
     )
 
     shipping_city = forms.ModelChoiceField(
         label=_("City"),
         queryset=active_cities(),
         empty_label=_("Select city"),
-        widget=forms.Select(attrs={"class": "form-select", "id": "id_shipping_city"}),
+        widget=forms.Select(attrs={"class": "form-select", "id": "id_shipping_city", "autocomplete": "address-level2"}),
     )
     shipping_street = forms.CharField(
         label=_("Street and number"),
@@ -107,6 +107,21 @@ class CheckoutForm(forms.Form):
 
         min_date = min_scheduled_delivery_date()
         self.fields["requested_delivery_date"].widget.attrs["min"] = min_date.isoformat()
+
+    def full_clean(self):
+        super().full_clean()
+        for name, field in self.fields.items():
+            # Radio/consent errors remain in their existing shared components.
+            if name in {"delivery_timing", "payment_method", "accept_legal"}:
+                continue
+            described_by = []
+            if field.help_text:
+                described_by.append(f"{self[name].auto_id}_helptext")
+            if name in self.errors:
+                field.widget.attrs["aria-invalid"] = "true"
+                described_by.append(f"{self[name].auto_id}_errors")
+            if described_by:
+                field.widget.attrs["aria-describedby"] = " ".join(described_by)
 
     def clean(self):
         cleaned = super().clean()

@@ -4,7 +4,7 @@
         <div class="container shop-container">
             <div class="shop-footer__grid">
                 <div class="shop-footer__brand">
-                    <a href="{% shop_url 'core:home' %}" class="shop-footer__brand-link">
+                    <a href="{% shop_url 'core:home' %}" class="shop-footer__brand-link" aria-label="{% trans 'Kod Pendule' %}">
                         <span class="shop-footer__mark" aria-hidden="true">
                             <img src="{% static 'images/logo.webp' %}" class="shop-footer__logo" alt="{% if site_settings %}{{ site_settings.site_name }}{% else %}{% trans 'Kod Pendule' %}{% endif %}">
                         </span>
@@ -61,7 +61,7 @@
                     <ul class="shop-footer__contact-list list-unstyled mb-0">
                         <li>
                             <span class="shop-footer__contact-label">{% trans "Phone" %}</span>
-                            <a href="tel:{{ footer_contact.phone|cut:' ' }}">{{ footer_contact.phone }}</a>
+                            {% for phone in footer_contact.phones %}<a class="d-block" href="tel:{{ phone|cut:' ' }}">{{ phone }}</a>{% endfor %}
                         </li>
                         <li>
                             <span class="shop-footer__contact-label">{% trans "Email" %}</span>
@@ -73,11 +73,9 @@
                         </li>
                     </ul>
                     <p class="shop-footer__delivery-note">
-                        {% trans "Nationwide delivery — shipping cost is shown at checkout." %}
+                        {% trans "Available delivery locations and costs are shown at checkout." %}
                     </p>
-                    <div class="shop-footer__map">
-                        {% include "includes/_google_map.html" %}
-                    </div>
+                    <a class="shop-footer__visit" href="{% shop_url 'core:contact' %}">{% trans "Find our shop" %} <span aria-hidden="true">↗</span></a>
                 </div>
             </div>
         </div>

@@ -2,6 +2,7 @@ from django.contrib import messages
 from django.http import Http404, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -17,6 +18,16 @@ from apps.products.selectors import get_product_by_slug
 def _wants_json(request) -> bool:
     accept = request.headers.get("Accept", "")
     return "application/json" in accept or request.headers.get("X-Requested-With") == "XMLHttpRequest"
+
+
+def _cart_error(request, cart, message, *, status=400):
+    if _wants_json(request):
+        # Return the saved state so a failed edit can restore its quantity and totals.
+        payload = cart_state_json(request, cart)
+        payload.update(ok=False, error=str(message))
+        return JsonResponse(payload, status=status)
+    messages.error(request, message)
+    return redirect(shop_reverse("cart:detail"))
 
 
 class CartStateView(View):
@@ -55,49 +66,34 @@ class CartAddView(View):
         cart = get_cart(request)
         product = None
         if "product_id" in request.POST:
-            product = get_object_or_404(
-                Product.objects.filter(is_archived=False),
-                pk=request.POST.get("product_id"),
-            )
+            try:
+                product = Product.objects.filter(
+                    is_archived=False, pk=request.POST.get("product_id")
+                ).first()
+            except (ValueError, TypeError):
+                product = None
         elif "slug" in kwargs:
             product = get_product_by_slug(kwargs["slug"])
-            if product is None:
-                raise Http404
 
         if product is None:
-            if _wants_json(request):
-                return JsonResponse(
-                    {"ok": False, "error": str(_("Product not found."))},
-                    status=404,
-                )
-            messages.error(request, _("Product not found."))
-            return redirect(shop_reverse("products:list"))
+            if not _wants_json(request):
+                raise Http404
+            return _cart_error(request, cart, _("Product not found."), status=404)
 
         if product.stock < 1:
-            if _wants_json(request):
-                return JsonResponse(
-                    {"ok": False, "error": str(_("This product is out of stock."))},
-                    status=400,
-                )
-            messages.error(request, _("This product is out of stock."))
-            return redirect(product.get_absolute_url())
+            return _cart_error(request, cart, _("This product is out of stock."))
 
         try:
             qty = int(request.POST.get("quantity", 1))
         except (TypeError, ValueError):
-            qty = 1
-        qty = max(1, qty)
+            qty = 0
+        if qty < 1:
+            return _cart_error(request, cart, _("Enter a whole-number quantity of at least 1."))
 
         try:
             cart.add(product, qty)
         except ValueError:
-            if _wants_json(request):
-                return JsonResponse(
-                    {"ok": False, "error": str(_("Not enough items in stock."))},
-                    status=400,
-                )
-            messages.error(request, _("Not enough items in stock."))
-            return redirect(product.get_absolute_url())
+            return _cart_error(request, cart, _("Not enough items in stock."))
 
         if _wants_json(request):
             return JsonResponse(cart_add_json(request, cart, product))
@@ -109,6 +105,8 @@ class CartAddView(View):
             % {"name": product.safe_translation_getter("name", any_language=True)},
         )
         next_url = request.POST.get("next") or shop_reverse("cart:detail")
+        if not url_has_allowed_host_and_scheme(next_url, {request.get_host()}, require_https=request.is_secure()):
+            next_url = shop_reverse("cart:detail")
         return HttpResponseRedirect(next_url)
 
 
@@ -122,20 +120,16 @@ class CartUpdateView(View):
         try:
             qty = int(request.POST.get("quantity", 1))
         except (TypeError, ValueError):
-            qty = 1
+            qty = -1
+        if qty < 0:
+            return _cart_error(request, cart, _("Enter a valid whole-number quantity."))
         try:
             cart.set_quantity(product, qty)
         except ValueError:
-            if _wants_json(request):
-                return JsonResponse(
-                    {"ok": False, "error": str(_("Not enough items in stock."))},
-                    status=400,
-                )
-            messages.error(request, _("Not enough items in stock."))
-            return redirect(shop_reverse("cart:detail"))
+            return _cart_error(request, cart, _("Not enough items in stock."))
 
         if _wants_json(request):
-            return JsonResponse(cart_state_json(request, cart))
+            return JsonResponse({**cart_state_json(request, cart), "message": _("Cart updated.")})
 
         messages.success(request, _("Cart updated."))
         return redirect(shop_reverse("cart:detail"))
@@ -147,6 +141,6 @@ class CartRemoveView(View):
         product = get_object_or_404(Product, pk=kwargs["product_id"])
         cart.remove(product)
         if _wants_json(request):
-            return JsonResponse(cart_state_json(request, cart))
+            return JsonResponse({**cart_state_json(request, cart), "message": _("Item removed from cart.")})
         messages.info(request, _("Item removed from cart."))
         return redirect(shop_reverse("cart:detail"))

@@ -4,16 +4,14 @@
     <div class="container shop-container">
         <header class="shop-section__header shop-reveal" data-reveal>
             <div>
-                <p class="shop-section__eyebrow">{% trans "Collections" %}</p>
                 <h2 class="shop-section__title" id="home-categories-title">{% trans "Shop by category" %}</h2>
-                <p class="shop-section__subtitle mb-0">{% trans "Find what you need faster — browse our main categories." %}</p>
             </div>
             <a class="shop-btn shop-btn--secondary shop-btn--sm" href="{% shop_url 'categories:list' %}">{% trans "All categories" %}</a>
         </header>
 
         {% language shop_language %}
         <div class="shop-categories-home__grid shop-reveal-stagger" data-reveal-stagger>
-            {% for category in home_nav_categories|slice:":6" %}
+            {% for category in home_nav_categories %}
             <a class="shop-category-tile shop-reveal-child" href="{{ category.get_absolute_url }}">
                 {% if category.image %}
                 <img src="{{ category.image.url }}" class="shop-category-tile__img" alt="" loading="lazy" width="160" height="160">
