@@ -87,10 +87,26 @@ class InventoryXMLParserTests(SimpleTestCase):
                 parse_inventory_xml(xml({}, {"sku": "002"}))
 
     def test_restricted_products_excluded_without_false_positives(self):
-        for name in ("Marlboro gold", "Pivo 0.5L", "Vino belo", "WHISKY 0.7L", "Vape strawberry"):
+        for name in ("Marlboro gold", "Vape strawberry"):
             self.assertEqual(parse_inventory_xml(xml({"name": name}))["rows"], [])
         for name in ("WHISKAS PILETINA", "Rum Kasato", "Ld kese za smeće 40L"):
             self.assertEqual(len(parse_inventory_xml(xml({"name": name}))["rows"]), 1)
+
+    def test_alcohol_names_and_previously_excluded_skus_are_accepted(self):
+        for sku, name in (
+            ("00001", "BERMET CRVENI 0.5"),
+            ("00002", "ORPHELINE BELI PET2L"),
+            ("00006", "BAG IN BOX BELI 3L"),
+            ("00010", "GIFT BOX FRESCO 0.75"),
+            ("0002140", "PLAVI GIN 0.7L"),
+            ("NEW-BEER", "Pivo 0.5L"),
+            ("NEW-WINE", "Vino belo"),
+            ("NEW-SPIRIT", "WHISKY 0.7L"),
+        ):
+            with self.subTest(sku=sku, name=name):
+                parsed = parse_inventory_xml(xml({"sku": sku, "name": name}))
+                self.assertEqual(len(parsed["rows"]), 1)
+                self.assertEqual(parsed["rejected"], [])
 
 
 class InventoryXMLImportTests(TestCase):
@@ -132,6 +148,19 @@ class InventoryXMLImportTests(TestCase):
         self.product.refresh_from_db()
         self.assertEqual(self.product.updated_at, before)
         self.assertEqual(result["unchanged"], 1)
+
+    def test_alcohol_creation_then_stock_refresh(self):
+        record = {"sku": "00001", "barcode": "9876543210123", "name": "BERMET CRVENI 0.5"}
+        batch = self.preview(record)
+        with self.assertRaises(InventoryImportError):
+            apply_import(batch.pk, user=self.user)
+        save_categories(batch.pk, user=self.user, categories={"00001": self.category.pk})
+        self.assertEqual(apply_import(batch.pk, user=self.user)["created"], 1)
+        batch = self.preview({**record, "stock": "12", "price": "999.00"})
+        self.assertEqual(apply_import(batch.pk, user=self.user)["updated"], 1)
+        product = Product.objects.get(sku="00001")
+        self.assertEqual(product.stock, 12)
+        self.assertEqual(product.price, Decimal("1234.56"))
 
     def test_new_product_requires_category_and_preserves_identifiers(self):
         batch = self.preview({"sku": "000NEW02", "barcode": "0000000123456"})

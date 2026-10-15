@@ -42,7 +42,7 @@ def _restricted_skus() -> set[str]:
 
 
 def restricted_product_reason(name: str, sku: str = "") -> str:
-    """Conservative guard; reviewed source SKUs complement product-name matching."""
+    """Exclude tobacco/nicotine records; alcohol follows the normal import flow."""
     if sku and sku in _restricted_skus():
         return _("Restricted product — excluded from import.")
     text = unicodedata.normalize("NFKD", name.upper()).encode("ascii", "ignore").decode()
@@ -50,10 +50,6 @@ def restricted_product_reason(name: str, sku: str = "") -> str:
         r"\b(CIGARET\w*|DUVAN\w*|DUHAN\w*|TOBACCO|VAPE\w*|VAPOR\w*|IQOS|HEETS|TEREA|NEO|VE0|VEO|SNUS|NIKOTIN\w*)\b",
         r"\b(MARLBORO|WINSTON|CAMEL|LUCKY STRIKE|PALL MALL|DAVIDOFF|CHESTERFIELD|SOBRANIE|ROTHMANS|DUNHILL|L&M|PHILIP MORRIS)\b",
         r"^LD\b.*\b(SLIM\w*|VIOL\w*|PINK)\b",
-        r"\b(PIVO|BEER|VINO|WINE|RAKIJA|VODKA|VOTKA|WHISKY|WHISKEY|VISKI|GIN|DZIN|TEQUILA|TEKILA|LIKER|KONJAK|BRANDY|VINJAK|VERMUT|BERMET|ORPHELINE|SPRITZ|PROSECCO|SAMPANJ\w*)\b",
-        r"\bRUM\b(?!\s+(KASATO|PLOCICA|AROMA))",
-        r"\b(HEINEKEN|TUBORG|LAV|ZAJECARSKO|JELEN|NIKSICKO|AMSTEL|CARLSBERG|STELLA ARTOIS|JACK DANIEL\w*|JOHNNIE WALKER|JAMESON|BALLANTINE\w*|SMIRNOFF|ABSOLUT|GORKI LIST|JAGERMEISTER|BAILEYS|APEROL|CAMPARI)\b",
-        r"\bBAG IN BOX\b",
     )
     if any(re.search(pattern, text) for pattern in patterns):
         return _("Restricted product — excluded from import.")
