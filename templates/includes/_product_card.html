@@ -1,13 +1,13 @@
 {% load shop_urls i18n shop_tags %}
 <article class="shop-product-card" aria-label="{{ product.name }}">
     <div class="shop-product-card__media">
-        <a href="{{ product.get_absolute_url }}" class="shop-product-card__media-link" aria-label="{{ product.name }}">
+        <div class="shop-product-card__media-link">
             {% if product.main_image %}
                 <img src="{{ product.main_image.url }}" class="shop-product-card__img" alt="{{ product.name }}" loading="lazy">
             {% else %}
                 <div class="shop-product-card__img shop-product-card__img--placeholder"><span>{% trans "Photo unavailable" %}</span></div>
             {% endif %}
-        </a>
+        </div>
 
         {% if product.has_discount %}
         <div class="shop-product-card__badges" aria-hidden="true">

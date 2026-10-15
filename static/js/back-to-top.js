@@ -8,7 +8,7 @@
         }
 
         button.addEventListener("click", function () {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+            window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
         });
 
         /* Storefront: scroll reveal is driven together with menu FAB in header.js */

@@ -3,8 +3,8 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
-<link rel="stylesheet" href="{% static 'css/product.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux8">
+<link rel="stylesheet" href="{% static 'css/product.css' %}?v=20261015-ux7">
 {% endblock %}
 
 {% block content %}
@@ -19,16 +19,6 @@
                     {% if product.main_image %}
                     <div class="carousel-item active">
                         <img src="{{ product.main_image.url }}" class="d-block w-100 shop-gallery__img" alt="{{ product.name }}">
-                        {% if product.main_image_source_url or product.main_image_attribution or product.main_image_license_url %}
-                        <p class="shop-gallery__attribution">
-                            {% if product.main_image_source_url %}
-                                <a href="{{ product.main_image_source_url }}" target="_blank" rel="noopener noreferrer">{% if product.main_image_attribution %}{{ product.main_image_attribution }}{% else %}{% trans "Image source" %}{% endif %}</a>
-                            {% elif product.main_image_attribution %}{{ product.main_image_attribution }}{% endif %}
-                            {% if product.main_image_license_url %}
-                                {% if product.main_image_source_url or product.main_image_attribution %} · {% endif %}<a href="{{ product.main_image_license_url }}" target="_blank" rel="noopener noreferrer">{% trans "Image license" %}</a>
-                            {% endif %}
-                        </p>
-                        {% endif %}
                     </div>
                     {% endif %}
                     {% for image in gallery_images %}
@@ -102,6 +92,36 @@
                 {% endif %}
             </section>
 
+            <section class="shop-pdp__buy" aria-label="{% trans 'Add to cart' %}">
+                {% if product.stock > 0 %}
+                <form method="post" action="{% shop_url 'cart:add' %}" class="shop-buybox" data-shop-buybox data-shop-add-cart>
+                    {% csrf_token %}
+                    <input type="hidden" name="product_id" value="{{ product.pk }}">
+                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                    <div class="shop-buybox__row">
+                        <div class="shop-qty" data-shop-qty>
+                            <label class="shop-qty__label" for="qty-{{ product.pk }}">{% trans "Quantity" %}</label>
+                            <div class="shop-qty__control shop-qty--compact">
+                                <button class="shop-qty__btn" type="button" data-shop-qty-dec aria-label="{% trans 'Decrease quantity' %}">−</button>
+                                <input type="number" id="qty-{{ product.pk }}" name="quantity" value="1" min="1" max="{{ product.stock }}"
+                                       class="shop-qty__input" inputmode="numeric" step="1" required>
+                                <button class="shop-qty__btn" type="button" data-shop-qty-inc aria-label="{% trans 'Increase quantity' %}">+</button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="shop-btn shop-btn--primary shop-btn--lg shop-buybox__cta">
+                            {% trans "Add to cart" %}
+                        </button>
+                    </div>
+                    <p class="shop-buybox__hint">{% trans "You can checkout as a guest. No account required." %}</p>
+                </form>
+                {% else %}
+                <div class="shop-buybox shop-buybox--disabled">
+                    <p class="mb-0 text-muted">{% trans "This product is currently out of stock." %}</p>
+                </div>
+                {% endif %}
+            </section>
+
             <section class="shop-pdp__trust" aria-label="{% trans 'Delivery and payment' %}">
                 <ul class="shop-pdp__trust-list">
                     <li><strong>{% trans "Payment" %}:</strong> {% trans "cash on delivery" %}</li>
@@ -117,36 +137,6 @@
                     </li>
                     {% endif %}
                 </ul>
-            </section>
-
-            <section class="shop-pdp__buy" aria-label="{% trans 'Add to cart' %}">
-                {% if product.stock > 0 %}
-                <form method="post" action="{% shop_url 'cart:add' %}" class="shop-buybox" data-shop-buybox data-shop-add-cart>
-                    {% csrf_token %}
-                    <input type="hidden" name="product_id" value="{{ product.pk }}">
-                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
-                    <div class="shop-buybox__row">
-                        <div class="shop-qty" data-shop-qty>
-                            <label class="shop-qty__label" for="qty-{{ product.pk }}">{% trans "Quantity" %}</label>
-                            <div class="shop-qty__control">
-                                <button class="shop-qty__btn" type="button" data-shop-qty-dec aria-label="{% trans 'Decrease quantity' %}">−</button>
-                                <input type="number" id="qty-{{ product.pk }}" name="quantity" value="1" min="1" max="{{ product.stock }}"
-                                       class="shop-qty__input" inputmode="numeric" step="1" required>
-                                <button class="shop-qty__btn" type="button" data-shop-qty-inc aria-label="{% trans 'Increase quantity' %}">+</button>
-                            </div>
-                        </div>
-
-                        <button type="submit" class="shop-btn shop-btn--primary shop-btn--lg shop-buybox__cta">
-                            {% trans "Add to cart" %}
-                        </button>
-                    </div>
-                    <p class="shop-buybox__hint">{% trans "You can checkout as a guest — no account required." %}</p>
-                </form>
-                {% else %}
-                <div class="shop-buybox shop-buybox--disabled">
-                    <p class="mb-0 text-muted">{% trans "This product is currently out of stock." %}</p>
-                </div>
-                {% endif %}
             </section>
 
             {% if product_short_description %}

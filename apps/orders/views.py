@@ -1,8 +1,5 @@
-from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import Http404
-from django.shortcuts import redirect
-from apps.core.storefront_urls import shop_reverse
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, FormView, ListView
 
@@ -14,12 +11,12 @@ from apps.orders.selectors.order_selectors import (
     order_detail_qs,
     orders_for_user,
 )
-from apps.orders.services.order_access import grant_order_access, user_can_view_order
+from apps.orders.services.order_access import user_can_view_order
 from apps.orders.status_display import order_status_context
 
 
 class GuestOrderTrackView(ShopLanguageMixin, FormView):
-    """Guest order lookup by order number and email (same error for any mismatch)."""
+    """Public order progress by number, without exposing customer details."""
 
     template_name = "orders/track.html"
     form_class = GuestOrderTrackForm
@@ -44,25 +41,28 @@ class GuestOrderTrackView(ShopLanguageMixin, FormView):
     def form_valid(self, form):
         order = get_order_for_guest_tracking(
             form.cleaned_data["order_number"],
-            form.cleaned_data["email"],
         )
         if order is None:
             form.add_error(
                 None,
                 _(
-                    "We could not find an order with these details. "
-                    "Check the order number and email, then try again."
+                    "We could not find that order. Check the number in your confirmation and try again."
                 ),
             )
             return self.form_invalid(form)
-        grant_order_access(self.request, order)
-        return redirect(
-            shop_reverse("orders:detail", order_number=order.order_number)
-        )
+        return self.render_to_response(self.get_context_data(
+            form=form, tracked_order=order, **order_status_context(order["status"])
+        ))
+
+    def render_to_response(self, context, **response_kwargs):
+        response = super().render_to_response(context, **response_kwargs)
+        response["Cache-Control"] = "private, no-store"
+        response["X-Robots-Tag"] = "noindex, nofollow"
+        return response
 
 
 class OrderDetailView(ShopLanguageMixin, DetailView):
-    """Order detail for guests (after track/checkout) or logged-in owners."""
+    """Order detail for guests (after checkout) or logged-in owners."""
 
     model = Order
     template_name = "orders/detail.html"

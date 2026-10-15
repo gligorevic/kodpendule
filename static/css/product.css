@@ -307,3 +307,19 @@
     .shop-gallery__img { padding: 1rem; }
     .shop-pdp { gap: 1.5rem; }
 }
+
+/* On a phone, show the buying controls before secondary delivery information. */
+@media (max-width: 575.98px) {
+    .shop-page--pdp .breadcrumb-item:not(:nth-last-child(2)) { display: none; }
+    .shop-page--pdp .breadcrumb-item:nth-last-child(2)::before { content: "←"; }
+    .shop-page--pdp .breadcrumb { font-size: 13px; }
+    .shop-pdp .shop-gallery__img { height: 230px; aspect-ratio: auto; padding: 14px; }
+    .shop-pdp .shop-gallery__main { min-height: 0; }
+    .shop-pdp .shop-gallery__img--placeholder { min-height: 230px; }
+    .shop-pdp__pricing { margin-top: 12px; }
+    .shop-pdp__buy { margin-top: 16px; }
+    .shop-buybox { padding: 14px; }
+    .shop-buybox__row { grid-template-columns: 112px minmax(0, 1fr); gap: 10px; }
+    .shop-buybox__cta { min-height: 44px; padding: 10px 8px; font-size: 14px; }
+    .shop-pdp__trust { margin-top: 18px; }
+}

@@ -57,7 +57,7 @@ class CheckoutForm(forms.Form):
                 "id": "id_requested_delivery_date",
             }
         ),
-        help_text=_("Choose any date after today — delivery is free for scheduled orders."),
+        help_text=_("Choose any date after today. Delivery is free for scheduled orders."),
     )
 
     order_notes = forms.CharField(

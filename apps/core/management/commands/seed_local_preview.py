@@ -250,7 +250,7 @@ def seed_catalog(inventory, categories, photos):
         site = SiteSettings.load()
         site.set_current_language("sr")
         site.site_name = "Kod Pendule"
-        site.default_meta_title = "Kod Pendule — prodavnica u Vrdniku"
+        site.default_meta_title = "Kod Pendule. prodavnica u Vrdniku"
         site.default_meta_description = "Namirnice, piće, slatkiši i proizvodi za domaćinstvo. Kod Pendule, Karađorđeva 11, Vrdnik."
         site.save()
         footer = FooterSettings.load()
@@ -259,7 +259,7 @@ def seed_catalog(inventory, categories, photos):
         footer.phone = "+381 62 164 2224"
         footer.email = "kodpendule@gmail.com"
         footer.address = "Karađorđeva 11\n22408 Vrdnik"
-        footer.working_hours = "Pon–Pet: 09:00–17:00\nSub: 09:00–13:00"
+        footer.working_hours = "Svakog dana: 07:00–24:00"
         footer.save()
     return local_categories
 

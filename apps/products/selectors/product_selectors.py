@@ -1,4 +1,5 @@
-from django.db.models import Case, Count, F, Q, QuerySet, When
+from django.db.models import Case, Count, F, Q, QuerySet, Value, When
+from django.db.models.functions import Lower, Replace
 
 from apps.categories.models import Category
 from apps.core.slugs import translation_languages_to_try
@@ -80,20 +81,36 @@ def search_products(
     *,
     queryset: QuerySet[Product] | None = None,
 ) -> QuerySet[Product]:
-    q = query.strip()
+    q = query.strip()[:200]
     qs = active_products_qs(language) if queryset is None else queryset
     if not q:
         return qs.none()
     lang = _language(language)
-    return qs.filter(
-        Q(sku__icontains=q)
-        | Q(barcode__icontains=q)
-        | Q(translations__language_code__in=translation_languages_to_try(lang), translations__name__icontains=q)
-        | Q(
-            translations__language_code__in=translation_languages_to_try(lang),
-            translations__short_description__icontains=q,
+    # Normalize before LOWER: SQLite's LOWER only handles ASCII, unlike PostgreSQL.
+    # SQL expressions keep pagination and category filters in the database.
+    replacements = {"č": "c", "ć": "c", "š": "s", "ž": "z", "đ": "dj"}
+    replacements.update({key.upper(): value for key, value in list(replacements.items())})
+
+    def folded(field):
+        expression = F(field)
+        for source, target in replacements.items():
+            expression = Replace(expression, Value(source), Value(target))
+        return Lower(expression)
+
+    terms = list(dict.fromkeys(q.translate(str.maketrans(replacements)).lower().split()))[:8]
+    qs = qs.alias(
+        search_name=folded("translations__name"),
+        search_description=folded("translations__short_description"),
+        search_sku=folded("sku"),
+    )
+    match = Q()
+    for term in terms:
+        match &= (
+            Q(search_sku__contains=term) | Q(barcode__icontains=term)
+            | (Q(translations__language_code__in=translation_languages_to_try(lang))
+               & (Q(search_name__contains=term) | Q(search_description__contains=term)))
         )
-    ).distinct()
+    return qs.filter(match).distinct()
 
 
 def apply_catalog_filters(

@@ -132,14 +132,20 @@ and timestamp, preserving current stock, prices and other catalog fields.
 Existing photos are retained; deliberate replacements use the product editor.
 Optional `main_image_source_url`, `main_image_attribution` and
 `main_image_license_url` fields retain source/author/license evidence with the
-photo. When provided, the product page shows an escaped attribution caption with
-HTTP(S) source and license links. Only supply licensing information supported by
-the source; the system does not infer a license from a retailer URL.
+photo in the administration interface. These details are not displayed on public
+product pages. Only supply licensing information supported by the source; the
+system does not infer a license from a retailer URL.
 
 ### Order tracking (Step 7)
 
 | URL | Description |
 |-----|-------------|
-| `/narudzbina/pracenje/` | Guest track (order number + email) |
-| `/narudzba/<order_number>/` | Order detail (after track, checkout, or login) |
+| `/narudzbina/pracenje/` | Public status and requested delivery date (order number only) |
+| `/narudzba/<order_number>/` | Private order detail (after checkout or owner login) |
 | `/nalog/narudzbine/` | Logged-in order history |
+
+Number-only tracking never grants a session access to customer details, order items,
+addresses, phone numbers, or email. Existing checkout sessions retain private details.
+Storefront account links are hidden; admin and existing account routes remain available.
+Catalog search ignores Serbian Latin diacritics and matches words in any order. The
+shared header search also submits the current category, availability and sort controls.

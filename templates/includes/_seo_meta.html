@@ -1,15 +1,16 @@
+{% load shop_tags %}
 {% if meta_description %}
-<meta name="description" content="{{ meta_description|truncatechars:160 }}">
+<meta name="description" content="{{ meta_description|plain_copy|truncatechars:160 }}">
 {% endif %}
 {% if canonical_url %}
 <link rel="canonical" href="{{ canonical_url }}">
 {% endif %}
 <meta property="og:type" content="website">
 {% if meta_title %}
-<meta property="og:title" content="{{ meta_title }}">
+<meta property="og:title" content="{{ meta_title|plain_copy }}">
 {% endif %}
 {% if meta_description %}
-<meta property="og:description" content="{{ meta_description|truncatechars:160 }}">
+<meta property="og:description" content="{{ meta_description|plain_copy|truncatechars:160 }}">
 {% endif %}
 {% if canonical_url %}
 <meta property="og:url" content="{{ canonical_url }}">

@@ -1,7 +1,7 @@
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from apps.orders.selectors.order_selectors import normalize_order_number, normalize_tracking_email
+from apps.orders.selectors.order_selectors import normalize_order_number
 
 
 class GuestOrderTrackForm(forms.Form):
@@ -13,21 +13,12 @@ class GuestOrderTrackForm(forms.Form):
                 "class": "form-control",
                 "placeholder": _("example: KP-123456"),
                 "autocomplete": "off",
-            }
-        ),
-    )
-    email = forms.EmailField(
-        label=_("Email address"),
-        widget=forms.EmailInput(
-            attrs={
-                "class": "form-control",
-                "autocomplete": "email",
+                "autocapitalize": "characters",
+                "spellcheck": "false",
+                "aria-describedby": "order-number-help",
             }
         ),
     )
 
     def clean_order_number(self) -> str:
         return normalize_order_number(self.cleaned_data["order_number"])
-
-    def clean_email(self) -> str:
-        return normalize_tracking_email(self.cleaned_data["email"])

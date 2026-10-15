@@ -1,4 +1,4 @@
-"""Session-based access for guest order detail pages (after track or checkout)."""
+"""Session-based access for guest order detail pages (after checkout)."""
 
 from __future__ import annotations
 

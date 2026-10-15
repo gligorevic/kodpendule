@@ -1,19 +1,25 @@
 {% load i18n %}
-<form method="get" action="{{ catalog_form_action }}#catalog-results" class="shop-catalog-controls" role="search" aria-label="{% trans 'Filter products' %}">
-    {% if active_category %}<input type="hidden" name="kategorija" value="{{ active_category.slug }}">{% endif %}
-    <div class="shop-catalog-controls__search">
-        <label for="catalog-search">{% trans "Search products" %}</label>
-        <input id="catalog-search" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'Product name, SKU or barcode' %}" class="shop-input" autocomplete="off">
+<div class="shop-catalog-controls" role="group" aria-label="{% trans 'Filter products' %}">
+    {% if catalog_has_categories %}
+    <div class="shop-catalog-controls__category">
+        <label for="catalog-category">{% trans "Category" %}</label>
+        <select id="catalog-category" name="kategorija" form="shop-search" class="shop-input" data-catalog-control>
+            <option value="">{% trans "All products" %}</option>
+            {% if active_category and active_category.pk != active_category_root_id %}<option value="{{ active_category.slug }}" selected>{{ active_category.name }}</option>{% endif %}
+            {% for category in nav_categories %}<option value="{{ category.slug }}"{% if active_category.pk == category.pk %} selected{% endif %}>{{ category.name }}</option>{% endfor %}
+        </select>
     </div>
+    {% endif %}
     <div class="shop-catalog-controls__sort">
         <label for="catalog-sort">{% trans "Sort by" %}</label>
-        <select id="catalog-sort" name="sort" class="shop-input">
+        <select id="catalog-sort" name="sort" form="shop-search" class="shop-input" data-catalog-control>
             {% for value, label in catalog_sort_options %}<option value="{{ value }}"{% if catalog_sort == value %} selected{% endif %}>{{ label }}</option>{% endfor %}
         </select>
     </div>
     <label class="shop-catalog-controls__available" for="catalog-available">
-        <input id="catalog-available" type="checkbox" name="available" value="1"{% if available_only %} checked{% endif %}>
+        <input id="catalog-available" type="checkbox" name="available" form="shop-search" value="1" data-catalog-control{% if available_only %} checked{% endif %}>
         <span>{% trans "In stock only" %}</span>
     </label>
-    <button type="submit" class="shop-btn shop-btn--primary">{% trans "Apply filters" %}</button>
-</form>
+    <button type="submit" form="shop-search" class="shop-btn shop-btn--secondary" data-catalog-apply>{% trans "Apply filters" %}</button>
+    <span class="visually-hidden" id="catalog-auto-help" hidden>{% trans "Changing a filter updates the products automatically." %}</span>
+</div>

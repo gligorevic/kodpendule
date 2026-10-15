@@ -11,6 +11,37 @@ PO_PATH = ROOT / "locale" / "sr" / "LC_MESSAGES" / "django.po"
 
 # English msgid -> Serbian (Latin) msgstr
 TRANSLATIONS: dict[str, str] = {
+    "Every day: 07:00–24:00": "Svakog dana: 07:00–24:00",
+    'For questions about products, delivery and your order.': 'Za pitanja o proizvodima, dostavi i porudžbinama.',
+    'Check using your order number': 'Proverite status pomoću broja porudžbine',
+    'We will reply to the email address you provide.': 'Odgovorićemo na imejl adresu koju navedete.',
+    'Our shop': 'Prodavnica u Vrdniku',
+    'Check the latest status with your order number.': 'Unesite broj porudžbine i pogledajte njen trenutni status.',
+    'You will find it in your confirmation email. No account needed.': 'Broj je u imejlu sa potvrdom kupovine. Prijava nije potrebna.',
+    'Check your confirmation email, including the spam folder, or contact us.': 'Proverite imejl sa potvrdom, uključujući neželjenu poštu, ili nam se javite.',
+
+    'Subcategories': 'Potkategorije',
+    'Find what you need': 'Pronađite ono što vam treba',
+    'What is on your shopping list?': 'Šta je na vašem spisku za kupovinu?',
+    'Let’s talk.': 'Tu smo da pomognemo.',
+    'A question about a product, delivery or an order? Choose how you would like to reach us.': 'Imate pitanje o proizvodu, dostavi ili porudžbini? Pozovite nas ili nam pošaljite poruku.',
+    'Call us': 'Pozovite nas',
+    'For a quick answer, give us a call.': 'Za brz odgovor, tu smo na oba broja.',
+    'Write to us': 'Pišite nam',
+    'Or use the form on this page.': 'Možete nam pisati i putem obrasca na ovoj stranici.',
+    'Already placed an order?': 'Već ste poručili?',
+    'Include your order number if your question is about a purchase.': 'Ako pišete u vezi sa kupovinom, navedite i broj porudžbine.',
+    'Fields marked * are required.': 'Polja označena zvezdicom su obavezna.',
+    'Visit us in Vrdnik': 'Posetite nas u Vrdniku',
+    'Open directions': 'Pogledajte putanju',
+    'Your order, step by step': 'Od potvrde do isporuke',
+    'Where can I find my order number?': 'Gde se nalazi broj porudžbine?',
+    'It appears on the confirmation page after checkout and in your confirmation email. You can enter it with or without KP-.': 'Broj se prikazuje nakon poručivanja i nalazi se u imejlu sa potvrdom. Možete ga uneti sa oznakom KP- ili bez nje.',
+    'Cannot find your number?': 'Ne možete da pronađete broj?',
+    'All you need is your order number.': 'Unesite broj porudžbine i proverite dokle je stigla.',
+    'Need to change something in your order? Contact us and have your order number ready.': 'Želite da izmenite nešto u porudžbini? Javite nam se i pripremite njen broj.',
+    'Phone (optional)': 'Telefon (opciono)',
+
     'group': 'grupa',
     'groups': 'grupe',
     'Group': 'Grupa',
@@ -1094,6 +1125,299 @@ PLURAL_TRANSLATIONS: dict[str, list[str]] = {
     ],
 }
 
+
+# Storefront interaction and copy updates.
+TRANSLATIONS.update({'Apply filters': 'Prikaži proizvode',
+ 'Available delivery locations and costs are shown at checkout.': 'Izaberite mesto dostave pri '
+                                                                  'poručivanju da proverite cenu.',
+ 'Browse our catalog and add products you like. Checkout is simple and secure.': 'Izaberite '
+                                                                                 'proizvode iz '
+                                                                                 'ponude i dodajte '
+                                                                                 'ih u korpu.',
+ 'CSRF cookie. Protects forms against cross-site request forgery.': 'CSRF kolačić. Štiti forme od '
+                                                                    'zloupotrebe.',
+ 'Cash on delivery. Pay when your order arrives.': 'Platite gotovinom kada narudžbina stigne.',
+ 'Check order status': 'Proveri status',
+ 'Choose a category to explore.': 'Pronađite sve što vam treba za kuću, trpezu i svaki dan.',
+ 'Choose any date after today. Delivery is free for scheduled orders.': 'Izaberite bilo koji datum '
+                                                                        'posle danas. Dostava je '
+                                                                        'besplatna za zakazane '
+                                                                        'narudžbine.',
+ 'Clear process from browsing to delivery. Designed for everyday customers in Serbia.': 'Jasan '
+                                                                                        'proces od '
+                                                                                        'pregleda '
+                                                                                        'do '
+                                                                                        'isporuke. '
+                                                                                        'Prilagođen '
+                                                                                        'kupcima u '
+                                                                                        'Srbiji.',
+ 'Default order': 'Podrazumevano',
+ 'Enter the number from your order confirmation to see its status. No sign-in needed.': 'Unesite '
+                                                                                        'broj iz '
+                                                                                        'potvrde '
+                                                                                        'narudžbine '
+                                                                                        'i '
+                                                                                        'proverite '
+                                                                                        'dokle je '
+                                                                                        'stigla '
+                                                                                        'vaša '
+                                                                                        'dostava.',
+ 'Fast delivery. We prepare orders quickly.': 'Termin dostave potvrđujemo sa vama.',
+ 'Free delivery. Pick a future date below.': 'Besplatna dostava. Izaberite budući datum ispod.',
+ 'Fresh picks from our catalog. Updated regularly.': 'Sveži izbori iz kataloga. Redovno ažurirano.',
+ 'From browsing to doorstep. Four clear steps.': 'Od pregleda do vrata. Četiri jasna koraka.',
+ 'Groceries, favourite treats and essentials for your home. Choose what you need and order in a few simple steps.': 'Od '
+                                                                                                                    'namirnica '
+                                                                                                                    'do '
+                                                                                                                    'kućnih '
+                                                                                                                    'potrepština. '
+                                                                                                                    'Izaberite '
+                                                                                                                    'šta '
+                                                                                                                    'vam '
+                                                                                                                    'treba, '
+                                                                                                                    'a '
+                                                                                                                    'mi '
+                                                                                                                    'donosimo '
+                                                                                                                    'na '
+                                                                                                                    'vašu '
+                                                                                                                    'adresu.',
+ 'Language cookie. Remembers your Serbian or English language choice.': 'Jezički kolačić. Pamti '
+                                                                        'izbor srpskog ili '
+                                                                        'engleskog jezika.',
+ 'Need help with your order?': 'Treba vam pomoć oko narudžbine?',
+ 'Optional. Tell us anything we should know about delivery.': 'Dodajte napomenu za dostavu, ako je '
+                                                              'potrebna.',
+ 'Order as a guest and follow your order with the number from your confirmation.': 'Platite '
+                                                                                   'gotovinom pri '
+                                                                                   'preuzimanju. '
+                                                                                   'Status dostave '
+                                                                                   'proverite '
+                                                                                   'pomoću broja '
+                                                                                   'narudžbine.',
+ 'Our selection': 'Ponuda',
+ 'Pay on delivery. Pay when your package arrives.': 'Plaćate gotovinom pri preuzimanju.',
+ 'Pay when the package arrives. Simple and familiar. Ideal if you prefer not to pay online.': 'Platite '
+                                                                                              'kada '
+                                                                                              'paket '
+                                                                                              'stigne. '
+                                                                                              'Jednostavno '
+                                                                                              'i '
+                                                                                              'poznato. '
+                                                                                              'Idealno '
+                                                                                              'ako '
+                                                                                              'ne '
+                                                                                              'želite '
+                                                                                              'online '
+                                                                                              'plaćanje.',
+ 'Photo not available': 'Fotografija nije dostupna',
+ 'Photo unavailable': 'Bez fotografije',
+ 'Products we highlight for you. Swipe or use arrows to browse.': 'Proizvodi koje ističemo. '
+                                                                  'Prevucite ili koristite '
+                                                                  'strelice za pregled.',
+ 'Quality products and reliable delivery. Order online, pay on delivery.': 'Sve za vašu '
+                                                                           'svakodnevnu kupovinu. '
+                                                                           'Poručite online, '
+                                                                           'platite pri dostavi.',
+ 'Questions about products, delivery, or your order? Reach us using the details below or send us a message.': 'Tu '
+                                                                                                              'smo '
+                                                                                                              'za '
+                                                                                                              'pitanja '
+                                                                                                              'o '
+                                                                                                              'proizvodima, '
+                                                                                                              'dostavi '
+                                                                                                              'i '
+                                                                                                              'narudžbinama. '
+                                                                                                              'Pozovite '
+                                                                                                              'nas '
+                                                                                                              'ili '
+                                                                                                              'nam '
+                                                                                                              'pošaljite '
+                                                                                                              'poruku.',
+ 'Review items and quantities before checkout. No account required for guests.': 'Proverite stavke '
+                                                                                 'i količine pre '
+                                                                                 'plaćanja. Nalog '
+                                                                                 'nije obavezan za '
+                                                                                 'goste.',
+ 'Review your order and choose your delivery details.': 'Unesite podatke za dostavu. Ukupan iznos '
+                                                        'videćete pre potvrde narudžbine.',
+ 'Save your order number. It is all you need to check the delivery status.': 'Sačuvajte broj '
+                                                                             'narudžbine. Samo taj '
+                                                                             'broj vam je potreban '
+                                                                             'za praćenje dostave.',
+ 'Search products…': 'Šta vam je potrebno?',
+ 'Secure ordering. Your details are handled carefully.': 'Vaši podaci koriste se za obradu '
+                                                         'narudžbine.',
+ 'Session cookie. Keeps you logged in and maintains your shopping cart.': 'Sesijski kolačić. '
+                                                                          'Održava prijavu i '
+                                                                          'korpu.',
+ 'We could not find that order. Check the number in your confirmation and try again.': 'Nismo '
+                                                                                       'pronašli '
+                                                                                       'narudžbinu '
+                                                                                       'sa tim '
+                                                                                       'brojem. '
+                                                                                       'Proverite '
+                                                                                       'broj u '
+                                                                                       'potvrdi i '
+                                                                                       'pokušajte '
+                                                                                       'ponovo.',
+ 'We do not use third-party marketing or analytics cookies on the public shop. The cookie notice informs you about essential cookies we use. Google Maps is embedded on the contact page and in the footer to show our location; when the map loads, Google may process data (including cookies) under its own privacy policy. See section 10.': 'Ne '
+                                                                                                                                                                                                                                                                                                                                                 'koristimo '
+                                                                                                                                                                                                                                                                                                                                                 'marketinške '
+                                                                                                                                                                                                                                                                                                                                                 'ili '
+                                                                                                                                                                                                                                                                                                                                                 'analitičke '
+                                                                                                                                                                                                                                                                                                                                                 'kolačiće '
+                                                                                                                                                                                                                                                                                                                                                 'trećih '
+                                                                                                                                                                                                                                                                                                                                                 'strana '
+                                                                                                                                                                                                                                                                                                                                                 'na '
+                                                                                                                                                                                                                                                                                                                                                 'javnoj '
+                                                                                                                                                                                                                                                                                                                                                 'prodavnici. '
+                                                                                                                                                                                                                                                                                                                                                 'Obaveštenje '
+                                                                                                                                                                                                                                                                                                                                                 'o '
+                                                                                                                                                                                                                                                                                                                                                 'kolačićima '
+                                                                                                                                                                                                                                                                                                                                                 'vas '
+                                                                                                                                                                                                                                                                                                                                                 'informiše '
+                                                                                                                                                                                                                                                                                                                                                 'o '
+                                                                                                                                                                                                                                                                                                                                                 'neophodnim '
+                                                                                                                                                                                                                                                                                                                                                 'kolačićima '
+                                                                                                                                                                                                                                                                                                                                                 'koje '
+                                                                                                                                                                                                                                                                                                                                                 'koristimo. '
+                                                                                                                                                                                                                                                                                                                                                 'Google '
+                                                                                                                                                                                                                                                                                                                                                 'Maps '
+                                                                                                                                                                                                                                                                                                                                                 'je '
+                                                                                                                                                                                                                                                                                                                                                 'ugrađen '
+                                                                                                                                                                                                                                                                                                                                                 'na '
+                                                                                                                                                                                                                                                                                                                                                 'kontakt '
+                                                                                                                                                                                                                                                                                                                                                 'stranici '
+                                                                                                                                                                                                                                                                                                                                                 'i '
+                                                                                                                                                                                                                                                                                                                                                 'u '
+                                                                                                                                                                                                                                                                                                                                                 'podnožju '
+                                                                                                                                                                                                                                                                                                                                                 'da '
+                                                                                                                                                                                                                                                                                                                                                 'prikaže '
+                                                                                                                                                                                                                                                                                                                                                 'našu '
+                                                                                                                                                                                                                                                                                                                                                 'lokaciju; '
+                                                                                                                                                                                                                                                                                                                                                 'kada '
+                                                                                                                                                                                                                                                                                                                                                 'se '
+                                                                                                                                                                                                                                                                                                                                                 'mapa '
+                                                                                                                                                                                                                                                                                                                                                 'učita, '
+                                                                                                                                                                                                                                                                                                                                                 'Google '
+                                                                                                                                                                                                                                                                                                                                                 'može '
+                                                                                                                                                                                                                                                                                                                                                 'obrađivati '
+                                                                                                                                                                                                                                                                                                                                                 'podatke '
+                                                                                                                                                                                                                                                                                                                                                 '(uključujući '
+                                                                                                                                                                                                                                                                                                                                                 'kolačiće) '
+                                                                                                                                                                                                                                                                                                                                                 'prema '
+                                                                                                                                                                                                                                                                                                                                                 'svojoj '
+                                                                                                                                                                                                                                                                                                                                                 'politici '
+                                                                                                                                                                                                                                                                                                                                                 'privatnosti. '
+                                                                                                                                                                                                                                                                                                                                                 'Pogledajte '
+                                                                                                                                                                                                                                                                                                                                                 'tačku '
+                                                                                                                                                                                                                                                                                                                                                 '10.',
+ 'We do not use third-party marketing or analytics cookies on the public shop. The cookie notice informs you about essential cookies we use. Google Maps is embedded on the contact page to show our location; when the map loads, Google may process data (including cookies) under its own privacy policy. See section 10.': 'Ne '
+                                                                                                                                                                                                                                                                                                                               'koristimo '
+                                                                                                                                                                                                                                                                                                                               'marketinške '
+                                                                                                                                                                                                                                                                                                                               'ili '
+                                                                                                                                                                                                                                                                                                                               'analitičke '
+                                                                                                                                                                                                                                                                                                                               'kolačiće '
+                                                                                                                                                                                                                                                                                                                               'trećih '
+                                                                                                                                                                                                                                                                                                                               'strana '
+                                                                                                                                                                                                                                                                                                                               'na '
+                                                                                                                                                                                                                                                                                                                               'javnoj '
+                                                                                                                                                                                                                                                                                                                               'prodavnici. '
+                                                                                                                                                                                                                                                                                                                               'Obaveštenje '
+                                                                                                                                                                                                                                                                                                                               'o '
+                                                                                                                                                                                                                                                                                                                               'kolačićima '
+                                                                                                                                                                                                                                                                                                                               'vas '
+                                                                                                                                                                                                                                                                                                                               'informiše '
+                                                                                                                                                                                                                                                                                                                               'o '
+                                                                                                                                                                                                                                                                                                                               'neophodnim '
+                                                                                                                                                                                                                                                                                                                               'kolačićima '
+                                                                                                                                                                                                                                                                                                                               'koje '
+                                                                                                                                                                                                                                                                                                                               'koristimo. '
+                                                                                                                                                                                                                                                                                                                               'Google '
+                                                                                                                                                                                                                                                                                                                               'Maps '
+                                                                                                                                                                                                                                                                                                                               'je '
+                                                                                                                                                                                                                                                                                                                               'ugrađen '
+                                                                                                                                                                                                                                                                                                                               'na '
+                                                                                                                                                                                                                                                                                                                               'kontakt '
+                                                                                                                                                                                                                                                                                                                               'stranici '
+                                                                                                                                                                                                                                                                                                                               'da '
+                                                                                                                                                                                                                                                                                                                               'prikaže '
+                                                                                                                                                                                                                                                                                                                               'našu '
+                                                                                                                                                                                                                                                                                                                               'lokaciju; '
+                                                                                                                                                                                                                                                                                                                               'kada '
+                                                                                                                                                                                                                                                                                                                               'se '
+                                                                                                                                                                                                                                                                                                                               'mapa '
+                                                                                                                                                                                                                                                                                                                               'učita, '
+                                                                                                                                                                                                                                                                                                                               'Google '
+                                                                                                                                                                                                                                                                                                                               'može '
+                                                                                                                                                                                                                                                                                                                               'obrađivati '
+                                                                                                                                                                                                                                                                                                                               'podatke '
+                                                                                                                                                                                                                                                                                                                               '(uključujući '
+                                                                                                                                                                                                                                                                                                                               'kolačiće) '
+                                                                                                                                                                                                                                                                                                                               'prema '
+                                                                                                                                                                                                                                                                                                                               'svojoj '
+                                                                                                                                                                                                                                                                                                                               'politici '
+                                                                                                                                                                                                                                                                                                                               'privatnosti. '
+                                                                                                                                                                                                                                                                                                                               'Pogledajte '
+                                                                                                                                                                                                                                                                                                                               'tačku '
+                                                                                                                                                                                                                                                                                                                               '10.',
+ 'We select products that feel at home in Serbian households. Reliable quality, honest pricing, and delivery you can count on.': 'Biramo '
+                                                                                                                                 'proizvode '
+                                                                                                                                 'koji '
+                                                                                                                                 'prirodno '
+                                                                                                                                 'pripadaju '
+                                                                                                                                 'domovima '
+                                                                                                                                 'u '
+                                                                                                                                 'Srbiji. '
+                                                                                                                                 'Pouzdan '
+                                                                                                                                 'kvalitet, '
+                                                                                                                                 'jasne '
+                                                                                                                                 'cene '
+                                                                                                                                 'i '
+                                                                                                                                 'dostava '
+                                                                                                                                 'na '
+                                                                                                                                 'koju '
+                                                                                                                                 'možete '
+                                                                                                                                 'da '
+                                                                                                                                 'računate.',
+ 'We will contact you to confirm delivery. Payment on delivery (cash).': 'Javićemo vam se da '
+                                                                         'potvrdimo termin '
+                                                                         'dostave. Plaćate '
+                                                                         'gotovinom pri '
+                                                                         'preuzimanju.',
+ 'You can checkout as a guest. No account required.': 'Kupovina bez registracije.',
+ 'Your details are handled carefully. Confirm your order before delivery. No surprises.': 'Vaši '
+                                                                                          'podaci '
+                                                                                          'se '
+                                                                                          'pažljivo '
+                                                                                          'čuvaju. '
+                                                                                          'Potvrdite '
+                                                                                          'narudžbinu '
+                                                                                          'pre '
+                                                                                          'isporuke. '
+                                                                                          'Bez '
+                                                                                          'iznenađenja.',
+ 'Your neighbourhood shop, online.': 'Vaša prodavnica u Vrdniku. Poručite online.',
+ 'Your order %(number)s. Kod Pendule': 'Vaša narudžbina %(number)s. Kod Pendule'})
+
+
+TRANSLATIONS.update({'Cancelled': 'Otkazana',
+ 'Checkout': 'Završi kupovinu',
+ 'Confirmed': 'Potvrđena',
+ 'Delivered': 'Dostavljena',
+ 'Pending': 'Primljena',
+ 'Place order': 'Potvrdi narudžbinu',
+ 'Proceed to checkout': 'Nastavi na poručivanje',
+ 'Processing': 'U pripremi',
+ 'Shipped': 'Na dostavi',
+ 'Shipping is calculated at checkout.': 'Cenu dostave videćete pre potvrde narudžbine.'})
+
+TRANSLATIONS.update({'Changing a filter updates the products automatically.': 'Promena filtera automatski '
+                                                          'osvežava proizvode.',
+ 'Page %(num)s of %(total)s': 'Strana %(num)s od %(total)s',
+ 'Page %(number)s': 'Strana %(number)s'})
+
+TRANSLATIONS["calculated at checkout"] = "cena se prikazuje pre potvrde narudžbine"
 
 def main() -> int:
     po = polib.pofile(str(PO_PATH))

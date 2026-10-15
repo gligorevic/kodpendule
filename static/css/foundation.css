@@ -16,7 +16,7 @@ body.shop-body {
 }
 
 /* —— Typography hierarchy —— */
-.shop-body h1,
+:where(.shop-body) h1,
 .shop-body .h1 {
     font-size: var(--shop-font-size-3xl);
     font-weight: var(--shop-font-weight-bold);
@@ -25,30 +25,30 @@ body.shop-body {
     color: var(--shop-color-text);
 }
 
-.shop-body h2,
+:where(.shop-body) h2,
 .shop-body .h2 {
     font-size: var(--shop-font-size-2xl);
     font-weight: var(--shop-font-weight-semibold);
     line-height: var(--shop-line-height-tight);
 }
 
-.shop-body h3,
+:where(.shop-body) h3,
 .shop-body .h3 {
     font-size: var(--shop-font-size-xl);
     font-weight: var(--shop-font-weight-semibold);
 }
 
-.shop-body h4,
+:where(.shop-body) h4,
 .shop-body .h4,
-.shop-body h5,
+:where(.shop-body) h5,
 .shop-body .h5,
-.shop-body h6,
+:where(.shop-body) h6,
 .shop-body .h6 {
     font-weight: var(--shop-font-weight-semibold);
     line-height: var(--shop-line-height-tight);
 }
 
-.shop-body p {
+:where(.shop-body) p {
     margin-bottom: var(--shop-space-4);
 }
 
@@ -144,7 +144,7 @@ main.flex-grow-1 {
 }
 
 @media (max-width: 767.98px) {
-    .shop-body h1,
+    :where(.shop-body) h1,
     .shop-body .h1 {
         font-size: var(--shop-font-size-2xl);
     }

@@ -413,6 +413,7 @@
 }
 
 .shop-body .page-item.active .page-link {
+    color: var(--shop-color-on-primary);
     background: var(--shop-color-primary);
     border-color: var(--shop-color-primary);
 }

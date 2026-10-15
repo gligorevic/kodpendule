@@ -64,35 +64,37 @@ class OrderTrackingTests(TestCase):
             status=OrderStatus.CONFIRMED,
         )
 
-    def test_guest_track_success(self) -> None:
-        response = self.client.post(
-            shop_reverse("orders:track"),
-            {"order_number": self.order_number, "email": self.guest_email},
-        )
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(
-            response["Location"],
-            shop_reverse("orders:detail", order_number=self.order_number),
-        )
-        detail = self.client.get(
-            shop_reverse("orders:detail", order_number=self.order_number)
-        )
-        self.assertEqual(detail.status_code, 200)
-        self.assertContains(detail, self.order_number)
-
-    def test_guest_track_wrong_email_same_error(self) -> None:
-        response = self.client.post(
-            shop_reverse("orders:track"),
-            {
-                "order_number": self.order_number,
-                "email": "wrong@example.com",
-            },
-        )
+    def test_guest_tracks_status_with_number_only_without_personal_details(self):
+        response = self.client.post(shop_reverse("orders:track"), {"order_number": self.order_number})
         self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            "Nismo pronašli narudžbinu",
-        )
+        self.assertEqual(response.context["tracked_order"]["status"], OrderStatus.PENDING)
+        self.assertContains(response, self.order_number)
+        for private_value in (self.guest_email, "Pera", "Perić", self.order.phone, "Ulica 1", "Notes"):
+            self.assertNotContains(response, private_value)
+        self.assertNotIn(SESSION_KEY, self.client.session)
+        self.assertEqual(response["Cache-Control"], "private, no-store")
+        detail = self.client.get(shop_reverse("orders:detail", order_number=self.order_number))
+        self.assertEqual(detail.status_code, 404)
+
+    def test_tracking_normalizes_case_spaces_and_optional_prefix(self):
+        self.order.order_number = "KP-482917"
+        self.order.save(update_fields=["order_number"])
+        for number in ("  kp-482917  ", "482917", "KP - 482917"):
+            response = self.client.post(shop_reverse("orders:track"), {"order_number": number})
+            self.assertEqual(response.context["tracked_order"]["order_number"], "KP-482917")
+
+    def test_track_form_has_no_email_or_account_links(self):
+        response = self.client.get(shop_reverse("orders:track"))
+        self.assertNotContains(response, 'name="email"')
+        self.assertNotContains(response, shop_reverse("accounts:login"))
+        self.assertNotContains(response, shop_reverse("accounts:register"))
+
+    def test_cancelled_order_shows_cancelled_state(self):
+        self.order.status = OrderStatus.CANCELLED
+        self.order.save(update_fields=["status"])
+        response = self.client.post(shop_reverse("orders:track"), {"order_number": self.order_number})
+        self.assertFalse(response.context["show_progress"])
+        self.assertEqual(response.context["tracked_order"]["status"], OrderStatus.CANCELLED)
 
     def test_guest_track_unknown_number_same_error(self) -> None:
         response = self.client.post(

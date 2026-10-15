@@ -1,9 +1,21 @@
 from decimal import Decimal
+import re
 
 from django import template
 from django.conf import settings
 
 register = template.Library()
+
+
+@register.simple_tag
+def pagination_pages(page):
+    return page.paginator.get_elided_page_range(page.number, on_each_side=1, on_ends=1)
+
+
+@register.filter
+def plain_copy(value) -> str:
+    """Keep legacy CMS copy consistent with storefront punctuation."""
+    return re.sub(r"\s*—\s*(\w)", lambda match: ". " + match[1].upper(), str(value or "")).replace("—", "")
 
 
 @register.filter

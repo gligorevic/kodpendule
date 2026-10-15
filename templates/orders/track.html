@@ -1,49 +1,43 @@
 {% extends "base.html" %}
-{% load shop_urls i18n %}
-
+{% load shop_urls i18n static %}
+{% block title %}{% trans "Track your order" %} | {{ site_settings.site_name|default:"Kod Pendule" }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/support.css' %}?v=20261015-ux9">{% endblock %}
 {% block content %}
-<div class="shop-page shop-form-page">
-<div class="container py-4 py-lg-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-6">
-            <h1 class="h2 mb-2">{% trans "Track your order" %}</h1>
-            <p class="text-muted mb-4">
-                {% trans "Enter the order number from your confirmation and the email address you used at checkout." %}
-            </p>
-
-            <div class="shop-card shop-account-card">
-                    <form method="post" novalidate>
-                        {% csrf_token %}
-                        {% if form.non_field_errors %}
-                        <div class="alert alert-danger" role="alert">
-                            {{ form.non_field_errors }}
-                        </div>
-                        {% endif %}
-                        <div class="mb-3">
-                            <label for="{{ form.order_number.id_for_label }}" class="form-label">{{ form.order_number.label }}</label>
-                            {{ form.order_number }}
-                            {% if form.order_number.errors %}
-                            <div class="invalid-feedback d-block">{{ form.order_number.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <div class="mb-4">
-                            <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
-                            {{ form.email }}
-                            {% if form.email.errors %}
-                            <div class="invalid-feedback d-block">{{ form.email.errors }}</div>
-                            {% endif %}
-                        </div>
-                        <button type="submit" class="shop-btn shop-btn--primary shop-btn--block">{% trans "Find my order" %}</button>
-                    </form>
-            </div>
-
-            <p class="text-center text-muted small mt-4 mb-0">
-                {% trans "Have an account?" %}
-                <a href="{% shop_url 'accounts:login' %}?next={% shop_url 'orders:history' %}">{% trans "Sign in" %}</a>
-                {% trans "to see all your orders." %}
-            </p>
+<div class="shop-page shop-support shop-page--tracking container shop-container">
+    <div class="shop-tracking-wrap">
+        <header class="shop-support__header">
+            <h1>{% trans "Track your order" %}</h1>
+            <p>{% trans "Check the latest status with your order number." %}</p>
+        </header>
+        <section class="shop-support-panel shop-tracking-panel" aria-label="{% trans 'Check order status' %}">
+            <form method="post" action="" novalidate>
+                {% csrf_token %}
+                <label for="{{ form.order_number.id_for_label }}" class="form-label">{{ form.order_number.label }}</label>
+                <div class="shop-tracking-form-row">
+                    {{ form.order_number }}
+                    <button type="submit" class="shop-btn shop-btn--primary">{% trans "Check order status" %}<span aria-hidden="true">→</span></button>
+                </div>
+                <p class="shop-tracking-input-help" id="order-number-help">{% trans "You will find it in your confirmation email. No account needed." %}</p>
+                <div id="tracking-result" tabindex="-1">
+                    {% if form.non_field_errors %}<div class="alert alert-danger" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+                    {% if form.order_number.errors %}<div class="invalid-feedback d-block" role="alert">{{ form.order_number.errors }}</div>{% endif %}
+                </div>
+            </form>
+            {% if tracked_order %}
+            <section class="shop-tracking-result" aria-labelledby="tracking-result-title" role="status">
+                <div class="shop-tracking-result__heading">
+                    <div><p>{% trans "Order" %} {{ tracked_order.order_number }}</p><h2 id="tracking-result-title">{{ status_label }}</h2></div>
+                    <span class="shop-support__icon">{% include "includes/_support_icon.html" %}</span>
+                </div>
+                {% include "orders/includes/_order_status_progress.html" %}
+                {% if tracked_order.requested_delivery_date %}<p class="shop-tracking-date">{% trans "Requested delivery date:" %} <strong>{{ tracked_order.requested_delivery_date|date:"DATE_FORMAT" }}</strong></p>{% endif %}
+            </section>
+            {% endif %}
+        </section>
+        <div class="shop-tracking-assistance">
+            <div><h2>{% trans "Cannot find your number?" %}</h2><p>{% trans "Check your confirmation email, including the spam folder, or contact us." %}</p></div>
+            <a href="{% shop_url 'core:contact' %}">{% trans "Contact our shop" %}<span aria-hidden="true">↗</span></a>
         </div>
     </div>
-</div>
 </div>
 {% endblock %}
