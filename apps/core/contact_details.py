@@ -50,6 +50,6 @@ def resolve_contact_details(footer: FooterSettings | None) -> ContactDetails:
         email=DEFAULT_SHOP_EMAIL,
         address=str(_("Karađorđeva 11\n22408 Vrdnik")),
         working_hours=str(
-            _("Mon–Fri: 9:00–17:00\nSat: 9:00–13:00")
+            _("Every day: 07:00–24:00")
         ),
     )

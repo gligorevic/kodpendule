@@ -56,7 +56,7 @@ class CatalogImageUploadTests(TestCase):
         self.assertEqual(result.json()['status'], 'already_has_image')
         self.assertEqual(self.product.main_image.name, old)
 
-    def test_provenance_saved_and_caption_only_shown_when_provided(self):
+    def test_provenance_saved_without_public_caption(self):
         detail_url = self.product.get_absolute_url()
         self.assertNotContains(self.client.get(detail_url), 'class="shop-gallery__attribution"')
         source = 'https://world.openfoodfacts.org/product/860000000001'
@@ -73,10 +73,10 @@ class CatalogImageUploadTests(TestCase):
         self.assertEqual(self.product.main_image_license_url, license_url)
         self.assertEqual(self.product.stock, 8)
         detail = self.client.get(detail_url)
-        self.assertContains(detail, 'class="shop-gallery__attribution"')
-        self.assertContains(detail, f'href="{source}"')
-        self.assertContains(detail, f'href="{license_url}"')
-        self.assertContains(detail, 'Open Food Facts — &lt;Contributor&gt;')
+        self.assertNotContains(detail, 'class="shop-gallery__attribution"')
+        self.assertNotContains(detail, f'href="{source}"')
+        self.assertNotContains(detail, f'href="{license_url}"')
+        self.assertNotContains(detail, 'Open Food Facts — &lt;Contributor&gt;')
         self.upload(main_image_attribution='Replacement')
         self.product.refresh_from_db()
         self.assertEqual(self.product.main_image_attribution, 'Open Food Facts — <Contributor>')

@@ -2,7 +2,7 @@
 {% if show_progress %}
 <ol class="list-group list-group-horizontal flex-wrap order-status-progress mb-0">
     {% for step in progress_steps %}
-    <li class="list-group-item flex-fill text-center small py-2 {% if forloop.counter0 <= current_step_index %}active{% endif %}">
+    <li class="list-group-item flex-fill text-center small py-2 {% if forloop.counter0 <= current_step_index %}active{% endif %}"{% if forloop.counter0 == current_step_index %} aria-current="step"{% endif %}>
         {{ step.label }}
     </li>
     {% endfor %}

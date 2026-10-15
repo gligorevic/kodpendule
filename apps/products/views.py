@@ -39,7 +39,7 @@ class CatalogControlsMixin:
     def catalog_filters(self):
         sort = self.request.GET.get("sort", "default")
         return {
-            "query": self.request.GET.get("q", "").strip(),
+            "query": self.request.GET.get("q", "").strip()[:200],
             "available_only": self.request.GET.get("available") == "1",
             "sort": sort if sort in dict(self.sort_options) else "default",
         }
@@ -114,6 +114,7 @@ class ProductListView(CatalogControlsMixin, ShopLanguageMixin, ListView):
                 "search_query": query,
                 "active_category": active_category,
                 "active_category_root_id": root.pk if root else None,
+                "catalog_has_categories": True,
                 "breadcrumb_items": breadcrumbs,
                 "meta_title": meta_title,
                 "meta_description": _("Browse our product catalog."),

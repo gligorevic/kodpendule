@@ -15,31 +15,22 @@ def order_detail_qs() -> QuerySet[Order]:
 
 
 def normalize_order_number(order_number: str) -> str:
-    return (order_number or "").strip()
-
-
-def normalize_tracking_email(email: str) -> str:
-    return (email or "").strip().lower()
+    number = (order_number or "").strip().upper().replace(" ", "")
+    if number.isascii() and number.isdigit():
+        number = f"KP-{number}"
+    return number
 
 
 def get_order_for_guest_tracking(
     order_number: str,
-    email: str,
-) -> Order | None:
-    """
-    Match order only when both number and email are correct (case-insensitive).
-    Single query; returns None for any mismatch (no distinction for callers).
-    """
+) -> dict | None:
+    """Return public progress only. A number never grants access to personal details."""
     number = normalize_order_number(order_number)
-    normalized_email = normalize_tracking_email(email)
-    if not number or not normalized_email:
+    if not number:
         return None
     return (
-        order_detail_qs()
-        .filter(
-            order_number__iexact=number,
-            guest_email__iexact=normalized_email,
-        )
+        Order.objects.filter(order_number__iexact=number)
+        .values("order_number", "status", "requested_delivery_date")
         .first()
     )
 

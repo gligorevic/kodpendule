@@ -62,6 +62,28 @@ class CatalogControlsTests(TestCase):
             with self.subTest(query=query):
                 self.assertEqual(self.ids(self.client.get(self.url, {"q": query})), [self.tea.pk])
 
+    def test_search_ignores_serbian_accents_case_and_word_order(self):
+        sugar = self.product("ŠEĆER u prahu Gold 200g", self.child)
+        for query in ("secer", "šećer", "ŠEĆER", "gold secer", "  gold   ŠEĆER "):
+            with self.subTest(query=query):
+                self.assertEqual(self.ids(self.client.get(self.url, {"q": query})), [sugar.pk])
+        self.assertEqual(self.ids(self.client.get(self.url, {"q": "secer coffee"})), [])
+
+    def test_search_folds_both_stored_and_typed_diacritics(self):
+        plain = self.product("Caj od zalfije", self.child)
+        ginger = self.product("ĐUMBIR čaj", self.child)
+        self.assertEqual(self.ids(self.client.get(self.url, {"q": "ČAJ ŽALFIJE"})), [plain.pk])
+        self.assertEqual(self.ids(self.client.get(self.url, {"q": "djumbir"})), [ginger.pk])
+
+    def test_single_search_form_owns_external_catalog_controls(self):
+        response = self.client.get(self.url, {"kategorija": self.root.slug, "q": "tea"})
+        content = response.content.decode()
+        self.assertEqual(content.count('type="search"'), 1)
+        self.assertContains(response, 'name="sort" form="shop-search"')
+        self.assertContains(response, 'name="available" form="shop-search"')
+        self.assertContains(response, 'name="kategorija" form="shop-search"')
+        self.assertContains(response, f'value="{self.root.slug}" selected')
+
     def test_available_filter_excludes_zero_stock(self):
         response = self.client.get(self.url, {"kategorija": self.root.slug, "available": "1"})
         self.assertCountEqual(self.ids(response), [self.tea.pk, self.parent_tea.pk])
@@ -155,7 +177,7 @@ class CatalogControlsTests(TestCase):
         self.assertNotContains(response, 'class="shop-pdp__description"')
         self.assertNotContains(response, 'class="shop-pdp__lead"')
 
-    def test_two_images_have_gallery_controls_and_attribution_is_preserved(self):
+    def test_two_images_have_gallery_controls_and_sources_stay_internal(self):
         self.tea.main_image = "products/main.jpg"
         self.tea.main_image_source_url = "https://example.com/original-product"
         self.tea.main_image_attribution = "Example manufacturer"
@@ -164,5 +186,8 @@ class CatalogControlsTests(TestCase):
         response = self.detail()
         self.assertEqual(response.context["gallery_image_count"], 2)
         self.assertContains(response, 'data-bs-target="#productGallery"')
-        self.assertContains(response, "Example manufacturer")
-        self.assertContains(response, self.tea.main_image_source_url)
+        self.assertNotContains(response, "Example manufacturer")
+        self.assertNotContains(response, self.tea.main_image_source_url)
+        self.tea.refresh_from_db()
+        self.assertEqual(self.tea.main_image_attribution, "Example manufacturer")
+        self.assertEqual(self.tea.main_image_source_url, "https://example.com/original-product")

@@ -318,7 +318,7 @@ msgstr "Kategorija nije pronađena."
 #: templates/checkout/checkout.html:12
 #: templates/includes/_home_how_it_works.html:23
 msgid "Checkout"
-msgstr "Plaćanje"
+msgstr "Završi kupovinu"
 
 #: apps/checkout/forms.py:33
 msgid "City"
@@ -341,9 +341,9 @@ msgid "Preferred delivery date"
 msgstr "Željeni datum dostave"
 
 #: apps/checkout/forms.py:60
-msgid "Choose any date after today — delivery is free for scheduled orders."
+msgid "Choose any date after today. Delivery is free for scheduled orders."
 msgstr ""
-"Izaberite bilo koji datum posle danas — dostava je besplatna za zakazane "
+"Izaberite bilo koji datum posle danas. Dostava je besplatna za zakazane "
 "narudžbine."
 
 #: apps/checkout/forms.py:64
@@ -966,7 +966,7 @@ msgstr "Izabrani period"
 #: templates/admin/includes/_order_status_badge.html:3
 #: templates/admin/index.html:45
 msgid "Pending"
-msgstr "Na čekanju"
+msgstr "Primljena"
 
 #: apps/dashboard/templates/admin/dashboard/index.html:80
 msgid "Current pipeline"
@@ -977,14 +977,14 @@ msgstr "Aktivan tok narudžbina"
 #: templates/admin/includes/_order_status_badge.html:9
 #: templates/admin/index.html:46
 msgid "Shipped"
-msgstr "Poslato"
+msgstr "Na dostavi"
 
 #: apps/dashboard/templates/admin/dashboard/index.html:86
 #: apps/orders/models.py:16 apps/orders/status_display.py:12
 #: templates/admin/includes/_order_status_badge.html:11
 #: templates/admin/index.html:47
 msgid "Delivered"
-msgstr "Isporučeno"
+msgstr "Dostavljena"
 
 #: apps/dashboard/templates/admin/dashboard/index.html:89
 msgid "Period revenue"
@@ -1172,17 +1172,17 @@ msgstr "Email adresa"
 #: apps/orders/models.py:13 apps/orders/status_display.py:9
 #: templates/admin/includes/_order_status_badge.html:5
 msgid "Confirmed"
-msgstr "Potvrđeno"
+msgstr "Potvrđena"
 
 #: apps/orders/models.py:14 apps/orders/status_display.py:10
 #: templates/admin/includes/_order_status_badge.html:7
 msgid "Processing"
-msgstr "U obradi"
+msgstr "U pripremi"
 
 #: apps/orders/models.py:17 apps/orders/status_display.py:13
 #: templates/admin/includes/_order_status_badge.html:13
 msgid "Cancelled"
-msgstr "Otkazano"
+msgstr "Otkazana"
 
 #: apps/orders/models.py:21
 msgid "Pay by card"
@@ -1326,8 +1326,8 @@ msgstr "Ukupno: %(amount)s"
 
 #: apps/orders/services/order_notifications.py:25
 #, python-format
-msgid "Your order %(number)s — Kod Pendule"
-msgstr "Vaša narudžbina %(number)s — Kod Pendule"
+msgid "Your order %(number)s. Kod Pendule"
+msgstr "Vaša narudžbina %(number)s. Kod Pendule"
 
 #: apps/orders/services/order_notifications.py:27
 msgid ""
@@ -1748,7 +1748,7 @@ msgstr "Prag upozorenja: %(threshold)s"
 
 #: apps/products/views.py:32
 msgid "Default order"
-msgstr "Podrazumevani redosled"
+msgstr "Podrazumevano"
 
 #: apps/products/views.py:33
 msgid "Price: low to high"
@@ -2396,11 +2396,11 @@ msgstr "Vrednost artikala"
 
 #: templates/cart/detail.html:86 templates/includes/_cart_drawer.html:43
 msgid "Shipping is calculated at checkout."
-msgstr "Dostava se obračunava pri plaćanju."
+msgstr "Cenu dostave videćete pre potvrde narudžbine."
 
 #: templates/cart/detail.html:89
 msgid "Proceed to checkout"
-msgstr "Nastavi na plaćanje"
+msgstr "Nastavi na poručivanje"
 
 #: templates/cart/detail.html:92 templates/checkout/success.html:47
 #: templates/checkout/success.html:63 templates/checkout/success.html:68
@@ -2414,11 +2414,8 @@ msgstr "Vaša korpa je prazna"
 
 #: templates/cart/detail.html:102
 msgid ""
-"Browse our catalog and add products you like — checkout is simple and "
-"secure."
-msgstr ""
-"Pregledajte katalog i dodajte proizvode — plaćanje je jednostavno i "
-"bezbedno."
+"Browse our catalog and add products you like. Checkout is simple and secure."
+msgstr "Izaberite proizvode iz ponude i dodajte ih u korpu."
 
 #: templates/cart/detail.html:104 templates/includes/_cart_drawer.html:33
 #: templates/orders/history.html:62
@@ -2432,7 +2429,7 @@ msgstr "Sve kategorije"
 
 #: templates/categories/detail.html:21
 msgid "Subcategories"
-msgstr "Podkategorije"
+msgstr "Potkategorije"
 
 #: templates/categories/detail.html:22
 msgid "Browse subcategories"
@@ -2440,11 +2437,11 @@ msgstr "Pregledaj potkategorije"
 
 #: templates/categories/list.html:14 templates/products/list.html:14
 msgid "Our selection"
-msgstr "Naš asortiman"
+msgstr "Ponuda"
 
 #: templates/categories/list.html:16
 msgid "Choose a category to explore."
-msgstr "Izaberite kategoriju za pregled."
+msgstr "Pronađite sve što vam treba za kuću, trpezu i svaki dan."
 
 #: templates/categories/list.html:18 templates/categories/list.html:25
 #: templates/includes/_product_grid.html:20
@@ -2457,11 +2454,12 @@ msgstr "Još nema dostupnih kategorija."
 
 #: templates/checkout/checkout.html:13
 msgid "Review your order and choose your delivery details."
-msgstr "Proverite narudžbinu i izaberite podatke za dostavu."
+msgstr ""
+"Unesite podatke za dostavu. Ukupan iznos videćete pre potvrde narudžbine."
 
 #: templates/checkout/checkout.html:19 templates/products/detail.html:145
-msgid "You can checkout as a guest — no account required."
-msgstr "Možete kupiti kao gost — nalog nije potreban."
+msgid "You can checkout as a guest. No account required."
+msgstr "Kupovina bez registracije."
 
 # --- App labels ---
 #: templates/checkout/checkout.html:21
@@ -2486,7 +2484,7 @@ msgstr "Proveri korpu"
 
 #: templates/checkout/checkout.html:59
 msgid "Fields marked * are required."
-msgstr "Polja označena zvezdicom * su obavezna."
+msgstr "Polja označena zvezdicom su obavezna."
 
 #: templates/checkout/checkout.html:62
 msgid "We will use these details to confirm your order."
@@ -2540,8 +2538,8 @@ msgid "Note"
 msgstr "Napomena"
 
 #: templates/checkout/checkout.html:106
-msgid "Optional — tell us anything we should know about delivery."
-msgstr "Opciono — napišite sve što treba da znamo o dostavi."
+msgid "Optional. Tell us anything we should know about delivery."
+msgstr "Dodajte napomenu za dostavu, ako je potrebna."
 
 #: templates/checkout/checkout.html:111 templates/products/detail.html:107
 msgid "Payment"
@@ -2553,7 +2551,7 @@ msgstr "Šaljemo narudžbinu. Sačekajte…"
 
 #: templates/checkout/checkout.html:123 templates/checkout/checkout.html:141
 msgid "Place order"
-msgstr "Poruči"
+msgstr "Potvrdi narudžbinu"
 
 #: templates/checkout/checkout.html:126 templates/checkout/checkout.html:144
 msgid "By placing the order you confirm your details are correct."
@@ -2575,7 +2573,8 @@ msgstr ""
 #: templates/checkout/success.html:24 templates/checkout/success.html:60
 msgid "We will contact you to confirm delivery. Payment on delivery (cash)."
 msgstr ""
-"Kontaktiraćemo vas radi potvrde dostave. Plaćanje pouzećem (gotovina)."
+"Javićemo vam se da potvrdimo termin dostave. Plaćate gotovinom pri "
+"preuzimanju."
 
 #: templates/checkout/success.html:28
 msgid "What happens next"
@@ -2659,8 +2658,8 @@ msgid "Delivery price is calculated for your city."
 msgstr "Cena dostave obračunava se prema mestu isporuke."
 
 #: templates/includes/_checkout_delivery_timing.html:13
-msgid "Free delivery — pick a future date below."
-msgstr "Besplatna dostava — izaberite budući datum ispod."
+msgid "Free delivery. Pick a future date below."
+msgstr "Besplatna dostava. Izaberite budući datum ispod."
 
 #: templates/includes/_checkout_legal_consent.html:6
 msgid "I have read and accept the"
@@ -2677,16 +2676,16 @@ msgid "Why shop with us"
 msgstr "Zašto kupovati kod nas"
 
 #: templates/includes/_checkout_trust.html:4
-msgid "Secure ordering — your details are handled carefully."
-msgstr "Bezbedna porudžbina — vaši podaci se pažljivo čuvaju."
+msgid "Secure ordering. Your details are handled carefully."
+msgstr "Vaši podaci koriste se za obradu narudžbine."
 
 #: templates/includes/_checkout_trust.html:5
-msgid "Fast delivery — we prepare orders quickly."
-msgstr "Brza dostava — brzo pripremamo narudžbine."
+msgid "Fast delivery. We prepare orders quickly."
+msgstr "Termin dostave potvrđujemo sa vama."
 
 #: templates/includes/_checkout_trust.html:6
-msgid "Pay on delivery — pay when your package arrives."
-msgstr "Plaćanje pouzećem — platite kada paket stigne."
+msgid "Pay on delivery. Pay when your package arrives."
+msgstr "Plaćate gotovinom pri preuzimanju."
 
 #: templates/includes/_checkout_trust.html:9
 #: templates/products/detail.html:111
@@ -2718,10 +2717,9 @@ msgid "Accept"
 msgstr "Prihvati"
 
 #: templates/includes/_footer.html:16
-msgid ""
-"Quality products and reliable delivery — order online, pay on delivery."
+msgid "Quality products and reliable delivery. Order online, pay on delivery."
 msgstr ""
-"Kvalitetni proizvodi i pouzdana dostava — poručite online, platite pouzećem."
+"Sve za vašu svakodnevnu kupovinu. Poručite online, platite pri dostavi."
 
 #: templates/includes/_footer.html:20
 msgid "Carefully selected assortment and transparent pricing."
@@ -2745,7 +2743,7 @@ msgstr "Podešavanja kolačića"
 
 #: templates/includes/_footer.html:76 templates/pages/contact.html:43
 msgid "Available delivery locations and costs are shown at checkout."
-msgstr "Dostupna mesta i cena dostave prikazuju se pri poručivanju."
+msgstr "Izaberite mesto dostave pri poručivanju da proverite cenu."
 
 #: templates/includes/_footer.html:78
 msgid "Find our shop"
@@ -2756,8 +2754,8 @@ msgid "All rights reserved."
 msgstr "Sva prava zadržana."
 
 #: templates/includes/_footer.html:101
-msgid "Cash on delivery — pay when your order arrives."
-msgstr "Plaćanje pouzećem — platite kada narudžbina stigne."
+msgid "Cash on delivery. Pay when your order arrives."
+msgstr "Platite gotovinom kada narudžbina stigne."
 
 #: templates/includes/_google_map.html:3
 #: templates/includes/_google_map.html:10
@@ -2766,7 +2764,7 @@ msgstr "Lokacija prodavnice na mapi"
 
 #: templates/includes/_header.html:4
 msgid "Your neighbourhood shop, online."
-msgstr "Vaša komšijska prodavnica, sada i online."
+msgstr "Vaša prodavnica u Vrdniku. Poručite online."
 
 #: templates/includes/_header.html:5
 msgid "Need help?"
@@ -2775,7 +2773,7 @@ msgstr "Treba vam pomoć?"
 #: templates/includes/_header.html:25
 #: templates/includes/_header_panel_body.html:11
 msgid "Search products…"
-msgstr "Pretraži proizvode…"
+msgstr "Šta vam je potrebno?"
 
 #: templates/includes/_header.html:44
 #: templates/includes/_header_panel_body.html:31
@@ -2818,8 +2816,8 @@ msgid ""
 "Groceries, favourite treats and essentials for your home. Choose what you "
 "need and order in a few simple steps."
 msgstr ""
-"Namirnice, omiljeni slatkiši i sve što treba vašem domu. Izaberite proizvode"
-" i poručite u nekoliko jednostavnih koraka."
+"Od namirnica do kućnih potrepština. Izaberite šta vam treba, a mi donosimo "
+"na vašu adresu."
 
 #: templates/includes/_hero.html:10
 msgid "Browse the shop"
@@ -2885,10 +2883,10 @@ msgstr "Pažljivo odabrano za svakodnevni dom"
 
 #: templates/includes/_home_editorial.html:9
 msgid ""
-"We select products that feel at home in Serbian households — reliable "
+"We select products that feel at home in Serbian households. Reliable "
 "quality, honest pricing, and delivery you can count on."
 msgstr ""
-"Biramo proizvode koji prirodno pripadaju domovima u Srbiji — pouzdan "
+"Biramo proizvode koji prirodno pripadaju domovima u Srbiji. Pouzdan "
 "kvalitet, jasne cene i dostava na koju možete da računate."
 
 #: templates/includes/_home_editorial.html:12
@@ -2920,8 +2918,8 @@ msgid "How shopping works"
 msgstr "Kako funkcioniše kupovina"
 
 #: templates/includes/_home_how_it_works.html:7
-msgid "From browsing to doorstep — four clear steps."
-msgstr "Od pregleda do vrata — četiri jasna koraka."
+msgid "From browsing to doorstep. Four clear steps."
+msgstr "Od pregleda do vrata. Četiri jasna koraka."
 
 #: templates/includes/_home_how_it_works.html:13
 msgid "Browse & choose"
@@ -2939,10 +2937,9 @@ msgstr "Dodaj u korpu"
 
 #: templates/includes/_home_how_it_works.html:19
 msgid ""
-"Review items and quantities before checkout — no account required for "
-"guests."
+"Review items and quantities before checkout. No account required for guests."
 msgstr ""
-"Proverite stavke i količine pre plaćanja — nalog nije obavezan za goste."
+"Proverite stavke i količine pre plaćanja. Nalog nije obavezan za goste."
 
 #: templates/includes/_home_how_it_works.html:24
 msgid "Enter delivery details and confirm your order in a few minutes."
@@ -2961,8 +2958,8 @@ msgid "New arrivals"
 msgstr "Novo u ponudi"
 
 #: templates/includes/_home_new_arrivals.html:9
-msgid "Fresh picks from our catalog — updated regularly."
-msgstr "Sveži izbori iz kataloga — redovno ažurirano."
+msgid "Fresh picks from our catalog. Updated regularly."
+msgstr "Sveži izbori iz kataloga. Redovno ažurirano."
 
 #: templates/includes/_home_new_arrivals.html:12
 #: templates/includes/_home_promo_sale_products.html:12
@@ -2991,9 +2988,8 @@ msgid "Staff picks"
 msgstr "Naš izbor"
 
 #: templates/includes/_home_recommended_products.html:13
-msgid "Products we highlight for you — swipe or use arrows to browse."
-msgstr ""
-"Proizvodi koje ističemo — prevucite ili koristite strelice za pregled."
+msgid "Products we highlight for you. Swipe or use arrows to browse."
+msgstr "Proizvodi koje ističemo. Prevucite ili koristite strelice za pregled."
 
 #: templates/includes/_home_trust_details.html:5
 msgid "Our promise"
@@ -3005,9 +3001,9 @@ msgstr "Kupujte sa poverenjem"
 
 #: templates/includes/_home_trust_details.html:7
 msgid ""
-"Clear process from browsing to delivery — designed for everyday customers in"
-" Serbia."
-msgstr "Jasan proces od pregleda do isporuke — prilagođen kupcima u Srbiji."
+"Clear process from browsing to delivery. Designed for everyday customers in "
+"Serbia."
+msgstr "Jasan proces od pregleda do isporuke. Prilagođen kupcima u Srbiji."
 
 #: templates/includes/_home_trust_details.html:13
 #: templates/includes/_shop_trust_bar.html:9
@@ -3016,10 +3012,10 @@ msgstr "Bezbedna porudžbina"
 
 #: templates/includes/_home_trust_details.html:14
 msgid ""
-"Your details are handled carefully. Confirm your order before delivery — no "
+"Your details are handled carefully. Confirm your order before delivery. No "
 "surprises."
 msgstr ""
-"Vaši podaci se pažljivo čuvaju. Potvrdite narudžbinu pre isporuke — bez "
+"Vaši podaci se pažljivo čuvaju. Potvrdite narudžbinu pre isporuke. Bez "
 "iznenađenja."
 
 #: templates/includes/_home_trust_details.html:19
@@ -3038,10 +3034,10 @@ msgstr "Plaćanje pouzećem"
 
 #: templates/includes/_home_trust_details.html:26
 msgid ""
-"Pay when the package arrives. Simple and familiar — ideal if you prefer not "
+"Pay when the package arrives. Simple and familiar. Ideal if you prefer not "
 "to pay online."
 msgstr ""
-"Platite kada paket stigne. Jednostavno i poznato — idealno ako ne želite "
+"Platite kada paket stigne. Jednostavno i poznato. Idealno ako ne želite "
 "online plaćanje."
 
 #: templates/includes/_home_trust_details.html:31
@@ -3089,7 +3085,7 @@ msgstr ""
 
 #: templates/includes/_product_card.html:8 templates/products/detail.html:43
 msgid "Photo unavailable"
-msgstr "Fotografija nije dostupna"
+msgstr "Bez fotografije"
 
 #: templates/includes/_product_card.html:14
 msgid "Sale"
@@ -3314,31 +3310,30 @@ msgid ""
 msgstr "Prodavnica koristi kolačiće neophodne za rad sajta, uključujući:"
 
 #: templates/includes/legal/_privacy_content.html:73
-msgid "Session cookie — keeps you logged in and maintains your shopping cart."
-msgstr "Sesijski kolačić — održava prijavu i korpu."
+msgid "Session cookie. Keeps you logged in and maintains your shopping cart."
+msgstr "Sesijski kolačić. Održava prijavu i korpu."
 
 #: templates/includes/legal/_privacy_content.html:74
-msgid "CSRF cookie — protects forms against cross-site request forgery."
-msgstr "CSRF kolačić — štiti forme od zloupotrebe."
+msgid "CSRF cookie. Protects forms against cross-site request forgery."
+msgstr "CSRF kolačić. Štiti forme od zloupotrebe."
 
 #: templates/includes/legal/_privacy_content.html:75
-msgid "Language cookie — remembers your Serbian or English language choice."
-msgstr "Jezički kolačić — pamti izbor srpskog ili engleskog jezika."
+msgid "Language cookie. Remembers your Serbian or English language choice."
+msgstr "Jezički kolačić. Pamti izbor srpskog ili engleskog jezika."
 
 #: templates/includes/legal/_privacy_content.html:77
 msgid ""
 "We do not use third-party marketing or analytics cookies on the public shop."
 " The cookie notice informs you about essential cookies we use. Google Maps "
-"is embedded on the contact page and in the footer to show our location; when"
-" the map loads, Google may process data (including cookies) under its own "
-"privacy policy — see section 10."
+"is embedded on the contact page to show our location; when the map loads, "
+"Google may process data (including cookies) under its own privacy policy. "
+"See section 10."
 msgstr ""
 "Ne koristimo marketinške ili analitičke kolačiće trećih strana na javnoj "
 "prodavnici. Obaveštenje o kolačićima vas informiše o neophodnim kolačićima "
-"koje koristimo. Google Maps je ugrađen na kontakt stranici i u podnožju da "
-"prikaže našu lokaciju; kada se mapa učita, Google može obrađivati podatke "
-"(uključujući kolačiće) prema svojoj politici privatnosti — pogledajte tačku "
-"10."
+"koje koristimo. Google Maps je ugrađen na kontakt stranici da prikaže našu "
+"lokaciju; kada se mapa učita, Google može obrađivati podatke (uključujući "
+"kolačiće) prema svojoj politici privatnosti. Pogledajte tačku 10."
 
 #: templates/includes/legal/_privacy_content.html:79
 msgid "8. Analytics"
@@ -3801,8 +3796,8 @@ msgid ""
 "Questions about products, delivery, or your order? Reach us using the "
 "details below or send us a message."
 msgstr ""
-"Pitanja o proizvodima, dostavi ili narudžbini? Javite nam se putem podataka "
-"ispod ili pošaljite poruku."
+"Tu smo za pitanja o proizvodima, dostavi i narudžbinama. Pozovite nas ili "
+"nam pošaljite poruku."
 
 #: templates/pages/contact.html:21
 msgid "Contact information"
@@ -3870,7 +3865,8 @@ msgid ""
 "Order as a guest and follow your order with the number from your "
 "confirmation."
 msgstr ""
-"Poručite bez registracije i pratite narudžbinu pomoću broja iz potvrde."
+"Platite gotovinom pri preuzimanju. Status dostave proverite pomoću broja "
+"narudžbine."
 
 #: templates/pages/home.html:33
 msgid "Here when you need us"
@@ -3906,7 +3902,7 @@ msgstr "Samo na stanju"
 
 #: templates/products/_catalog_controls.html:18
 msgid "Apply filters"
-msgstr "Primeni filtere"
+msgstr "Prikaži proizvode"
 
 #: templates/products/_result_count.html:5
 #, python-format
@@ -3947,7 +3943,7 @@ msgstr "pouzećem"
 
 #: templates/products/detail.html:108
 msgid "calculated at checkout"
-msgstr "obračunava se pri plaćanju"
+msgstr "cena se prikazuje pre potvrde narudžbine"
 
 #: templates/products/detail.html:149
 msgid "This product is currently out of stock."
@@ -4714,3 +4710,131 @@ msgstr[1] ""
 "Ova lozinka je prekratka. Mora da sadrži najmanje %(min_length)d znaka."
 msgstr[2] ""
 "Ova lozinka je prekratka. Mora da sadrži najmanje %(min_length)d znakova."
+
+msgid ""
+"Enter the number from your order confirmation to see its status. No sign-in "
+"needed."
+msgstr ""
+"Unesite broj iz potvrde narudžbine i proverite dokle je stigla vaša dostava."
+
+msgid "Check order status"
+msgstr "Proveri status"
+
+msgid "Need help with your order?"
+msgstr "Treba vam pomoć oko narudžbine?"
+
+msgid ""
+"We could not find that order. Check the number in your confirmation and try "
+"again."
+msgstr ""
+"Nismo pronašli narudžbinu sa tim brojem. Proverite broj u potvrdi i "
+"pokušajte ponovo."
+
+msgid ""
+"Save your order number. It is all you need to check the delivery status."
+msgstr ""
+"Sačuvajte broj narudžbine. Samo taj broj vam je potreban za praćenje "
+"dostave."
+
+msgid "Photo not available"
+msgstr "Fotografija nije dostupna"
+
+msgid "Changing a filter updates the products automatically."
+msgstr "Promena filtera automatski osvežava proizvode."
+
+msgid "Page %(number)s"
+msgstr "Strana %(number)s"
+
+msgid "Page %(num)s of %(total)s"
+msgstr "Strana %(num)s od %(total)s"
+
+msgid "Find what you need"
+msgstr "Pronađite ono što vam treba"
+
+msgid "What is on your shopping list?"
+msgstr "Šta je na vašem spisku za kupovinu?"
+
+msgid "Let’s talk."
+msgstr "Tu smo da pomognemo."
+
+msgid ""
+"A question about a product, delivery or an order? Choose how you would like "
+"to reach us."
+msgstr ""
+"Imate pitanje o proizvodu, dostavi ili porudžbini? Pozovite nas ili nam "
+"pošaljite poruku."
+
+msgid "For a quick answer, give us a call."
+msgstr "Za brz odgovor, tu smo na oba broja."
+
+msgid "Write to us"
+msgstr "Pišite nam"
+
+msgid "Or use the form on this page."
+msgstr "Možete nam pisati i putem obrasca na ovoj stranici."
+
+msgid "Already placed an order?"
+msgstr "Već ste poručili?"
+
+msgid "Include your order number if your question is about a purchase."
+msgstr "Ako pišete u vezi sa kupovinom, navedite i broj porudžbine."
+
+msgid "Visit us in Vrdnik"
+msgstr "Posetite nas u Vrdniku"
+
+msgid "Open directions"
+msgstr "Pogledajte putanju"
+
+msgid "Your order, step by step"
+msgstr "Od potvrde do isporuke"
+
+msgid "Where can I find my order number?"
+msgstr "Gde se nalazi broj porudžbine?"
+
+msgid ""
+"It appears on the confirmation page after checkout and in your confirmation "
+"email. You can enter it with or without KP-."
+msgstr ""
+"Broj se prikazuje nakon poručivanja i nalazi se u imejlu sa potvrdom. Možete"
+" ga uneti sa oznakom KP- ili bez nje."
+
+msgid "Cannot find your number?"
+msgstr "Ne možete da pronađete broj?"
+
+msgid "All you need is your order number."
+msgstr "Unesite broj porudžbine i proverite dokle je stigla."
+
+msgid ""
+"Need to change something in your order? Contact us and have your order "
+"number ready."
+msgstr ""
+"Želite da izmenite nešto u porudžbini? Javite nam se i pripremite njen broj."
+
+msgid "Phone (optional)"
+msgstr "Telefon (opciono)"
+
+msgid "For questions about products, delivery and your order."
+msgstr "Za pitanja o proizvodima, dostavi i porudžbinama."
+
+msgid "Check using your order number"
+msgstr "Proverite status pomoću broja porudžbine"
+
+msgid "We will reply to the email address you provide."
+msgstr "Odgovorićemo na imejl adresu koju navedete."
+
+msgid "Our shop"
+msgstr "Prodavnica u Vrdniku"
+
+msgid "Check the latest status with your order number."
+msgstr "Unesite broj porudžbine i pogledajte njen trenutni status."
+
+msgid "You will find it in your confirmation email. No account needed."
+msgstr "Broj je u imejlu sa potvrdom kupovine. Prijava nije potrebna."
+
+msgid ""
+"Check your confirmation email, including the spam folder, or contact us."
+msgstr ""
+"Proverite imejl sa potvrdom, uključujući neželjenu poštu, ili nam se javite."
+
+msgid "Every day: 07:00–24:00"
+msgstr "Svakog dana: 07:00–24:00"

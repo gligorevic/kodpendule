@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% load static shop_urls i18n %}
+{% load static shop_urls i18n shop_tags %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
-<link rel="stylesheet" href="{% static 'css/categories.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux8">
+<link rel="stylesheet" href="{% static 'css/categories.css' %}?v=20261015-ux8">
 {% endblock %}
 
 {% block content %}
@@ -13,20 +13,25 @@
         <div>
             <p class="shop-catalog-eyebrow">{% trans "Category" %}</p>
             <h1 class="shop-page-header__title">{{ category.name }}</h1>
-            {% if category_description %}<div class="text-muted shop-category-detail__lead">{{ category_description|linebreaksbr }}</div>{% endif %}
+            {% if category_description %}<div class="text-muted shop-category-detail__lead">{{ category_description|plain_copy|linebreaksbr }}</div>{% endif %}
         </div>
         <a class="shop-catalog-browse" href="{% shop_url 'categories:list' %}">{% trans "All categories" %} <span aria-hidden="true">↗</span></a>
     </header>
     {% if show_child_categories %}
-    <nav class="shop-category-subcategories mb-4" aria-label="{% trans 'Subcategories' %}">
-        <h2 class="h6">{% trans "Browse subcategories" %}</h2>
+    <nav class="shop-category-subcategories mb-3" aria-label="{% trans 'Subcategories' %}">
+        <p class="shop-category-subcategories__label">{% trans "Find what you need" %}</p>
         <div class="shop-category-chips">
-            {% for child in child_categories %}<a class="shop-chip" href="{{ child.get_absolute_url }}{% querystring page=None kategorija=None %}">{{ child.name }} <span aria-hidden="true">→</span></a>{% endfor %}
+            {% for child in child_categories %}
+            <a class="shop-chip shop-chip--illustrated" href="{{ child.get_absolute_url }}{% querystring page=None kategorija=None %}">
+                {% if child.image %}<img src="{{ child.image.url }}" alt="" width="32" height="32" loading="lazy">{% else %}<span class="shop-chip__icon" aria-hidden="true">◇</span>{% endif %}
+                <span>{{ child.name }}</span><span class="shop-chip__arrow" aria-hidden="true">↗</span>
+            </a>
+            {% endfor %}
         </div>
     </nav>
     {% endif %}
     {% include "products/_catalog_controls.html" %}
-    <section id="catalog-results" class="shop-catalog-results" aria-labelledby="category-products-heading">
+    <section id="catalog-results" class="shop-catalog-results" aria-labelledby="category-products-heading" tabindex="-1">
         <h2 class="visually-hidden" id="category-products-heading">{% trans "Products" %}</h2>
         {% include "products/_result_count.html" %}
         {% include "includes/_product_grid.html" with products=products %}
@@ -34,3 +39,4 @@
     </section>
 </div>
 {% endblock %}
+{% block extra_js %}<script src="{% static 'js/catalog.js' %}?v=20261015-ux7" defer></script>{% endblock %}

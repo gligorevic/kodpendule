@@ -13,16 +13,7 @@
         <p class="shop-page-header__meta mb-0">{% trans "Review your order and choose your delivery details." %}</p>
     </header>
 
-    {% if is_guest %}
-    <div class="shop-checkout-guest shop-notice mb-4" role="note">
-        <p class="mb-0">
-            {% trans "You can checkout as a guest — no account required." %}
-            <a href="{% shop_url 'accounts:login' %}?next={{ request.path }}">{% trans "Sign in" %}</a>
-            {% trans "or" %}
-            <a href="{% shop_url 'accounts:register' %}?next={{ request.path }}">{% trans "register" %}</a>.
-        </p>
-    </div>
-    {% endif %}
+
 
     <div class="shop-checkout__layout">
         <aside class="shop-checkout__summary-col" aria-label="{% trans 'Order summary' %}">
@@ -103,7 +94,7 @@
 
                 <section class="shop-checkout-section" aria-labelledby="checkout-notes-heading">
                     <h2 id="checkout-notes-heading" class="shop-checkout-section__title">{% trans "Note" %}</h2>
-                    <p class="shop-checkout-section__lead">{% trans "Optional — tell us anything we should know about delivery." %}</p>
+                    <p class="shop-checkout-section__lead">{% trans "Optional. Tell us anything we should know about delivery." %}</p>
                     <div class="mb-0">{% include "checkout/_field.html" with field=form.order_notes %}</div>
                 </section>
 

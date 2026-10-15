@@ -22,6 +22,7 @@
     .shop-category-grid__list { gap: .75rem; }
     .shop-category-card__body { padding: .85rem; }
     .shop-category-card__title { font-size: .95rem; }
-    .shop-category-subcategories .shop-category-chips { flex-wrap: nowrap; overflow-x: auto; margin-inline: 0; padding-inline: 0; }
-    .shop-category-subcategories .shop-chip { flex-shrink: 0; white-space: nowrap; }
+    .shop-category-subcategories .shop-category-chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin-inline: 0; padding-inline: 0; }
+    .shop-category-subcategories .shop-chip { white-space: normal; border-radius: 12px; padding: 8px; gap: 7px; }
+    .shop-category-subcategories .shop-chip__arrow { display: none; }
 }

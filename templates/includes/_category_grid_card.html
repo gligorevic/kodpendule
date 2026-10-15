@@ -1,19 +1,19 @@
 {% load i18n %}
-<article class="shop-category-card" aria-label="{{ category.name }}">
+<a href="{{ category.get_absolute_url }}" class="shop-category-card">
     <div class="shop-category-card__media">
-        <a href="{{ category.get_absolute_url }}" class="shop-category-card__media-link" aria-label="{{ category.name }}">
+        <div class="shop-category-card__media-link">
             {% if category.image %}
             <img src="{{ category.image.url }}" class="shop-category-card__img" alt="{{ category.name }}" loading="lazy">
             {% else %}
             <div class="shop-category-card__img shop-category-card__img--placeholder" aria-hidden="true"></div>
             {% endif %}
-        </a>
+        </div>
     </div>
     <div class="shop-category-card__body">
         <h2 class="shop-category-card__title">
-            <a href="{{ category.get_absolute_url }}" class="shop-category-card__title-link">
+            <span class="shop-category-card__title-link">
                 {{ category.name }}
-            </a>
+            </span>
         </h2>
         {% if category.description %}
         <p class="shop-category-card__desc">{{ category.description|truncatewords:14 }}</p>
@@ -21,4 +21,4 @@
         <div class="shop-category-card__desc shop-category-card__desc--empty" aria-hidden="true"></div>
         {% endif %}
     </div>
-</article>
+</a>

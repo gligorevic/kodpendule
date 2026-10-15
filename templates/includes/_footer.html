@@ -1,4 +1,4 @@
-{% load shop_urls i18n static %}
+{% load shop_urls i18n static shop_tags %}
 <footer class="shop-footer mt-auto" role="contentinfo">
     <div class="shop-footer__main">
         <div class="container shop-container">
@@ -11,9 +11,9 @@
                     </a>
                     <p class="shop-footer__tagline">
                         {% if site_settings.default_meta_description %}
-                        {{ site_settings.default_meta_description }}
+                        {{ site_settings.default_meta_description|plain_copy }}
                         {% else %}
-                        {% trans "Quality products and reliable delivery — order online, pay on delivery." %}
+                        {% trans "Quality products and reliable delivery. Order online, pay on delivery." %}
                         {% endif %}
                     </p>
                     <p class="shop-footer__quality">
@@ -35,11 +35,7 @@
                     <ul class="shop-footer__links list-unstyled mb-0">
                         <li><a href="{% shop_url 'orders:track' %}">{% trans "Track your order" %}</a></li>
                         <li><a href="{% shop_url 'core:contact' %}">{% trans "Contact" %}</a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% shop_url 'orders:history' %}">{% trans "My orders" %}</a></li>
-                        {% else %}
-                        <li><a href="{% shop_url 'accounts:login' %}">{% trans "Sign in" %}</a></li>
-                        {% endif %}
+
                     </ul>
                 </nav>
 
@@ -98,7 +94,7 @@
                 </button>
             </p>
             <p class="shop-footer__cod mb-0">
-                {% trans "Cash on delivery — pay when your order arrives." %}
+                {% trans "Cash on delivery. Pay when your order arrives." %}
             </p>
         </div>
     </div>

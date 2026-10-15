@@ -22,7 +22,7 @@ def notify_customer_new_order(order: Order) -> None:
         )
         return
 
-    subject = _("Your order %(number)s — Kod Pendule") % {"number": order.order_number}
+    subject = _("Your order %(number)s. Kod Pendule") % {"number": order.order_number}
     intro = _(
         "Thank you for your order! We have received it and will contact you "
         "if we need any additional information."

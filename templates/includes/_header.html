@@ -12,40 +12,11 @@
                 </span>
             </a>
 
-            <form class="shop-header__search shop-search d-flex align-items-center" method="get"
-                  action="{% shop_url 'products:list' %}" role="search">
-                <label class="visually-hidden" for="shop-header-search">{% trans "Search" %}</label>
-                <span class="shop-header__search-icon" aria-hidden="true">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3-3"/>
-                    </svg>
-                </span>
-                <input id="shop-header-search" class="form-control shop-header__search-input" type="search"
-                       name="q" value="{{ request.GET.q|default:'' }}"
-                       placeholder="{% trans 'Search products…' %}" autocomplete="off">
-                <button type="submit" class="shop-btn shop-btn--primary shop-btn--sm shop-header__search-btn">
-                    {% trans "Search" %}
-                </button>
-            </form>
+            {% include "includes/_search.html" %}
 
             <div class="shop-header__actions">
                 <div class="shop-header__action shop-header__lang-wrap d-none d-md-block">
                     {% include "includes/_language_switcher.html" %}
-                </div>
-
-                <div class="shop-header__account d-none d-lg-flex align-items-center gap-2">
-                    {% if user.is_authenticated %}
-                    <a class="shop-header__account-link" href="{% shop_url 'orders:history' %}">{% trans "My orders" %}</a>
-                    <span class="shop-header__account-name text-muted small">
-                        {{ user.get_short_name|default:user.username }}
-                    </span>
-                    <form method="post" action="{% shop_url 'accounts:logout' %}" class="m-0">
-                        {% csrf_token %}
-                        <button type="submit" class="shop-btn shop-btn--secondary shop-btn--sm">{% trans "Sign out" %}</button>
-                    </form>
-                    {% else %}
-                    <a class="shop-header__account-link" href="{% shop_url 'accounts:login' %}">{% trans "Sign in" %}</a>
-                    {% endif %}
                 </div>
 
                 <a class="shop-header__action shop-header__cart" href="{% shop_url 'cart:detail' %}"

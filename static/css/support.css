@@ -1,0 +1,88 @@
+/* Practical support pages: quick contact options and a focused tracking form. */
+.shop-support { padding-block: 32px 48px; }
+.shop-support__header { margin-bottom: 24px; }
+.shop-support__header h1 { margin: 0 0 9px; color: #173d2b; font-size: clamp(28px, 2.6vw, 34px); letter-spacing: -.03em; line-height: 1.2; }
+.shop-support__header p { margin: 0; font-size: 14px; line-height: 1.6; color: #627066; }
+.shop-support h2 { color: #173d2b; font-size: 20px; letter-spacing: -.015em; line-height: 1.3; margin: 0 0 8px; }
+.shop-support h3 { font-size: 13px; margin: 0 0 7px; }
+.shop-support__icon { display: inline-grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px; background: #ecf0e5; color: #36503c; border-radius: 9px; }
+.shop-contact-channels { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+.shop-body .shop-contact-channel { display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid #dfe3d7; background: #fffefb; border-radius: 10px; text-decoration: none; min-width: 0; }
+.shop-contact-channel > div, .shop-contact-channel > span:nth-child(2) { min-width: 0; }
+.shop-contact-channel h2, .shop-contact-channel strong { display: block; font-size: 13px; font-weight: 600; margin: 0 0 5px; }
+.shop-contact-channel > span > span { display: block; color: #627066; font-size: 13px; overflow-wrap: anywhere; }
+.shop-contact-channel__arrow { margin-left: auto; color: #627066; font-size: 14px; }
+.shop-body a.shop-contact-channel:hover { border-color: #9aaa8f; background: #f4f6ef; }
+.shop-contact-phones { display: flex; flex-wrap: wrap; gap: 0 14px; }
+.shop-contact-phones a { display: inline-flex; align-items: center; min-height: 28px; font-size: 13px; text-decoration: none; font-weight: 600; }
+.shop-contact-phones a:hover { text-decoration: underline; text-underline-offset: 4px; }
+.shop-contact-layout { display: grid; grid-template-columns: 1.25fr .85fr; gap: 32px; align-items: start; }
+.shop-support-panel { padding: 26px; border: 1px solid #dedfd3; border-radius: 12px; background: #fffefb; }
+.shop-support-panel__intro { margin: 0 0 22px; font-size: 13px; line-height: 1.6; color: #627066; }
+.shop-support .form-control { background: #fff; border-color: #d5dccf; border-radius: 7px; min-height: 44px; font-size: 15px; }
+.shop-support textarea.form-control { min-height: 110px; resize: vertical; }
+.shop-support .shop-field { margin-bottom: 0 !important; }
+.shop-support .shop-field__label, .shop-support .form-label { font-size: 13px; font-weight: 600; }
+.shop-support-form__footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 20px; }
+.shop-support-form__footer > span { font-size: 11px; color: #627066; }
+.shop-support .shop-btn { min-height: 44px; font-size: 13px; padding: 10px 18px; border-radius: 7px; }
+.shop-contact-store { padding: 8px 0; }
+.shop-contact-store__heading { display: flex; align-items: start; gap: 12px; margin-bottom: 18px; }
+.shop-contact-store__heading h2 { font-size: 17px; margin-bottom: 4px; }
+.shop-contact-store p { font-size: 13px; line-height: 1.65; color: #627066; margin: 0; }
+.shop-contact-store .shop-map { height: 200px; aspect-ratio: auto; border-radius: 10px; }
+.shop-body .shop-contact-directions { display: flex; align-items: center; justify-content: space-between; min-height: 44px; font-size: 13px; text-decoration: none; border-bottom: 1px solid #dce1d4; }
+.shop-contact-directions:hover { text-decoration: underline !important; }
+.shop-contact-hours { padding-block: 18px; }
+.shop-contact-delivery { padding: 14px 16px; background: #ecf0e5; border-radius: 8px; }
+.shop-tracking-wrap { max-width: 720px; margin: 16px auto 40px; }
+.shop-tracking-form-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+.shop-tracking-form-row input { min-width: 0; }
+.shop-tracking-input-help { font-size: 12px; line-height: 1.6; color: #627066; margin: 12px 0 0; }
+.shop-tracking-panel .alert { margin: 18px 0 0; font-size: 13px; }
+.shop-tracking-panel .alert ul { padding-left: 18px; margin: 0; }
+.shop-support .shop-tracking-result { margin-top: 24px; padding: 24px 0 0; border-top: 1px solid #e1e5da; }
+.shop-tracking-result__heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 28px; }
+.shop-tracking-result__heading p { font-size: 12px; color: #627066; margin: 0 0 6px; }
+.shop-support .shop-tracking-result h2 { font-size: 24px; margin: 0; }
+.shop-support .order-status-progress { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 0; counter-reset: tracking; }
+.shop-support .order-status-progress .list-group-item { display: flex; flex-direction: column; align-items: center; position: relative; gap: 8px; font-size: 12px; padding: 0 4px !important; border: 0; border-radius: 0; background: none; color: #627066; }
+.shop-support .order-status-progress .list-group-item::before { counter-increment: tracking; content: counter(tracking); z-index: 1; display: grid; place-items: center; width: 28px; height: 28px; border: 1px solid #dce1d4; background: #fffefb; border-radius: 50%; font-size: 12px; }
+.shop-support .order-status-progress .list-group-item::after { content: ""; position: absolute; height: 1px; background: #dce1d4; top: 14px; left: 50%; width: 100%; }
+.shop-support .order-status-progress .list-group-item:last-child::after { display: none; }
+.shop-support .order-status-progress .list-group-item.active { color: #173d2b; }
+.shop-support .order-status-progress .list-group-item.active::before { content: "✓"; background: #e5eddf; border-color: #e5eddf; }
+.shop-support .order-status-progress .list-group-item[aria-current="step"] { font-weight: 700; }
+.shop-support .order-status-progress .list-group-item[aria-current="step"]::before { content: counter(tracking); background: #173d2b; border-color: #173d2b; color: #fff; box-shadow: 0 0 0 4px #e8eee2; }
+.shop-support .shop-tracking-date { padding: 14px 16px; background: #f2f4ed; border-radius: 7px; margin: 24px 0 0; font-size: 12px; color: #627066; }
+.shop-tracking-date strong { color: #173d2b; margin-left: 8px; }
+.shop-tracking-assistance { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 24px 4px 0; }
+.shop-tracking-assistance h2 { font-size: 14px; margin-bottom: 5px; }
+.shop-tracking-assistance p { color: #627066; font-size: 12px; line-height: 1.6; margin: 0; max-width: 49ch; }
+.shop-tracking-assistance a { display: flex; gap: 12px; align-items: center; min-height: 44px; font-size: 13px; white-space: nowrap; text-underline-offset: 4px; }
+#tracking-result, #contact-form-title { scroll-margin-top: 165px; }
+#tracking-result:focus { outline: none; }
+@media (max-width: 991.98px) { .shop-contact-channel { gap: 8px; } .shop-contact-channels { gap: 8px; } .shop-body .shop-contact-channel { padding: 12px; } .shop-contact-layout { gap: 24px; } }
+@media (max-width: 767.98px) {
+    .shop-support { padding-block: 24px 32px; }
+    .shop-support__header { margin-bottom: 20px; }
+    .shop-contact-channels { grid-template-columns: 1fr; gap: 8px; margin-bottom: 20px; }
+    .shop-body .shop-contact-channel { padding: 10px 12px; }
+    .shop-contact-phones a { min-height: 32px; }
+    .shop-contact-layout { grid-template-columns: minmax(0,1fr); }
+    .shop-support-panel { padding: 20px 16px; }
+    .shop-support .form-control { font-size: 16px; }
+    .shop-support-form__footer { flex-wrap: wrap; gap: 12px; }
+    .shop-support-form__footer .shop-btn { width: 100%; }
+    .shop-contact-store { padding-inline: 4px; }
+    .shop-tracking-wrap { margin: 0 auto 24px; }
+    .shop-tracking-form-row { grid-template-columns: 1fr; }
+    .shop-tracking-assistance { display: block; padding-top: 20px; }
+    .shop-tracking-assistance a { margin-top: 4px; }
+    .shop-support .order-status-progress { grid-template-columns: 1fr; gap: 0; }
+    .shop-support .order-status-progress .list-group-item { flex-direction: row; text-align: left !important; font-size: 13px; min-height: 44px; gap: 12px; }
+    .shop-support .order-status-progress .list-group-item::after { top: 24px; left: 17px; width: 1px; height: 100%; }
+    .shop-tracking-result__heading { margin-bottom: 14px; }
+    .shop-support .shop-tracking-date { margin-top: 16px; }
+}
+.shop-support .form-control:focus, .shop-support .form-control:focus-visible { outline: none; border-color: #829887; box-shadow: 0 0 0 2px rgb(23 61 43 / 9%); }

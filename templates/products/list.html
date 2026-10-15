@@ -2,7 +2,7 @@
 {% load static shop_urls i18n %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux8">
 {% endblock %}
 
 {% block content %}
@@ -11,7 +11,6 @@
     {% include "includes/_breadcrumb.html" with breadcrumbs=breadcrumb_items %}
     <header class="shop-catalog-header mb-4">
       <div>
-        <p class="shop-catalog-eyebrow">{% trans "Our selection" %}</p>
         <h1 class="shop-page-header__title">
           {% if catalog_title %}{{ catalog_title }}{% elif search_query %}{% trans "Search" %}: “{{ search_query }}”{% elif active_category %}{{ active_category.name }}{% else %}{% trans "Products" %}{% endif %}
         </h1>
@@ -21,13 +20,18 @@
       <a class="shop-catalog-browse" href="{% shop_url 'categories:list' %}">{% trans "Browse categories" %} <span aria-hidden="true">↗</span></a>
     </header>
 
-    {% if not hide_category_nav %}{% include "includes/_category_nav.html" %}{% endif %}
-    {% include "products/_catalog_controls.html" %}
-    <section id="catalog-results" class="shop-catalog-results" aria-label="{% trans 'Products' %}">
-      {% include "products/_result_count.html" %}
-      {% include "includes/_product_grid.html" with products=products %}
-      {% include "includes/_pagination.html" %}
-    </section>
+    <div class="shop-catalog-layout{% if hide_category_nav %} shop-catalog-layout--full{% endif %}">
+      {% if not hide_category_nav %}<aside class="shop-catalog-sidebar">{% include "includes/_category_nav.html" %}</aside>{% endif %}
+      <div class="shop-catalog-main">
+        {% include "products/_catalog_controls.html" %}
+        <section id="catalog-results" class="shop-catalog-results" aria-label="{% trans 'Products' %}" tabindex="-1">
+          {% include "products/_result_count.html" %}
+          {% include "includes/_product_grid.html" with products=products %}
+          {% include "includes/_pagination.html" %}
+        </section>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
+{% block extra_js %}<script src="{% static 'js/catalog.js' %}?v=20261015-ux7" defer></script>{% endblock %}
