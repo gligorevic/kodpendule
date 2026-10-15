@@ -1,31 +1,36 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load static shop_urls i18n %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/categories.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/categories.css' %}?v=20261015-ux3">
 {% endblock %}
 
 {% block content %}
 <div class="container shop-container py-4 py-lg-5 shop-page shop-page--category-detail">
     {% include "includes/_breadcrumb.html" with breadcrumbs=breadcrumb_items %}
-
-    <header class="mb-4 mb-lg-5 text-center">
-        <h1 class="h2 mb-2">{{ category.name }}</h1>
-        {% if category.description %}
-        <div class="text-muted shop-category-detail__lead">{{ category.description|linebreaksbr }}</div>
-        {% endif %}
+    <header class="shop-catalog-header mb-4">
+        <div>
+            <p class="shop-catalog-eyebrow">{% trans "Category" %}</p>
+            <h1 class="shop-page-header__title">{{ category.name }}</h1>
+            {% if category_description %}<div class="text-muted shop-category-detail__lead">{{ category_description|linebreaksbr }}</div>{% endif %}
+        </div>
+        <a class="shop-catalog-browse" href="{% shop_url 'categories:list' %}">{% trans "All categories" %} <span aria-hidden="true">↗</span></a>
     </header>
-
     {% if show_child_categories %}
-    <section class="shop-category-section mb-5">
-        {% include "includes/_category_grid.html" with categories=child_categories %}
-    </section>
-    {% else %}
-    <section aria-labelledby="category-products-heading">
-        <h2 class="h5 shop-category-section__title" id="category-products-heading">{% trans "Products" %}</h2>
+    <nav class="shop-category-subcategories mb-4" aria-label="{% trans 'Subcategories' %}">
+        <h2 class="h6">{% trans "Browse subcategories" %}</h2>
+        <div class="shop-category-chips">
+            {% for child in child_categories %}<a class="shop-chip" href="{{ child.get_absolute_url }}{% querystring page=None kategorija=None %}">{{ child.name }} <span aria-hidden="true">→</span></a>{% endfor %}
+        </div>
+    </nav>
+    {% endif %}
+    {% include "products/_catalog_controls.html" %}
+    <section id="catalog-results" class="shop-catalog-results" aria-labelledby="category-products-heading">
+        <h2 class="visually-hidden" id="category-products-heading">{% trans "Products" %}</h2>
+        {% include "products/_result_count.html" %}
         {% include "includes/_product_grid.html" with products=products %}
         {% include "includes/_pagination.html" %}
     </section>
-    {% endif %}
 </div>
 {% endblock %}

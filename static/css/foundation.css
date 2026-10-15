@@ -98,13 +98,13 @@ main.flex-grow-1 {
 }
 
 /* —— Links —— */
-.shop-body a:not(.btn):not(.shop-btn):not(.nav-link):not(.card):not(.page-link) {
+.shop-body a:where(:not(.btn):not(.shop-btn):not(.nav-link):not(.card):not(.page-link)) {
     color: var(--shop-color-primary);
     text-decoration-thickness: 1px;
     text-underline-offset: 2px;
 }
 
-.shop-body a:not(.btn):not(.shop-btn):not(.nav-link):hover {
+.shop-body a:where(:not(.btn):not(.shop-btn):not(.nav-link)):hover {
     color: var(--shop-color-primary-hover);
 }
 

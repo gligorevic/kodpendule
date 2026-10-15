@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.checkout.forms import CheckoutForm
 from apps.core.storefront_urls import shop_reverse
@@ -31,6 +31,7 @@ class LegalPageViewTests(TestCase):
         self.assertContains(response, shop_reverse("core:terms"))
         self.assertContains(response, shop_reverse("core:privacy"))
 
+    @override_settings(GOOGLE_MAPS_EMBED_URL="https://www.google.com/maps/embed?pb=test")
     def test_contact_page_includes_map(self) -> None:
         response = self.client.get(shop_reverse("core:contact"))
         self.assertContains(response, 'class="shop-map__iframe"')

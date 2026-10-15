@@ -16,7 +16,11 @@ from apps.core.utils import activate_parler_language
 from apps.categories.models import Category
 from apps.categories.selectors import get_nav_categories
 from apps.products.models import Product
-from apps.products.selectors import active_products_qs, promo_products_qs, recommended_products_qs
+from apps.products.selectors import (
+    active_products_qs,
+    promo_products_qs,
+    recommended_products_qs,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -60,6 +64,56 @@ class HomeView(ShopLanguageMixin, TemplateView):
         for category in nav_categories:
             activate_parler_language(category, lang)
 
+        # A useful first shelf: available, photographed products from different
+        # departments, without changing merchandising flags or inventing offers.
+        parents = dict(
+            Category.objects.filter(is_active=True).values_list("pk", "parent_id")
+        )
+        roots = {}
+        for category_id in parents:
+            current = category_id
+            visited = set()
+            while current in parents and current not in visited:
+                visited.add(current)
+                if parents[current] is None:
+                    roots[category_id] = current
+                    break
+                current = parents[current]
+
+        available = list(
+            product_qs.filter(stock__gt=0)
+            .exclude(main_image="")
+            .order_by("pk")
+            .values_list("pk", "category_id")
+        )
+        first_by_root = {}
+        for product_id, category_id in available:
+            root_id = roots.get(category_id)
+            if root_id is not None:
+                first_by_root.setdefault(root_id, product_id)
+
+        selected_ids = [
+            first_by_root[category.pk]
+            for category in nav_categories
+            if category.pk in first_by_root
+        ][:8]
+        selected = set(selected_ids)
+        for product_id, _category_id in available:
+            if len(selected_ids) == 8:
+                break
+            if product_id not in selected:
+                selected_ids.append(product_id)
+                selected.add(product_id)
+
+        # Hydrate only the selected eight, with the existing translations,
+        # category and gallery prefetches; preserve the department-first order.
+        selected_products = {
+            product.pk: product for product in product_qs.filter(pk__in=selected_ids)
+        }
+        everyday_products = [selected_products[pk] for pk in selected_ids if pk in selected_products]
+        for product in everyday_products:
+            activate_parler_language(product, lang)
+
         # Editorial spotlight only — admin-picked recommended product with an image.
         featured_product = next(
             (p for p in recommended_products if p.main_image),
@@ -69,13 +123,14 @@ class HomeView(ShopLanguageMixin, TemplateView):
         context.update(
             {
                 "new_arrivals": new_arrivals,
+                "everyday_products": everyday_products,
                 "promo_sale_products": promo_sale_products,
                 "featured_product": featured_product,
                 "home_nav_categories": nav_categories,
                 "recommended_products": recommended_products,
                 "home_stats": {
                     "product_count": product_qs.count(),
-                    "category_count": Category.objects.filter(is_active=True).count(),
+                    "category_count": len(nav_categories),
                 },
             }
         )

@@ -69,7 +69,7 @@ class CategoryViewTests(TestCase):
         self.assertNotIn("Podkategorija", content)
         self.assertEqual(content.count('class="shop-category-card"'), 1)
 
-    def test_category_detail_shows_child_grid_when_subcategories_exist(self) -> None:
+    def test_category_detail_shows_subcategory_links_and_products(self) -> None:
         suffix = uuid.uuid4().hex[:8]
         child = Category.objects.create(is_active=True, parent=self.category)
         child.set_current_language("sr")
@@ -85,9 +85,9 @@ class CategoryViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         response.render()
         content = response.content.decode()
-        self.assertIn("shop-category-grid", content)
+        self.assertIn("shop-category-subcategories", content)
         self.assertIn("Podkategorija", content)
-        self.assertNotIn("Klasični sat", content)
+        self.assertIn("Klasični sat", content)
 
     def test_category_detail_shows_products_on_leaf_category(self) -> None:
         response = self._get(
@@ -190,4 +190,3 @@ class CategoryViewTests(TestCase):
         category = get_category_by_slug(self.category_slug, "sr")
         self.assertIsNotNone(category)
         self.assertEqual(category.name, "Satovi")
-

@@ -1,5 +1,9 @@
 {% load shop_urls i18n static %}
 <header class="shop-header" role="banner">
+    <div class="shop-utility"><div class="container shop-container shop-utility__inner">
+        <span>{% trans "Your neighbourhood shop, online." %}</span>
+        <span>{% trans "Need help?" %} {% for phone in footer_contact.phones %}<a href="tel:{{ phone|cut:' ' }}">{{ phone }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</span>
+    </div></div>
     <div class="shop-header__bar">
         <div class="container shop-container shop-header__bar-inner">
             <a class="shop-header__brand" href="{% shop_url 'core:home' %}" aria-label="{% if site_settings %}{{ site_settings.site_name }}{% else %}{% trans 'Kod Pendule' %}{% endif %}">
@@ -8,7 +12,7 @@
                 </span>
             </a>
 
-            <form class="shop-header__search shop-search d-none d-lg-flex align-items-center" method="get"
+            <form class="shop-header__search shop-search d-flex align-items-center" method="get"
                   action="{% shop_url 'products:list' %}" role="search">
                 <label class="visually-hidden" for="shop-header-search">{% trans "Search" %}</label>
                 <span class="shop-header__search-icon" aria-hidden="true">
@@ -41,7 +45,6 @@
                     </form>
                     {% else %}
                     <a class="shop-header__account-link" href="{% shop_url 'accounts:login' %}">{% trans "Sign in" %}</a>
-                    <a class="shop-btn shop-btn--primary shop-btn--sm" href="{% shop_url 'accounts:register' %}">{% trans "Register" %}</a>
                     {% endif %}
                 </div>
 
@@ -73,12 +76,6 @@
         </div>
     </nav>
 </header>
-
-<button type="button" class="shop-header-fab shop-header-fab--desktop" id="shopHeaderFab"
-        data-bs-toggle="offcanvas" data-bs-target="#shopHeaderPanel"
-        aria-controls="shopHeaderPanel" aria-label="{% trans 'Open site menu' %}" hidden>
-    <span class="shop-header-fab__label">{% trans "Menu" %}</span>
-</button>
 
 <div class="offcanvas offcanvas-start shop-header-panel" tabindex="-1" id="shopHeaderPanel"
      aria-labelledby="shopHeaderPanelLabel" data-bs-scroll="true" data-bs-backdrop="true">

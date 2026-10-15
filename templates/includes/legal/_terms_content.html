@@ -12,7 +12,7 @@
     <strong>{% if site_settings %}{{ site_settings.site_name }}{% else %}{% trans "Kod Pendule" %}{% endif %}</strong>.
     {% trans "Contact:" %}
     <a href="mailto:{{ footer_contact.email }}">{{ footer_contact.email }}</a>,
-    <a href="tel:{{ footer_contact.phone|cut:' ' }}">{{ footer_contact.phone }}</a>.
+    {% for phone in footer_contact.phones %}<a href="tel:{{ phone|cut:' ' }}">{{ phone }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}.
     {% trans "Registered address:" %} {{ footer_contact.address|linebreaksbr }}
 </p>
 

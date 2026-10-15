@@ -5,7 +5,7 @@
             {% if product.main_image %}
                 <img src="{{ product.main_image.url }}" class="shop-product-card__img" alt="{{ product.name }}" loading="lazy">
             {% else %}
-                <div class="shop-product-card__img shop-product-card__img--placeholder" aria-hidden="true"></div>
+                <div class="shop-product-card__img shop-product-card__img--placeholder"><span>{% trans "Photo unavailable" %}</span></div>
             {% endif %}
         </a>
 
@@ -15,8 +15,8 @@
         </div>
         {% endif %}
 
-        {% if product.stock == 0 %}
-            <div class="shop-product-card__stock" aria-hidden="true">
+        {% if product.stock <= 0 %}
+            <div class="shop-product-card__stock">
                 <span class="shop-badge shop-badge--stock-out">{% trans "Out of stock" %}</span>
             </div>
         {% endif %}
@@ -31,8 +31,6 @@
 
         {% if product.short_description %}
             <p class="shop-product-card__desc">{{ product.short_description|truncatewords:12 }}</p>
-        {% else %}
-            <div class="shop-product-card__desc shop-product-card__desc--empty" aria-hidden="true"></div>
         {% endif %}
 
         <div class="shop-product-card__bottom">
@@ -55,7 +53,7 @@
                         <div class="shop-qty shop-qty--compact" data-shop-qty>
                             <button class="shop-qty__btn" type="button" data-shop-qty-dec aria-label="{% trans 'Decrease quantity' %}">−</button>
                             <input type="number" id="qty-card-{{ product.pk }}" name="quantity" value="1" min="1" max="{{ product.stock }}"
-                                   class="shop-qty__input" inputmode="numeric" aria-label="{% trans 'Quantity' %}">
+                                   class="shop-qty__input" inputmode="numeric" step="1" required aria-label="{% trans 'Quantity' %}">
                             <button class="shop-qty__btn" type="button" data-shop-qty-inc aria-label="{% trans 'Increase quantity' %}">+</button>
                         </div>
                         <button type="submit" class="shop-btn shop-btn--primary shop-btn--sm shop-product-card__add">

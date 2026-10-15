@@ -4,11 +4,11 @@
         <li>{% trans "Secure ordering — your details are handled carefully." %}</li>
         <li>{% trans "Fast delivery — we prepare orders quickly." %}</li>
         <li>{% trans "Pay on delivery — pay when your package arrives." %}</li>
-        {% if footer_contact.phone %}
+        {% if footer_contact.phones %}
         <li class="shop-trust-panel__support">
             <span class="shop-trust-panel__support-label">{% trans "Support" %}:</span>
             <div class="shop-trust-panel__support-links">
-                <a class="shop-trust-panel__support-link" href="tel:{{ footer_contact.phone|cut:' ' }}">{{ footer_contact.phone }}</a>
+                {% for phone in footer_contact.phones %}<a class="shop-trust-panel__support-link" href="tel:{{ phone|cut:' ' }}">{{ phone }}</a>{% endfor %}
                 {% if footer_contact.email %}
                 <a class="shop-trust-panel__support-link" href="mailto:{{ footer_contact.email }}">{{ footer_contact.email }}</a>
                 {% endif %}

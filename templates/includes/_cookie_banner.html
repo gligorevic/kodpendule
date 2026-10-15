@@ -2,8 +2,7 @@
 <div
     id="shop-cookie-banner"
     class="shop-cookie-banner"
-    role="dialog"
-    aria-modal="true"
+    role="region"
     aria-labelledby="shop-cookie-banner-title"
     aria-describedby="shop-cookie-banner-desc"
     hidden
@@ -15,7 +14,7 @@
             </h2>
             <p id="shop-cookie-banner-desc" class="shop-cookie-banner__text mb-0">
                 {% blocktrans trimmed %}
-                We use essential cookies so the shop works (cart, login, security). Google Maps on the contact page and footer is provided by Google and may involve their cookies — see our Privacy Policy.
+                Essential cookies keep your basket and sign-in working. You can change your cookie choice in the footer.
                 {% endblocktrans %}
                 <a href="{% shop_url 'core:privacy' %}">{% trans "Privacy Policy" %}</a>
             </p>

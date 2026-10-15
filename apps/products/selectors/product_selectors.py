@@ -1,4 +1,4 @@
-from django.db.models import Count, F, Q, QuerySet
+from django.db.models import Case, Count, F, Q, QuerySet, When
 
 from apps.categories.models import Category
 from apps.core.slugs import translation_languages_to_try
@@ -52,8 +52,9 @@ def filter_products_by_category(
     language: str | None = None,
     *,
     include_children: bool = False,
+    queryset: QuerySet[Product] | None = None,
 ) -> QuerySet[Product]:
-    qs = active_products_qs(language)
+    qs = active_products_qs(language) if queryset is None else queryset
     if include_children:
         category_ids = _collect_category_ids(category, language)
         return qs.filter(category_id__in=category_ids)
@@ -73,19 +74,54 @@ def _collect_category_ids(category: Category, language: str | None) -> list[int]
     return ids
 
 
-def search_products(query: str, language: str | None = None) -> QuerySet[Product]:
+def search_products(
+    query: str,
+    language: str | None = None,
+    *,
+    queryset: QuerySet[Product] | None = None,
+) -> QuerySet[Product]:
     q = query.strip()
+    qs = active_products_qs(language) if queryset is None else queryset
     if not q:
-        return active_products_qs(language).none()
+        return qs.none()
     lang = _language(language)
-    return active_products_qs(lang).filter(
+    return qs.filter(
         Q(sku__icontains=q)
-        | Q(translations__language_code=lang, translations__name__icontains=q)
+        | Q(barcode__icontains=q)
+        | Q(translations__language_code__in=translation_languages_to_try(lang), translations__name__icontains=q)
         | Q(
-            translations__language_code=lang,
+            translations__language_code__in=translation_languages_to_try(lang),
             translations__short_description__icontains=q,
         )
     ).distinct()
+
+
+def apply_catalog_filters(
+    queryset: QuerySet[Product],
+    *,
+    query: str = "",
+    available_only: bool = False,
+    sort: str = "default",
+    language: str | None = None,
+) -> QuerySet[Product]:
+    """Refine an existing catalog scope without replacing category/promo filters."""
+    qs = queryset
+    if query:
+        qs = search_products(query, language, queryset=qs)
+    if available_only:
+        qs = qs.filter(stock__gt=0)
+    if sort in {"price_asc", "price_desc"}:
+        qs = qs.annotate(
+            catalog_price=Case(
+                When(discount_price__lt=F("price"), then=F("discount_price")),
+                default=F("price"),
+            )
+        )
+        return qs.order_by("catalog_price" if sort == "price_asc" else "-catalog_price", "pk")
+    if sort == "newest":
+        return qs.order_by("-created_at", "-pk")
+    # The final key keeps pagination deterministic when timestamps/orders tie.
+    return qs.order_by(*qs.query.order_by, "pk")
 
 
 def recommended_products_qs(language: str | None = None) -> QuerySet[Product]:

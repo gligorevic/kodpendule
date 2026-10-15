@@ -89,6 +89,11 @@ class ProductViewTests(TestCase):
         self.assertNotContains(self.client.get(shop_reverse("products:list")), f'id="qty-card-{self.product.pk}"')
         self.assertEqual(self.client.get(self.product.get_absolute_url()).status_code, 404)
         self.assertEqual(self.client.post(shop_reverse("cart:add"), {"product_id": self.product.pk, "quantity": 1}).status_code, 404)
+        self.assertEqual(self.client.post(
+            shop_reverse("cart:add"),
+            {"product_id": self.product.pk, "quantity": 1},
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        ).status_code, 404)
         self.product.is_archived = False
         self.product.save(update_fields=["is_archived", "updated_at"])
         self.assertTrue(active_products_qs().filter(pk=self.product.pk).exists())

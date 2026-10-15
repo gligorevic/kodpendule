@@ -1,21 +1,29 @@
 {% extends "base.html" %}
-{% load static i18n %}
+{% load static shop_urls i18n %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/categories.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/categories.css' %}?v=20261015-ux3">
 {% endblock %}
 
 {% block content %}
 <div class="container shop-container py-4 py-lg-5 shop-page shop-page--categories">
-    <header class="shop-page-header mb-4 mb-lg-5 text-center">
-        <h1 class="shop-page-header__title">{% trans "Categories" %}</h1>
-        <p class="shop-page-header__meta mb-0">{% trans "Choose a category to explore." %}</p>
+    {% include "includes/_breadcrumb.html" with breadcrumbs=breadcrumb_items %}
+    <header class="shop-catalog-header mb-4 mb-lg-5">
+        <div>
+            <p class="shop-catalog-eyebrow">{% trans "Our selection" %}</p>
+            <h1 class="shop-page-header__title">{% trans "Categories" %}</h1>
+            <p class="shop-page-header__meta mb-0">{% trans "Choose a category to explore." %}</p>
+        </div>
+        <a class="shop-catalog-browse" href="{% shop_url 'products:list' %}">{% trans "Browse all products" %} <span aria-hidden="true">↗</span></a>
     </header>
-
     {% if root_categories %}
     {% include "includes/_category_grid.html" with categories=root_categories %}
     {% else %}
-    <p class="text-muted text-center">{% trans "No categories available yet." %}</p>
+    <div class="shop-empty-state" role="status">
+        <p class="shop-empty-state__title">{% trans "No categories available yet." %}</p>
+        <a class="shop-btn shop-btn--primary" href="{% shop_url 'products:list' %}">{% trans "Browse all products" %}</a>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

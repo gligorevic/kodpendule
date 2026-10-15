@@ -1,58 +1,20 @@
 {% load shop_urls i18n static %}
-<section class="shop-hero shop-hero--rich" aria-label="{% trans 'Welcome' %}">
-    <div class="shop-hero__bg" aria-hidden="true">
-        <span class="shop-hero__orb shop-hero__orb--1"></span>
-        <span class="shop-hero__orb shop-hero__orb--2"></span>
-        <span class="shop-hero__orb shop-hero__orb--3"></span>
-    </div>
-
-    <div class="container shop-container shop-hero__inner">
-        <div class="shop-hero__copy shop-reveal" data-reveal>
-            <p class="shop-hero__eyebrow">{% trans "Serbian online store" %}</p>
-            <h1 class="shop-hero__title">
-                {% if site_settings %}{{ site_settings.site_name }}{% else %}{% trans "Kod Pendule" %}{% endif %}
-            </h1>
-            <p class="shop-hero__lead">
-                {% trans "Order drinks and everyday essentials online — browse categories, checkout in minutes, and pay when your order arrives." %}
-            </p>
-
-            <div class="shop-hero__actions">
-                <a href="#home-categories" class="shop-btn shop-btn--primary shop-btn--lg shop-hero__cta">
-                    {% trans "Order now" %}
-                </a>
+<section class="shop-hero shop-hero--store" aria-labelledby="home-title">
+    <div class="container shop-container">
+        <div class="shop-hero__layout">
+            <div class="shop-hero__copy">
+                <p class="shop-eyebrow"><span aria-hidden="true"></span>{% trans "From Vrdnik, for your home" %}</p>
+                <h1 id="home-title">{% trans "Everything for your day." %}<br><em>{% trans "All in one place." %}</em></h1>
+                <p class="shop-hero__lead">{% trans "Groceries, favourite treats and essentials for your home. Choose what you need and order in a few simple steps." %}</p>
+                <div class="shop-hero__actions">
+                    <a href="{% shop_url 'products:list' %}" class="shop-btn shop-btn--primary shop-btn--lg">{% trans "Browse the shop" %}<span aria-hidden="true">↗</span></a>
+                    <a href="#home-categories" class="shop-hero__category-link">{% trans "Explore categories" %}<span aria-hidden="true">↓</span></a>
+                </div>
+                <p class="shop-hero__note"><span aria-hidden="true">✓</span> {% trans "Pay on delivery" %}<span aria-hidden="true">·</span>{% trans "No account needed" %}</p>
             </div>
-
-            {% if home_stats %}
-            <dl class="shop-hero__stats">
-                <div class="shop-hero__stat">
-                    <dt class="shop-hero__stat-value" data-count-to="{{ home_stats.product_count }}">{{ home_stats.product_count }}</dt>
-                    <dd class="shop-hero__stat-label">{% trans "Products" %}</dd>
-                </div>
-                <div class="shop-hero__stat">
-                    <dt class="shop-hero__stat-value" data-count-to="{{ home_stats.category_count }}">{{ home_stats.category_count }}</dt>
-                    <dd class="shop-hero__stat-label">{% trans "Categories" %}</dd>
-                </div>
-                <div class="shop-hero__stat">
-                    <dt class="shop-hero__stat-value" aria-hidden="true">✓</dt>
-                    <dd class="shop-hero__stat-label">{% trans "Pay on delivery" %}</dd>
-                </div>
-            </dl>
-            {% endif %}
-        </div>
-
-        <div class="shop-hero__media shop-reveal shop-reveal--delay-2" data-reveal aria-hidden="true">
             <div class="shop-hero__visual">
-                <div class="shop-hero__card shop-hero__card--back">
-                    <img src="{% static 'images/logo.webp' %}" alt="" class="shop-hero__card-logo" width="280" height="280" loading="eager">
-                </div>
-                <div class="shop-hero__card shop-hero__card--float shop-hero__card--accent">
-                    <span class="shop-hero__chip">{% trans "Fast delivery" %}</span>
-                    <p class="shop-hero__chip-text mb-0">{% trans "Reliable delivery across Serbia" %}</p>
-                </div>
-                <div class="shop-hero__card shop-hero__card--float shop-hero__card--trust">
-                    <span class="shop-hero__mini-icon" aria-hidden="true">✓</span>
-                    <p class="mb-0"><strong>{% trans "Pay on delivery" %}</strong><br><span>{% trans "No card required at checkout" %}</span></p>
-                </div>
+                <img src="{% static 'images/home-groceries.webp' %}" alt="{% trans 'Bread, milk, eggs and cheese for everyday shopping' %}" width="1254" height="1254" fetchpriority="high">
+                <div class="shop-hero__stamp"><span aria-hidden="true">✳</span><div><strong>{% trans "A little of everything." %}</strong><small>{% trans "Just what you need." %}</small></div></div>
             </div>
         </div>
     </div>

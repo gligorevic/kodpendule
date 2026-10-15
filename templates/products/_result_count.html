@@ -1,0 +1,9 @@
+{% load i18n %}
+<div class="shop-catalog-results__summary">
+    <p class="mb-0" role="status">
+        {% if paginator.count %}
+            {% blocktrans with start=page_obj.start_index end=page_obj.end_index total=paginator.count %}Showing {{ start }}–{{ end }} of {{ total }} products{% endblocktrans %}
+        {% else %}{% trans "No products found." %}{% endif %}
+    </p>
+    {% if has_catalog_filters %}<a href="{{ catalog_form_action }}{% querystring q=None available=None sort=None page=None %}#catalog-results">{% trans "Clear filters" %}</a>{% endif %}
+</div>

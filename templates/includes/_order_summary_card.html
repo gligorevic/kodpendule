@@ -1,43 +1,39 @@
-{% load i18n shop_tags %}
+{% load i18n shop_tags shop_urls l10n %}
 <div class="shop-summary-card{% if summary_sticky %} shop-summary-card--sticky{% endif %}"
-     {% if cart_subtotal is not None %}data-checkout-subtotal="{{ cart_subtotal }}"{% endif %}
-     data-currency="{{ shop_currency_symbol }}">
-    <h2 class="shop-summary-card__title">{% trans "Order summary" %}</h2>
-
+     data-checkout-subtotal="{{ cart_subtotal|unlocalize }}" data-currency="{{ shop_currency_symbol }}"
+     data-total-pending="{% trans 'Select delivery details' %}"
+     data-city-pending="{% trans 'Select city' %}"
+     data-date-pending="{% trans 'Choose a delivery date.' %}">
+    <div class="shop-summary-card__heading">
+        <h2 class="shop-summary-card__title">{% trans "Order summary" %}</h2>
+        <a href="{% shop_url 'cart:detail' %}">{% trans "Edit cart" %}</a>
+    </div>
     {% if cart_lines %}
-    <ul class="shop-summary-card__lines list-unstyled mb-0">
-        {% for line in cart_lines %}
-        <li class="shop-summary-card__line">
-            <div class="shop-summary-card__line-name">
-                <span class="shop-summary-card__product">{{ line.product.name }}</span>
-                <span class="shop-summary-card__meta">× {{ line.quantity }}</span>
-            </div>
-            <span class="shop-summary-card__line-price">{{ line.line_total|money }}</span>
-        </li>
-        {% endfor %}
-    </ul>
-
-    <dl class="shop-summary-card__totals">
-        <div class="shop-summary-card__row">
-            <dt>{% trans "Items total" %}</dt>
-            <dd>{{ cart_subtotal|money }}</dd>
-        </div>
+    <details class="shop-summary-card__items">
+        <summary>{% trans "View items" %} <span>({{ cart_lines|length }})</span></summary>
+        <ul class="shop-summary-card__lines list-unstyled mb-0">
+            {% for line in cart_lines %}
+            <li class="shop-summary-card__line">
+                <div class="shop-summary-card__line-name">
+                    <span class="shop-summary-card__product">{{ line.product.name }}</span>
+                    <span class="shop-summary-card__meta">× {{ line.quantity }}</span>
+                </div>
+                <span class="shop-summary-card__line-price">{{ line.line_total|money }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </details>
+    <dl class="shop-summary-card__totals" aria-live="polite" aria-atomic="true">
+        <div class="shop-summary-card__row"><dt>{% trans "Items total" %}</dt><dd>{{ cart_subtotal|money }}</dd></div>
         <div class="shop-summary-card__row shop-summary-card__row--muted">
             <dt>{% trans "Shipping" %}</dt>
-            <dd>
-                <span class="js-shipping-price" id="shipping-price-display">—</span> {{ shop_currency_symbol }}
-            </dd>
+            <dd class="js-shipping-price" id="shipping-price-display">{% if checkout_shipping is not None %}{{ checkout_shipping|money }}{% else %}{% trans "Select delivery details" %}{% endif %}</dd>
         </div>
         <div class="shop-summary-card__row shop-summary-card__row--total">
             <dt>{% trans "Total" %}</dt>
-            <dd id="checkout-total-display">{{ cart_subtotal|money }}</dd>
+            <dd id="checkout-total-display" data-checkout-total>{% if checkout_total is not None %}{{ checkout_total|money }}{% else %}{% trans "Select delivery details" %}{% endif %}</dd>
         </div>
     </dl>
-
-    <p class="shop-summary-card__cod">
-        {% trans "Payment: cash on delivery when the order is delivered." %}
-    </p>
-    {% else %}
-    <p class="text-muted mb-0">{% trans "No items in cart." %}</p>
-    {% endif %}
+    <p class="shop-summary-card__cod">{% trans "Payment is made on delivery using your selected method." %}</p>
+    {% else %}<p class="text-muted mb-0">{% trans "No items in cart." %}</p>{% endif %}
 </div>

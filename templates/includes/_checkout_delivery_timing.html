@@ -1,5 +1,5 @@
 {% load i18n %}
-<div class="shop-delivery-timing{% if form.delivery_timing.errors or form.requested_delivery_date.errors %} shop-field--invalid{% endif %}">
+<div id="checkout-field-delivery_timing" class="shop-delivery-timing{% if form.delivery_timing.errors or form.requested_delivery_date.errors %} shop-field--invalid{% endif %}">
     <fieldset class="shop-delivery-timing__choices">
         <legend class="shop-field__label mb-2">{{ form.delivery_timing.label }}</legend>
         {% for radio in form.delivery_timing %}
@@ -8,7 +8,7 @@
             <span class="shop-delivery-timing__content">
                 <span class="shop-delivery-timing__title">{{ radio.choice_label }}</span>
                 {% if radio.data.value == "same_day" %}
-                <span class="shop-delivery-timing__hint">{% trans "Standard delivery fee applies." %}</span>
+                <span class="shop-delivery-timing__hint">{% trans "Delivery price is calculated for your city." %}</span>
                 {% else %}
                 <span class="shop-delivery-timing__hint">{% trans "Free delivery — pick a future date below." %}</span>
                 {% endif %}
@@ -20,7 +20,7 @@
     <p class="shop-field__error" role="alert">{{ error }}</p>
     {% endfor %}
 
-    <div class="shop-delivery-timing__date shop-field mb-0" id="shop-delivery-date-row" hidden>
-        {% include "includes/_shop_form_field.html" with field=form.requested_delivery_date %}
+    <div class="shop-delivery-timing__date shop-field mb-0" id="shop-delivery-date-row">
+        {% include "checkout/_field.html" with field=form.requested_delivery_date %}
     </div>
 </div>

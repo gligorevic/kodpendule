@@ -3,7 +3,8 @@
 
 {% block extra_css %}
 {% load static %}
-<link rel="stylesheet" href="{% static 'css/product.css' %}?v=20261015">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/product.css' %}?v=20261015-ux3">
 {% endblock %}
 
 {% block content %}
@@ -38,14 +39,14 @@
                     {% endfor %}
                     {% if not product.main_image and not gallery_images %}
                     <div class="carousel-item active">
-                        <div class="shop-gallery__img shop-gallery__img--placeholder" aria-hidden="true">
-                            <span class="text-muted">{% trans "No image" %}</span>
+                        <div class="shop-gallery__img shop-gallery__img--placeholder">
+                            <span class="text-muted">{% trans "Photo unavailable" %}</span>
                         </div>
                     </div>
                     {% endif %}
                 </div>
 
-                {% if gallery_images or product.main_image and gallery_images %}
+                {% if gallery_image_count > 1 %}
                 <button class="carousel-control-prev shop-gallery__nav" type="button" data-bs-target="#productGallery" data-bs-slide="prev">
                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                     <span class="visually-hidden">{% trans "Previous" %}</span>
@@ -57,15 +58,15 @@
                 {% endif %}
             </div>
 
-            {% if gallery_images %}
+            {% if gallery_image_count > 1 %}
             <div class="shop-gallery-thumbs" aria-label="{% trans 'Gallery thumbnails' %}">
                 {% if product.main_image %}
-                <button type="button" class="shop-thumb" data-bs-target="#productGallery" data-bs-slide-to="0" aria-label="{% trans 'Image' %} 1">
+                <button type="button" class="shop-thumb is-active" data-bs-target="#productGallery" data-bs-slide-to="0" aria-current="true" aria-label="{% trans 'Image' %} 1">
                     <img src="{{ product.main_image.url }}" alt="">
                 </button>
                 {% endif %}
                 {% for image in gallery_images %}
-                <button type="button" class="shop-thumb"
+                <button type="button" class="shop-thumb{% if not product.main_image and forloop.first %} is-active{% endif %}"{% if not product.main_image and forloop.first %} aria-current="true"{% endif %}
                         data-bs-target="#productGallery"
                         data-bs-slide-to="{% if product.main_image %}{{ forloop.counter }}{% else %}{{ forloop.counter0 }}{% endif %}"
                         aria-label="{% trans 'Image' %} {% if product.main_image %}{{ forloop.counter|add:1 }}{% else %}{{ forloop.counter|add:0 }}{% endif %}">
@@ -105,13 +106,11 @@
                 <ul class="shop-pdp__trust-list">
                     <li><strong>{% trans "Payment" %}:</strong> {% trans "cash on delivery" %}</li>
                     <li><strong>{% trans "Delivery" %}:</strong> {% trans "calculated at checkout" %}</li>
-                    {% if footer_contact.phone or footer_contact.email %}
+                    {% if footer_contact.phones or footer_contact.email %}
                     <li>
                         <strong>{% trans "Support" %}:</strong>
-                        {% if footer_contact.phone %}
-                        <a href="tel:{{ footer_contact.phone|cut:' ' }}">{{ footer_contact.phone }}</a>
-                        {% endif %}
-                        {% if footer_contact.phone and footer_contact.email %} · {% endif %}
+                        {% for phone in footer_contact.phones %}<a href="tel:{{ phone|cut:' ' }}">{{ phone }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}
+                        {% if footer_contact.phones and footer_contact.email %} · {% endif %}
                         {% if footer_contact.email %}
                         <a href="mailto:{{ footer_contact.email }}">{{ footer_contact.email }}</a>
                         {% endif %}
@@ -132,7 +131,7 @@
                             <div class="shop-qty__control">
                                 <button class="shop-qty__btn" type="button" data-shop-qty-dec aria-label="{% trans 'Decrease quantity' %}">−</button>
                                 <input type="number" id="qty-{{ product.pk }}" name="quantity" value="1" min="1" max="{{ product.stock }}"
-                                       class="shop-qty__input" inputmode="numeric">
+                                       class="shop-qty__input" inputmode="numeric" step="1" required>
                                 <button class="shop-qty__btn" type="button" data-shop-qty-inc aria-label="{% trans 'Increase quantity' %}">+</button>
                             </div>
                         </div>
@@ -150,14 +149,14 @@
                 {% endif %}
             </section>
 
-            {% if product.short_description %}
-            <p class="shop-pdp__lead">{{ product.short_description }}</p>
+            {% if product_short_description %}
+            <p class="shop-pdp__lead">{{ product_short_description }}</p>
             {% endif %}
 
-            {% if product.description %}
+            {% if product_description %}
             <section class="shop-pdp__description">
                 <h2 class="shop-pdp__section-title">{% trans "Description" %}</h2>
-                <div class="shop-pdp__description-body">{{ product.description|linebreaksbr }}</div>
+                <div class="shop-pdp__description-body">{{ product_description|linebreaksbr }}</div>
             </section>
             {% endif %}
 

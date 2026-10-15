@@ -1,54 +1,33 @@
 {% extends "base.html" %}
-{% load shop_urls i18n %}
+{% load static shop_urls i18n %}
 
 {% block extra_css %}
-{% load static %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux3">
 {% endblock %}
 
 {% block content %}
-<div class="shop-page shop-page--catalog">
-<div class="container shop-container py-4 py-lg-5">
-  {% include "includes/_breadcrumb.html" with breadcrumbs=breadcrumb_items %}
-
-  <header class="shop-catalog-header mb-4">
-    <div>
-      <h1 class="h2 mb-1">
-        {% if catalog_title %}
-          {{ catalog_title }}
-        {% elif search_query %}
-          {% blocktrans with query=search_query %}Search: {{ query }}{% endblocktrans %}
-        {% elif active_category %}
-          {{ active_category.name }}
-        {% else %}
-          {% trans "Products" %}
-        {% endif %}
-      </h1>
-      {% if catalog_subtitle %}
-      <p class="text-muted mb-0">{{ catalog_subtitle }}</p>
-      {% elif is_paginated %}
-      <p class="text-muted small mb-0">
-        {% blocktrans with count=page_obj.paginator.count %}Showing {{ count }} products{% endblocktrans %}
-      </p>
-      {% endif %}
-    </div>
-    <form class="shop-catalog-search" method="get" action="{% shop_url 'products:list' %}" role="search">
-      {% if active_category %}
-      <input type="hidden" name="kategorija" value="{{ active_category.slug }}">
-      {% endif %}
-      <div class="shop-search shop-search--catalog">
-        <input class="form-control shop-search__input" type="search" name="q" value="{{ search_query }}"
-               placeholder="{% trans 'Search products…' %}" aria-label="{% trans 'Search' %}">
-        <button class="shop-btn shop-btn--primary shop-btn--sm" type="submit">{% trans "Search" %}</button>
+<div class="shop-page shop-page--catalog py-4 py-lg-5">
+  <div class="container shop-container">
+    {% include "includes/_breadcrumb.html" with breadcrumbs=breadcrumb_items %}
+    <header class="shop-catalog-header mb-4">
+      <div>
+        <p class="shop-catalog-eyebrow">{% trans "Our selection" %}</p>
+        <h1 class="shop-page-header__title">
+          {% if catalog_title %}{{ catalog_title }}{% elif search_query %}{% trans "Search" %}: “{{ search_query }}”{% elif active_category %}{{ active_category.name }}{% else %}{% trans "Products" %}{% endif %}
+        </h1>
+        {% if catalog_subtitle %}<p class="shop-page-header__meta mb-0">{{ catalog_subtitle }}</p>{% endif %}
+        {% if search_query and active_category %}<p class="shop-page-header__meta mb-0">{% trans "Category" %}: {{ active_category.name }}</p>{% endif %}
       </div>
-    </form>
-  </header>
+      <a class="shop-catalog-browse" href="{% shop_url 'categories:list' %}">{% trans "Browse categories" %} <span aria-hidden="true">↗</span></a>
+    </header>
 
-  {% if not hide_category_nav %}
-  {% include "includes/_category_nav.html" %}
-  {% endif %}
-  {% include "includes/_product_grid.html" with products=products %}
-  {% include "includes/_pagination.html" %}
-</div>
+    {% if not hide_category_nav %}{% include "includes/_category_nav.html" %}{% endif %}
+    {% include "products/_catalog_controls.html" %}
+    <section id="catalog-results" class="shop-catalog-results" aria-label="{% trans 'Products' %}">
+      {% include "products/_result_count.html" %}
+      {% include "includes/_product_grid.html" with products=products %}
+      {% include "includes/_pagination.html" %}
+    </section>
+  </div>
 </div>
 {% endblock %}

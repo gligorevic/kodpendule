@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.http import Http404
+from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView
 
@@ -15,46 +16,82 @@ from apps.core.templatetags.shop_tags import product_meta_title
 from apps.products.models import Product
 from apps.products.selectors import (
     active_products_qs,
+    apply_catalog_filters,
     filter_products_by_category,
     get_product_by_slug,
     promo_products_qs,
     recommended_products_qs,
     related_products,
-    search_products,
 )
 
 
-class ProductListView(ShopLanguageMixin, ListView):
+class CatalogControlsMixin:
+    """GET controls shared by the catalog and scoped category/promo listings."""
+
+    sort_options = (
+        ("default", _("Default order")),
+        ("price_asc", _("Price: low to high")),
+        ("price_desc", _("Price: high to low")),
+        ("newest", _("Newest first")),
+    )
+
+    @cached_property
+    def catalog_filters(self):
+        sort = self.request.GET.get("sort", "default")
+        return {
+            "query": self.request.GET.get("q", "").strip(),
+            "available_only": self.request.GET.get("available") == "1",
+            "sort": sort if sort in dict(self.sort_options) else "default",
+        }
+
+    def filter_catalog(self, queryset):
+        return apply_catalog_filters(
+            queryset, language=self.shop_language, **self.catalog_filters
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        for product in context.get("products", []):
+            activate_parler_language(product, self.shop_language)
+        filters = self.catalog_filters
+        context.update({
+            "search_query": filters["query"],
+            "available_only": filters["available_only"],
+            "catalog_sort": filters["sort"],
+            "catalog_sort_options": self.sort_options,
+            "has_catalog_filters": bool(filters["query"] or filters["available_only"] or filters["sort"] != "default"),
+            "catalog_form_action": self.request.path,
+        })
+        return context
+
+
+class ProductListView(CatalogControlsMixin, ShopLanguageMixin, ListView):
     template_name = "products/list.html"
     context_object_name = "products"
     paginate_by = settings.SHOP_PRODUCTS_PER_PAGE
 
     def get_queryset(self):
         qs = active_products_qs(self.shop_language)
-        query = self.request.GET.get("q", "").strip()
         category_slug = self.request.GET.get("kategorija", "").strip()
-
-        if query:
-            qs = search_products(query, self.shop_language)
+        self.active_category = None
         if category_slug:
-            category = get_category_by_slug(category_slug, self.shop_language)
-            if category:
+            self.active_category = get_category_by_slug(category_slug, self.shop_language)
+            if self.active_category:
                 qs = filter_products_by_category(
-                    category,
+                    self.active_category,
                     self.shop_language,
                     include_children=True,
+                    queryset=qs,
                 )
-        return qs
+        return self.filter_catalog(qs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        for product in context.get("products", []):
-            activate_parler_language(product, self.shop_language)
-        query = self.request.GET.get("q", "").strip()
-        category_slug = self.request.GET.get("kategorija", "").strip()
-        active_category = None
-        if category_slug:
-            active_category = get_category_by_slug(category_slug, self.shop_language)
+        query = self.catalog_filters["query"]
+        active_category = self.active_category
+        root = active_category
+        while root and root.parent_id:
+            root = root.parent
 
         if query:
             meta_title = _("Search results for “%(query)s”") % {"query": query}
@@ -76,6 +113,7 @@ class ProductListView(ShopLanguageMixin, ListView):
             {
                 "search_query": query,
                 "active_category": active_category,
+                "active_category_root_id": root.pk if root else None,
                 "breadcrumb_items": breadcrumbs,
                 "meta_title": meta_title,
                 "meta_description": _("Browse our product catalog."),
@@ -87,13 +125,13 @@ class ProductListView(ShopLanguageMixin, ListView):
         return context
 
 
-class PromoProductListView(ShopLanguageMixin, ListView):
+class PromoProductListView(CatalogControlsMixin, ShopLanguageMixin, ListView):
     template_name = "products/list.html"
     context_object_name = "products"
     paginate_by = settings.SHOP_PRODUCTS_PER_PAGE
 
     def get_queryset(self):
-        return promo_products_qs(self.shop_language)
+        return self.filter_catalog(promo_products_qs(self.shop_language))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -103,7 +141,7 @@ class PromoProductListView(ShopLanguageMixin, ListView):
             {
                 "catalog_title": _("Promo sales"),
                 "catalog_subtitle": _(
-                    "Products on special offer — prices marked down for a limited time."
+                    "Browse products with a reduced price."
                 ),
                 "breadcrumb_items": [
                     home_crumb(),
@@ -119,13 +157,13 @@ class PromoProductListView(ShopLanguageMixin, ListView):
         return context
 
 
-class RecommendedProductListView(ShopLanguageMixin, ListView):
+class RecommendedProductListView(CatalogControlsMixin, ShopLanguageMixin, ListView):
     template_name = "products/list.html"
     context_object_name = "products"
     paginate_by = settings.SHOP_PRODUCTS_PER_PAGE
 
     def get_queryset(self):
-        return recommended_products_qs(self.shop_language)
+        return self.filter_catalog(recommended_products_qs(self.shop_language))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -135,7 +173,7 @@ class RecommendedProductListView(ShopLanguageMixin, ListView):
             {
                 "catalog_title": _("Recommended products"),
                 "catalog_subtitle": _(
-                    "Products we highlight for you — hand-picked in the admin."
+                    "Explore our selected products."
                 ),
                 "breadcrumb_items": [
                     home_crumb(),
@@ -166,6 +204,9 @@ class ProductDetailView(ShopLanguageMixin, DetailView):
         product: Product = self.object
         gallery = list(product.gallery_images.all())
         context["gallery_images"] = gallery
+        context["gallery_image_count"] = len(gallery) + bool(product.main_image)
+        context["product_short_description"] = (product.safe_translation_getter("short_description", "") or "").strip()
+        context["product_description"] = (product.safe_translation_getter("description", "") or "").strip()
         context["related_products"] = related_products(product, self.shop_language)
         activate_parler_language(product.category, self.shop_language)
         context["breadcrumb_items"] = category_breadcrumb_items(

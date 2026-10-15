@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, override_settings
 
 from apps.core.contact_details import DEFAULT_SHOP_EMAIL, DEFAULT_SHOP_PHONE, resolve_contact_details
 from apps.core.models import FooterSettings
@@ -24,6 +24,7 @@ class ContactDetailsTests(TestCase):
 
 
 class ContactPageTests(TestCase):
+    @override_settings(GOOGLE_MAPS_EMBED_URL="https://www.google.com/maps/embed?pb=test")
     def test_contact_page_renders_details_and_map(self) -> None:
         response = self.client.get(shop_reverse("core:contact"))
         self.assertEqual(response.status_code, 200)

@@ -10,16 +10,29 @@
      data-i18n-remove="{% trans 'Remove' %}"
      data-i18n-empty="{% trans 'Your cart is empty' %}"
      data-i18n-subtotal="{% trans 'Items total' %}"
-     data-i18n-open="{% trans 'Open cart' %}">
+     data-i18n-open="{% trans 'Open cart' %}"
+     data-i18n-error="{% trans 'We could not confirm the change. Review your cart and try again.' %}"
+     data-i18n-updated="{% trans 'Cart updated.' %}"
+     data-i18n-saving="{% trans 'Saving your cart. Please wait.' %}">
     <div class="offcanvas-header shop-cart-drawer__header">
         <h2 class="offcanvas-title shop-cart-drawer__title" id="shopCartDrawerLabel">{% trans "Cart" %}</h2>
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{% trans 'Close' %}"></button>
     </div>
     <div class="offcanvas-body shop-cart-drawer__body">
-        <div class="shop-cart-drawer__loading" data-cart-drawer-loading hidden>
+        <div class="shop-cart-drawer__loading" data-cart-drawer-loading role="status" hidden>
             <span class="shop-cart-drawer__spinner" aria-hidden="true"></span>
+            <span>{% trans "Loading your cart…" %}</span>
         </div>
-        <p class="shop-cart-drawer__empty" data-cart-drawer-empty hidden>{% trans "Your cart is empty" %}</p>
+        <div class="shop-cart-drawer__load-error" data-cart-load-error hidden>
+            <p role="alert">{% trans "Your cart could not be loaded. Please try again." %}</p>
+            <button type="button" class="shop-btn shop-btn--secondary" data-cart-retry>{% trans "Try again" %}</button>
+            <a href="{% shop_url 'cart:detail' %}" class="shop-btn shop-btn--ghost">{% trans "Open cart" %}</a>
+        </div>
+        <div class="shop-cart-drawer__empty" data-cart-drawer-empty hidden>
+            <p>{% trans "Your cart is empty" %}</p>
+            <a href="{% shop_url 'products:list' %}" class="shop-btn shop-btn--secondary">{% trans "Browse products" %}</a>
+        </div>
+        <p class="visually-hidden" role="status" aria-live="polite" data-cart-status></p>
         <ul class="shop-cart-drawer__lines list-unstyled mb-0" data-cart-drawer-lines></ul>
     </div>
     <div class="shop-cart-drawer__footer" data-cart-drawer-footer hidden>
@@ -27,6 +40,7 @@
             <dt>{% trans "Items total" %}</dt>
             <dd data-cart-drawer-subtotal>—</dd>
         </dl>
+        <p class="shop-cart-drawer__shipping">{% trans "Shipping is calculated at checkout." %}</p>
         <a class="shop-btn shop-btn--primary shop-btn--block shop-cart-drawer__open" href="{% shop_url 'cart:detail' %}" data-cart-drawer-open-link>
             {% trans "Open cart" %}
         </a>
