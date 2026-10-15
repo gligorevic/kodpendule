@@ -193,9 +193,12 @@
 }
 
 .shop-product-card__img {
+    box-sizing: border-box;
     width: 100%;
     aspect-ratio: 1 / 1;
-    object-fit: cover;
+    object-fit: contain;
+    padding: var(--shop-space-3);
+    background: var(--shop-color-surface);
     display: block;
 }
 
