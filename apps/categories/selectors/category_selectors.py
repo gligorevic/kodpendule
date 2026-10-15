@@ -60,7 +60,7 @@ def _category_at_slug(
 def get_category_slug_path(category: Category, language: str | None = None) -> list[str]:
     """Slugs from root to category for hierarchical storefront URLs."""
     lang = _language(language)
-    chain_ids: list[int] = []
+    chain: list[Category] = []
     current: Category | None = category
     seen_ids: set[int] = set()
     while current is not None:
@@ -69,30 +69,23 @@ def get_category_slug_path(category: Category, language: str | None = None) -> l
         seen_ids.add(current.pk)
         if not current.is_active:
             return []
-        chain_ids.append(current.pk)
-        parent_id = current.parent_id
-        if parent_id is None:
+        chain.append(current)
+        if current.parent_id is None:
             break
-        current = (
-            Category.objects.filter(pk=parent_id, is_active=True)
-            .only("pk", "parent_id", "is_active")
-            .first()
-        )
-    chain_ids.reverse()
-    slugs: list[str] = []
-    for category_id in chain_ids:
-        node = (
-            Category.objects.filter(pk=category_id, is_active=True)
-            .prefetch_related("translations")
-            .first()
-        )
-        if node is None:
-            return []
-        slug = localized_slug(node, lang)
-        if not slug:
-            return []
-        slugs.append(slug)
-    return slugs
+        # Keep the supplied, already-prefetched category. Reuse a parent loaded
+        # by select_related, or fetch just the missing ancestor and translations.
+        if "parent" in current._state.fields_cache:
+            current = current.parent
+        else:
+            current = (
+                Category.objects.filter(pk=current.parent_id, is_active=True)
+                .prefetch_related("translations")
+                .first()
+            )
+            if current is None:
+                return []
+    slugs = [localized_slug(node, lang) for node in reversed(chain)]
+    return slugs if all(slugs) else []
 
 
 def category_path_for_url(category: Category, language: str | None = None) -> str:

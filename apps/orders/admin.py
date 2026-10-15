@@ -14,6 +14,8 @@ from apps.orders.services.order_csv import export_orders_csv
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
+    # Loading every product for each order line can exhaust the worker timeout.
+    autocomplete_fields = ("product",)
     extra = 0
     verbose_name = _("Order item")
     verbose_name_plural = _("Order items")

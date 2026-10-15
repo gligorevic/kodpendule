@@ -78,3 +78,58 @@ class OrderAdminUnreadTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, "kp-order-row--new")
         self.assertNotContains(response, "kp-money--emphasis")
+
+    def test_order_product_choices_do_not_load_the_entire_catalog(self):
+        from django.core.cache import cache
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from apps.categories.models import Category
+        from apps.products.models import Product
+        from apps.orders.models import OrderItem
+
+        category = Category.objects.create(name="Hrana", slug="admin-food")
+        selected = Product.objects.create(
+            category=category, sku="SELECTED", price=100,
+            name="Izabrani proizvod", slug="selected-product",
+        )
+        for index in range(5):
+            OrderItem.objects.create(
+                order=self.order, product=selected, product_name="Izabrani proizvod",
+                sku=selected.sku, unit_price=100, quantity=1,
+            )
+        url = reverse("admin:orders_order_change", args=[self.order.pk])
+        cache.clear()
+        with CaptureQueriesContext(connection) as small:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        for index in range(60):
+            Product.objects.create(
+                category=category, sku=f"UNRELATED-{index}", price=100,
+                name=f"Unrelated catalog product {index}", slug=f"unrelated-{index}",
+            )
+        cache.clear()
+        self.addCleanup(cache.clear)
+        with CaptureQueriesContext(connection) as large:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertLessEqual(len(large), len(small) + 2)
+        self.assertContains(response, "Izabrani proizvod")
+        self.assertNotContains(response, "Unrelated catalog product")
+        self.assertContains(response, "admin-autocomplete")
+
+        lookup = self.client.get(reverse("admin:autocomplete"), {
+            "app_label": "orders", "model_name": "orderitem",
+            "field_name": "product", "term": "UNRELATED",
+        })
+        self.assertEqual(lookup.status_code, 200)
+        self.assertEqual(len(lookup.json()["results"]), 20)
+        self.assertTrue(lookup.json()["pagination"]["more"])
+        selected_lookup = self.client.get(reverse("admin:autocomplete"), {
+            "app_label": "orders", "model_name": "orderitem",
+            "field_name": "product", "term": "SELECTED",
+        })
+        self.assertEqual(selected_lookup.json()["results"][0]["id"], str(selected.pk))
+        self.client.logout()
+        self.assertNotEqual(self.client.get(reverse("admin:autocomplete"), {
+            "app_label": "orders", "model_name": "orderitem", "field_name": "product",
+        }).status_code, 200)
