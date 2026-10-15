@@ -216,7 +216,7 @@ msgstr "Proizvod nije pronađen."
 
 #: apps/cart/views.py:84
 msgid "This product is out of stock."
-msgstr "Ovaj proizvod nije na zalihi."
+msgstr "Ovaj proizvod nije na zalihama."
 
 #: apps/cart/views.py:91
 msgid "Enter a whole-number quantity of at least 1."
@@ -224,7 +224,7 @@ msgstr "Unesite ceo broj, najmanje 1."
 
 #: apps/cart/views.py:96 apps/cart/views.py:129
 msgid "Not enough items in stock."
-msgstr "Nema dovoljno na zalihi."
+msgstr "Nema dovoljno na zalihama."
 
 #: apps/cart/views.py:125
 msgid "Enter a valid whole-number quantity."
@@ -3093,7 +3093,7 @@ msgstr "Akcija"
 
 #: templates/includes/_product_card.html:20 templates/products/detail.html:101
 msgid "Out of stock"
-msgstr "Nema na zalihi"
+msgstr "Nema na zalihama"
 
 #: templates/includes/_product_card.html:66 templates/orders/history.html:30
 msgid "Details"
@@ -3947,7 +3947,7 @@ msgstr "cena se prikazuje pre potvrde narudžbine"
 
 #: templates/products/detail.html:149
 msgid "This product is currently out of stock."
-msgstr "Ovaj proizvod trenutno nije na zalihi."
+msgstr "Ovaj proizvod trenutno nije na zalihama."
 
 #: templates/products/detail.html:167
 msgid "More in"

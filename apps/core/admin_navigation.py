@@ -90,7 +90,11 @@ def _is_active(url: str, request: HttpRequest) -> bool:
     if not path.startswith(url.rstrip("/") + "/"):
         return False
     # Custom product tools live under /products/product/ — do not highlight the changelist too.
-    if _is_promo_sales_page(request) or _is_recommended_products_page(request):
+    if (
+        _is_promo_sales_page(request)
+        or _is_recommended_products_page(request)
+        or request.path.startswith(reverse("admin:products_product_import_xml"))
+    ):
         changelist = reverse("admin:products_product_changelist")
         if url.rstrip("/") == changelist.rstrip("/"):
             return False
@@ -112,6 +116,15 @@ def _promo_sales_item(request: HttpRequest) -> AdminNavItem:
         url=url,
         active=_is_active(url, request),
         description=_("Apply discounts to multiple products"),
+    )
+
+
+def _inventory_import_item(request: HttpRequest) -> AdminNavItem:
+    url = reverse("admin:products_product_import_xml")
+    return AdminNavItem(
+        name=_("Import inventory XML"),
+        url=url,
+        active=_is_active(url, request),
     )
 
 
@@ -187,6 +200,7 @@ def get_admin_nav_sections(
                     )
                 )
             if section_id == "products" and request.user.has_perm("products.change_product"):
+                items.append(_inventory_import_item(request))
                 items.append(_promo_sales_item(request))
                 items.append(_recommended_products_item(request))
             if section_id == "shipping" and request.user.has_perm("shipping.change_city"):

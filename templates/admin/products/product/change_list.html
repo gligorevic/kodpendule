@@ -3,7 +3,7 @@
 
 {% block object-tools-items %}
 {{ block.super }}
-{% if has_change_permission %}
+{% if perms.products.change_product %}
 <li><a href="{% url 'admin:products_product_import_xml' %}" class="addlink">{% trans "Import inventory XML" %}</a></li>
 {% endif %}
 <li>
