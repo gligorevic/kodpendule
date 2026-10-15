@@ -1,0 +1,12 @@
+.kp-inventory-import { max-width: 1400px; }
+.kp-inventory-import .kp-card { padding: 20px; margin: 20px 0; }
+.kp-xml-dropzone { border: 2px dashed var(--border-color); padding: 30px; margin-bottom: 20px; border-radius: 8px; }
+.kp-xml-dropzone.is-dragging { border-color: var(--primary); background: var(--selected-bg); }
+.kp-xml-table-wrap { overflow-x: auto; margin: 18px 0; }
+.kp-xml-table-wrap table { width: 100%; }
+.kp-xml-table-wrap td { vertical-align: middle; }
+.kp-xml-table-wrap select { min-width: 180px; max-width: 320px; }
+.kp-inventory-import nav { display: flex; gap: 16px; padding: 12px 0; }
+.kp-inventory-import button { padding: 12px 20px; cursor: pointer; }
+.kp-inventory-import button:disabled { opacity: .5; cursor: not-allowed; }
+.kp-inventory-import summary { cursor: pointer; font-weight: 600; }

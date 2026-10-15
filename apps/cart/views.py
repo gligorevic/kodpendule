@@ -56,7 +56,7 @@ class CartAddView(View):
         product = None
         if "product_id" in request.POST:
             product = get_object_or_404(
-                Product.objects.all(),
+                Product.objects.filter(is_archived=False),
                 pk=request.POST.get("product_id"),
             )
         elif "slug" in kwargs:

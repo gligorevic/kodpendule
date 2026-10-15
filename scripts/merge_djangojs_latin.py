@@ -6,9 +6,10 @@ import sys
 from pathlib import Path
 
 import polib
+import django
 
 ROOT = Path(__file__).resolve().parents[1]
-EN_JS = ROOT / ".venv/Lib/site-packages/django/contrib/admin/locale/en/LC_MESSAGES/djangojs.po"
+EN_JS = Path(django.__file__).resolve().parent / "contrib/admin/locale/en/LC_MESSAGES/djangojs.po"
 PROJECT_JS = ROOT / "locale/sr/LC_MESSAGES/djangojs.po"
 LATIN_JSON = ROOT / "scripts/djangojs_latin.json"
 

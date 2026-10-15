@@ -10,9 +10,10 @@ import sys
 from pathlib import Path
 
 import polib
+import django
 
 ROOT = Path(__file__).resolve().parents[1]
-EN_ADMIN = ROOT / ".venv/Lib/site-packages/django/contrib/admin/locale/en/LC_MESSAGES/django.po"
+EN_ADMIN = Path(django.__file__).resolve().parent / "contrib/admin/locale/en/LC_MESSAGES/django.po"
 PROJECT_PO = ROOT / "locale/sr/LC_MESSAGES/django.po"
 LATIN_JSON = ROOT / "scripts/admin_latin.json"
 

@@ -17,7 +17,7 @@ def active_products_qs(language: str | None = None) -> QuerySet[Product]:
         translations__slug__isnull=False,
     ) & ~Q(translations__slug="")
     return (
-        Product.objects.all()
+        Product.objects.filter(is_archived=False)
         .annotate(slug_count=Count("translations", filter=slug_filter))
         .filter(slug_count__gt=0)
         .select_related("category")
@@ -29,7 +29,7 @@ def active_products_qs(language: str | None = None) -> QuerySet[Product]:
 def get_product_by_slug(slug: str, language: str | None = None) -> Product | None:
     lang = _language(language)
     base_qs = (
-        Product.objects.all()
+        Product.objects.filter(is_archived=False)
         .select_related("category")
         .prefetch_related("translations", "category__translations", "gallery_images")
     )

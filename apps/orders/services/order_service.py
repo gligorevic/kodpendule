@@ -84,8 +84,21 @@ def create_order_from_checkout(
         total=total,
     )
 
+    # Use the same lock order as inventory imports and other checkouts, even when
+    # the customer's cart order differs. Retain that cart order for order items.
+    locked_products = {
+        product.pk: product
+        for product in Product.objects.select_for_update()
+        .filter(pk__in=[line.product.pk for line in lines], is_archived=False)
+        .order_by("pk")
+    }
     for line in lines:
-        product = Product.objects.select_for_update().get(pk=line.product.pk)
+        product = locked_products.get(line.product.pk)
+        if product is None:
+            raise CheckoutError(
+                _("Not enough stock for %(name)s.")
+                % {"name": line.product.safe_translation_getter("name", any_language=True) or line.product.sku}
+            )
         if product.stock < line.quantity:
             raise CheckoutError(
                 _("Not enough stock for %(name)s.")
