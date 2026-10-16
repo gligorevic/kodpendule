@@ -1,0 +1,16 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div class="module" style="max-width:800px;padding:24px">
+  <h2>{% if configured %}Slanje je podešeno{% else %}Slanje nije podešeno{% endif %}</h2>
+  <p>Ova provera prikazuje podešavanja servera. Ne šalje poruku i ne potvrđuje isporuku u sanduče.</p>
+  <table><tbody>
+    <tr><th>Način slanja</th><td>{{ transport }}</td></tr>
+    <tr><th>Pošiljalac</th><td>{{ sender }}</td></tr>
+    <tr><th>Obaveštenja prodavnici</th><td>{{ recipient }}</td></tr>
+    {% if mail_host %}<tr><th>SMTP server</th><td>{{ mail_host }}:{{ mail_port }}</td></tr>{% endif %}
+    <tr><th>Vreme čekanja</th><td>{{ timeout }} sekundi</td></tr>
+  </tbody></table>
+  {% if not configured %}<p style="margin-top:20px">Na hostingu podesite ključ servisa za slanje ili SMTP nalog. Samo upisana adresa pošiljaoca nije dovoljna za slanje.</p>{% endif %}
+  <p style="margin-top:20px"><a href="{% url 'admin:index' %}">← Nazad na administraciju</a></p>
+</div>
+{% endblock %}

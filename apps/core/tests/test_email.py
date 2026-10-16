@@ -64,6 +64,10 @@ class SendShopEmailTests(TestCase):
         self.assertFalse(ok)
         self.assertEqual(len(mail.outbox), 0)
 
+    def test_backend_returning_zero_is_not_reported_as_success(self):
+        with patch("apps.core.mail.EmailMessage.send", return_value=0):
+            self.assertFalse(send_shop_email(subject="Test", message="Body", recipient_list=["user@example.com"]))
+
     def test_failure_does_not_raise(self) -> None:
         with patch(
             "apps.core.mail.EmailMessage.send",

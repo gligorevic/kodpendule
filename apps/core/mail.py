@@ -9,13 +9,17 @@ from typing import Iterable
 from django.conf import settings
 from django.core.mail import EmailMessage
 
-from config.settings.sendgrid import SHOP_EMAIL_FROM_NAME
+from config.settings.email import SHOP_EMAIL_FROM_NAME
 
 logger = logging.getLogger(__name__)
 
 
 def is_email_configured() -> bool:
-    return bool(getattr(settings, "SENDGRID_API_KEY", "") or getattr(settings, "EMAIL_HOST", ""))
+    if settings.EMAIL_BACKEND == "django.core.mail.backends.dummy.EmailBackend":
+        return False
+    if settings.EMAIL_BACKEND == "apps.core.email_backends.SendGridAPIBackend":
+        return bool(getattr(settings, "SENDGRID_API_KEY", ""))
+    return bool(getattr(settings, "EMAIL_HOST", ""))
 
 
 def shop_from_email() -> str:
@@ -46,7 +50,7 @@ def send_shop_email(
 
     if not is_email_configured():
         logger.warning(
-            "send_shop_email skipped: SMTP not configured (subject=%r, recipients=%s)",
+            "send_shop_email skipped: email transport not configured (subject=%r, recipients=%s)",
             subject,
             recipients,
         )
@@ -60,8 +64,11 @@ def send_shop_email(
             to=recipients,
             reply_to=[reply_to] if reply_to else None,
         )
-        email.send(fail_silently=False)
-        logger.info("Email sent: subject=%r to=%s", subject, recipients)
+        accepted = email.send(fail_silently=False)
+        if accepted != 1:
+            logger.error("Email backend did not accept the message (recipient_count=%s)", len(recipients))
+            return False
+        logger.info("Email accepted by transport (recipient_count=%s)", len(recipients))
         return True
     except Exception:
         logger.exception(

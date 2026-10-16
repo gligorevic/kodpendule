@@ -71,7 +71,10 @@ def patch_admin_site_urls() -> None:
             wrapper.login_url = reverse_lazy("admin:login", current_app=self.name)
             return update_wrapper(wrapper, view)
 
+        from apps.core.admin_email import email_diagnostics
+
         urlpatterns = [
+            path("mejlovi/", wrap(email_diagnostics), name="email_diagnostics"),
             path("", wrap(self.index), name="index"),
             path("login/", self.login, name="login"),
             path("logout/", wrap(self.logout), name="logout"),

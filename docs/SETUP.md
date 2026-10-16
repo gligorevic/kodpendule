@@ -96,3 +96,16 @@ gunicorn config.wsgi:application --bind 0.0.0.0:$PORT --workers 2
 When `USE_R2=True`, product images (`media/products/`, `media/products/gallery/`) and category images (`media/categories/`) are stored on R2. Deleting or replacing images in admin removes the old objects from the bucket automatically.
 
 Locally, `USE_R2` defaults to `False` (files in `media/`). You can enable R2 in `.env.local` for integration tests.
+
+## Outgoing email
+
+Configure mail in the hosting environment. Sender addresses alone do not enable delivery.
+
+- Existing SendGrid configuration: `SENDGRID_API_KEY` enables the HTTPS API on port 443. The account must have sending quota and an authenticated sender/domain. No SMTP connection is used.
+- Any SMTP mailbox: set `EMAIL_PROVIDER=smtp`, `EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_HOST_USER`, and `EMAIL_HOST_PASSWORD`. Use TLS on 587, or SSL on 465 (`EMAIL_USE_SSL=True`, `EMAIL_USE_TLS=False`). Gmail requires an app password or another supported authentication method, not a normal account password.
+- `EMAIL_PROVIDER=auto` (default) chooses an explicitly configured SMTP host, otherwise SendGrid when its key exists, otherwise disables delivery. Set a provider explicitly if both credentials exist.
+- `SHOP_FROM_EMAIL` is the authorized sender. `SHOP_NOTIFICATION_EMAIL` is the staff recipient and customer Reply-To. `EMAIL_TIMEOUT` defaults to 10 seconds.
+
+Render Free blocks outbound SMTP ports 25, 465, and 587. Use an HTTPS mail API on that plan, or choose hosting that supports SMTP. Changing the SMTP mailbox cannot remove that hosting restriction.
+
+Superusers can inspect the active transport and non-secret configuration at `/admin/mejlovi/`. This is a configuration check, not a delivery test. Test mail must go to an explicitly approved recipient. API acceptance does not guarantee inbox placement; confirm delivery with the recipient or provider activity log. A missing/zero transport result is reported as failure, and sends are never automatically retried after a lost response to avoid duplicates.

@@ -77,11 +77,11 @@ if _csrf_origins:
 else:
     CSRF_TRUSTED_ORIGINS = [f"https://{host}" for host in ALLOWED_HOSTS if host]
 
-# --- Email (SendGrid SMTP) ------------------------------------------------------
+# --- Email (HTTPS API or SMTP) ------------------------------------------------------
 
-from config.settings.sendgrid import configure_sendgrid_email  # noqa: E402
+from config.settings.email import configure_email  # noqa: E402
 
-configure_sendgrid_email(sys.modules[__name__], config)
+configure_email(sys.modules[__name__], config)
 
 GOOGLE_MAPS_EMBED_URL = config("GOOGLE_MAPS_EMBED_URL", default=GOOGLE_MAPS_EMBED_URL)  # noqa: F405
 

@@ -13,6 +13,7 @@
     <h2 id="work-queue-title" class="kp-admin-home__section-title">{% trans "At a glance" %}</h2>
     <div class="kp-workspace-metrics">{% for item in home_attention %}<a href="{{ item.url }}"><span>{{ item.label }}</span><strong>{{ item.count }}</strong><small>{% trans "View list" %} →</small></a>{% endfor %}</div>
   </section>{% endif %}
+  {% if request.user.is_superuser %}<p><a href="{% url 'admin:email_diagnostics' %}">Provera slanja mejlova →</a></p>{% endif %}
   <div class="kp-workspace-panels">
   {% if home_can_orders %}
     <section class="kp-card kp-workspace-orders">

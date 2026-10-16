@@ -163,10 +163,14 @@ SHOP_PRODUCTS_PER_PAGE = 12
 # All shop alerts (orders, low stock, contact form) are delivered to this inbox.
 SHOP_NOTIFICATION_EMAIL = "kodpendule@gmail.com"
 
-# Outgoing From address (must be verified in SendGrid for your domain).
+# Outgoing From address (must be authorized by your mail provider).
 SHOP_FROM_EMAIL = "info@kodpendule.com"
 
-# Set SENDGRID_API_KEY in .env.local / Render to enable outgoing email.
+# Configure SENDGRID_API_KEY for HTTPS, or EMAIL_HOST for SMTP.
+EMAIL_HOST = ""
+EMAIL_PROVIDER = "disabled"
+EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
+EMAIL_TIMEOUT = 10
 SENDGRID_API_KEY = ""
 DEFAULT_FROM_EMAIL = SHOP_FROM_EMAIL
 SERVER_EMAIL = SHOP_FROM_EMAIL
