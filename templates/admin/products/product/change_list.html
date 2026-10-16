@@ -10,3 +10,14 @@
     <a href="{% url 'admin:products_product_promo_sales' %}" class="addlink">{% trans "Promo sales" %}</a>
 </li>
 {% endblock %}
+
+{% block search %}
+<div class="kp-list-intro"><p>{% trans "Find a product, check its photo and stock, then open its name to edit." %}</p></div>
+<nav class="kp-quick-filters" aria-label="{% trans 'Quick filters' %}">
+  <a href="{% url 'admin:products_product_changelist' %}"{% if not request.GET %} aria-current="page"{% endif %}>{% trans "All products" %}</a>
+  <a href="{% querystring stock_state='out' p=None %}"{% if request.GET.stock_state == 'out' %} aria-current="page"{% endif %}>{% trans "Out of stock" %}</a>
+  <a href="{% querystring stock_state='low' p=None %}"{% if request.GET.stock_state == 'low' %} aria-current="page"{% endif %}>{% trans "Low stock alerts" %}</a>
+  <a href="{% querystring photo='missing' p=None %}"{% if request.GET.photo == 'missing' %} aria-current="page"{% endif %}>{% trans "Without photo" %}</a>
+</nav>
+{{ block.super }}
+{% endblock %}

@@ -64,6 +64,7 @@ class OrderAdmin(KPModelAdmin):
     list_filter = ("is_new", "status")
     inlines = [OrderItemInline]
     date_hierarchy = "created_at"
+    search_help_text = _("Search by order number, customer name, phone or email.")
     list_per_page = 25
     save_on_top = True
     fieldsets = (

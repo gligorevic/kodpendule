@@ -1426,6 +1426,10 @@ TRANSLATIONS.update({'Changing a filter updates the products automatically.': 'P
 
 TRANSLATIONS["calculated at checkout"] = "cena se prikazuje pre potvrde narudžbine"
 
+TRANSLATIONS.update({'Search, prices, photos and stock': 'Pretraga, cene, slike i zalihe', 'Drop a file, review changes, update stock': 'Dodajte fajl, proverite izmene i ažurirajte zalihe', 'New orders, delivery and status': 'Nove porudžbine, dostava i statusi', 'Organize products and subcategories': 'Uredite proizvode i potkategorije', 'Active products': 'Aktivni proizvodi', 'Without photo': 'Bez slike', 'With photo': 'Sa slikom', 'Everything you need for the daily running of your shop.': 'Sve za svakodnevno upravljanje prodavnicom na jednom mestu.', 'At a glance': 'Pregled prodavnice', 'View list': 'Prikaži spisak', 'All orders': 'Sve porudžbine', 'All products are above the alert level.': 'Svi proizvodi imaju dovoljno zaliha.', 'Sales overview': 'Pregled prodaje', 'Find a product, check its photo and stock, then open its name to edit.': 'Pronađite proizvod, proverite sliku i zalihe, pa kliknite na naziv za izmenu.', 'Quick filters': 'Brzi filteri', 'Form sections': 'Delovi obrasca', 'Product details': 'Osnovni podaci', 'Descriptions': 'Opisi', 'Image source': 'Izvor slike', 'Search by product name, SKU or barcode.': 'Pretražite po nazivu proizvoda, šifri ili barkodu.', 'Search by order number, customer name, phone or email.': 'Pretražite po broju porudžbine, imenu kupca, telefonu ili imejlu.'})
+
+TRANSLATIONS.update({'Quick actions': 'Brze radnje', 'Unread orders': 'Nepročitane porudžbine'})
+
 def main() -> int:
     po = polib.pofile(str(PO_PATH))
     filled = 0

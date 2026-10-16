@@ -6,6 +6,8 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils import timezone
+from django.utils.html import format_html
+from apps.products.admin_filters import StockFilter, PhotoFilter, ProductCategoryFilter
 from django.utils.translation import gettext_lazy as _
 from apps.core.admin_display import price_cell, slug_warning_cell, stock_cell
 from apps.core.kp_admin import KPTranslatableAdmin
@@ -37,59 +39,13 @@ class PromoSaleForm(forms.Form):
 
 
 _PRODUCT_FIELDSETS = (
-    (
-        _("Name & description"),
-        {
-            "classes": ("kp-fieldset", "kp-fieldset--product-copy"),
-            "description": _(
-                "Fill in for the active language tab (Serbian / English). "
-                "Name is shown on the shop; slug is used in the URL."
-            ),
-            "fields": (
-                "name",
-                "slug",
-                "short_description",
-                "description",
-            ),
-        },
-    ),
-    (
-        _("Pricing & stock"),
-        {
-            "classes": ("kp-fieldset", "kp-fieldset--pricing"),
-            "description": _(
-                "Set price and stock here. When stock is at or below the alert level, "
-                "the product appears in analytics low-stock warnings."
-            ),
-            "fields": (
-                "category",
-                "sku",
-                "barcode",
-                "price",
-                "stock",
-                "is_archived",
-                "minimum_stock_alert",
-            ),
-        },
-    ),
-    (
-        _("Product image"),
-        {
-            "classes": ("kp-fieldset",),
-            "description": _("Optional source, author and license details shown below the main product image."),
-            "fields": ("main_image", "main_image_source_url", "main_image_attribution", "main_image_license_url"),
-        },
-    ),
-    (
-        _("SEO"),
-        {
-            "classes": ("collapse", "kp-fieldset", "kp-fieldset--seo"),
-            "description": _("Optional — used by search engines."),
-            "fields": ("meta_title", "meta_description"),
-        },
-    ),
+    (_("Product details"), {"fields": ("name", "category", "sku", "barcode")}),
+    (_("Pricing & stock"), {"fields": ("price", "discount_price", "stock", "minimum_stock_alert", "is_archived")}),
+    (_("Product image"), {"fields": ("main_image",)}),
+    (_("Descriptions"), {"classes": ("collapse",), "fields": ("short_description", "description")}),
+    (_("Image source"), {"classes": ("collapse",), "fields": ("main_image_source_url", "main_image_attribution", "main_image_license_url")}),
+    (_("SEO"), {"classes": ("collapse",), "description": _("Optional — used by search engines."), "fields": ("slug", "meta_title", "meta_description")}),
 )
-
 
 @admin.register(Product)
 class ProductAdmin(KPTranslatableAdmin):
@@ -102,17 +58,20 @@ class ProductAdmin(KPTranslatableAdmin):
         "meta_description",
     )
     change_list_template = "admin/products/product/change_list.html"
+    change_form_template = "admin/products/product/change_form.html"
     list_display = (
+        "photo_preview",
         "sku",
         "name",
-        "slug_display",
         "category",
         "price_display",
         "stock_display",
     )
     search_fields = ("sku", "barcode", "translations__name", "translations__slug")
     list_select_related = ("category",)
-    list_filter = ("is_archived",)
+    list_filter = (ProductCategoryFilter, StockFilter, PhotoFilter, "is_archived")
+    list_display_links = ("sku", "name")
+    search_help_text = _("Search by product name, SKU or barcode.")
     inlines = [ProductImageInline]
     list_per_page = 25
     save_on_top = True
@@ -394,6 +353,12 @@ class ProductAdmin(KPTranslatableAdmin):
 
         form_class.autofill_slug_for_translation = autofill_slug_for_translation
         return form_class
+
+    @admin.display(description=_("Product image"))
+    def photo_preview(self, obj):
+        if obj.main_image:
+            return format_html('<img class="kp-product-thumb" src="{}" alt="" width="48" height="48" loading="lazy">', obj.main_image.url)
+        return format_html('<span class="kp-product-thumb kp-product-thumb--empty" title="{}">—</span>', _("Without photo"))
 
     @admin.display(description=_("Slug"))
     def slug_display(self, obj: Product) -> str:

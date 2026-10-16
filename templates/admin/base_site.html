@@ -53,14 +53,15 @@
 <link rel="stylesheet" href="{% static 'admin/css/admin-home.css' %}">
 <link rel="stylesheet" href="{% static 'admin/css/dashboard.css' %}">
 <link rel="stylesheet" href="{% static 'admin/css/translatable-stacked.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/workspace.css' %}?v=20261016-1">
 {% endblock %}
 
 {% block extrahead %}
 {{ block.super }}
 <link rel="icon" type="image/webp" href="{% static 'images/logo.webp' %}">
 <link rel="apple-touch-icon" href="{% static 'images/logo.webp' %}">
-<script src="{% static 'admin/js/kp-nav.js' %}" defer></script>
-<script src="{% static 'js/scroll-float-actions.js' %}" defer></script>
+<script src="{% static 'admin/js/kp-nav.js' %}?v=20261016-1" defer></script>
+<script src="{% static 'admin/js/workspace.js' %}?v=20261016-1" defer></script>
 <script src="{% static 'js/back-to-top.js' %}" defer></script>
 {% endblock %}
 

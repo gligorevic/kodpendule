@@ -4,6 +4,7 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'admin/css/changelist-table.css' %}">
+<link rel="stylesheet" href="{% static 'admin/css/workspace.css' %}?v=20261016-1">
 {% endblock %}
 
 {% block extrahead %}
@@ -22,4 +23,15 @@
   {% if action_form and actions_on_top and cl.show_admin_actions %}{% admin_actions %}{% endif %}
   {% result_list cl %}
   {% if action_form and actions_on_bottom and cl.show_admin_actions %}{% admin_actions %}{% endif %}
+{% endblock %}
+
+{% block filters %}{% endblock %}
+{% block search %}
+{{ block.super }}
+{% if cl.has_filters %}
+<nav id="changelist-filter" aria-label="{% trans 'Filter' %}">
+  {% for spec in cl.filter_specs %}{% admin_list_filter cl spec %}{% endfor %}
+  {% if cl.has_active_filters %}<a class="kp-clear-filters" href="{{ cl.clear_all_filters_qs }}">{% trans "Clear all filters" %}</a>{% endif %}
+</nav>
+{% endif %}
 {% endblock %}
