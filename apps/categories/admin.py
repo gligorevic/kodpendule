@@ -25,7 +25,7 @@ class CategoryAdmin(KPTranslatableAdmin):
                 "fields": ("name", "slug", "description"),
             },
         ),
-        (None, {"fields": ("parent", "image", "is_active", "sort_order")}),
+        (None, {"fields": ("parent", "image", "is_active", "sort_order", "requires_age_confirmation")}),
     )
 
     def get_form(self, request, obj=None, **kwargs):

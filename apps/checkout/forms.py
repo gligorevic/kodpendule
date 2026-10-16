@@ -96,9 +96,18 @@ class CheckoutForm(forms.Form):
         ),
     )
 
-    def __init__(self, *args, user=None, **kwargs) -> None:
+    confirm_age = forms.BooleanField(
+        required=True,
+        label=_("I confirm that I am 18 years of age or older."),
+        error_messages={"required": _("To order alcoholic drinks, you must confirm that you are 18 or older.")},
+        widget=forms.CheckboxInput(attrs={"class": "shop-checkout-legal__checkbox"}),
+    )
+
+    def __init__(self, *args, user=None, requires_age_confirmation=False, **kwargs) -> None:
         super().__init__(*args, **kwargs)
         apply_latin_required_messages(self)
+        if not requires_age_confirmation:
+            self.fields.pop("confirm_age")
         self.user = user
         self.show_email_field = True
 

@@ -588,3 +588,74 @@ class CheckoutViewTests(TestCase):
         order = Order.objects.get()
         self.assertEqual(order.guest_email, "recipient@example.com")
         self.assertEqual(order.customer_email, "recipient@example.com")
+
+
+class AlcoholAgeConfirmationTests(TestCase):
+    setUp = CheckoutServiceTests.setUp
+
+    def require_age(self):
+        parent = Category.objects.create(requires_age_confirmation=True)
+        Category.objects.filter(pk=self.product.category_id).update(parent=parent)
+
+    def service(self, **kwargs):
+        return create_order_from_checkout(
+            cart=get_cart(self.request), user=None, guest_email="guest@example.com",
+            first_name="Pera", last_name="Perić", phone="+381601112233",
+            shipping_city=self.city, shipping_street="Ulica 1", order_notes="",
+            payment_method=PaymentMethod.CASH, **kwargs,
+        )
+
+    def test_service_requires_explicit_boolean_and_preserves_stock_on_rejection(self):
+        self.require_age()
+        for value in (False, None, "false", "on", 1):
+            with self.subTest(value=value):
+                with self.assertRaises(CheckoutError):
+                    self.service(age_confirmed=value)
+                self.assertFalse(Order.objects.exists())
+                self.product.refresh_from_db()
+                self.assertEqual(self.product.stock, 10)
+                self.assertFalse(get_cart(self.request).is_empty)
+        order = self.service(age_confirmed=True)
+        self.assertIsNotNone(order.age_confirmed_at)
+
+    def test_regular_order_does_not_require_or_record_age(self):
+        self.assertIsNone(self.service().age_confirmed_at)
+
+    def test_checkout_shows_unchecked_required_field_and_rejects_missing_confirmation(self):
+        self.require_age()
+        session = self.client.session
+        session[SESSION_KEY] = {str(self.product.pk): 1}
+        session.save()
+        url = shop_reverse("checkout:checkout")
+        response = self.client.get(url)
+        field = response.context["form"]["confirm_age"]
+        self.assertIn("required", str(field))
+        self.assertNotIn("checked", str(field))
+        response = self.client.post(url, _checkout_post_data(self.city.pk))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("confirm_age", response.context["form"].errors)
+        self.assertFalse(Order.objects.exists())
+        response = self.client.post(url, _checkout_post_data(self.city.pk, confirm_age="on"))
+        self.assertEqual(response.status_code, 302)
+        self.assertIsNotNone(Order.objects.get().age_confirmed_at)
+        # A second order in the same session must ask again.
+        session = self.client.session
+        session[SESSION_KEY] = {str(self.product.pk): 1}
+        session.save()
+        response = self.client.get(url)
+        self.assertNotIn("checked", str(response.context["form"]["confirm_age"]))
+
+    def test_regular_cart_omits_age_field_and_mixed_cart_requires_it(self):
+        session = self.client.session
+        session[SESSION_KEY] = {str(self.product.pk): 1}
+        session.save()
+        url = shop_reverse("checkout:checkout")
+        self.assertNotContains(self.client.get(url), 'name="confirm_age"')
+        alcohol_category = Category.objects.create(requires_age_confirmation=True)
+        alcohol = Product.objects.create(category=alcohol_category, sku="AGE-MIXED", price=100, stock=5)
+        session = self.client.session
+        session[SESSION_KEY][str(alcohol.pk)] = 1
+        session.save()
+        self.assertContains(self.client.get(url), 'name="confirm_age"')
+        self.client.post(url, _checkout_post_data(self.city.pk))
+        self.assertFalse(Order.objects.exists())

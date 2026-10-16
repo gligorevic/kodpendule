@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from django.views.generic import FormView, TemplateView
 
 from apps.cart.cart import get_cart
+from apps.categories.age_confirmation import requires_age_confirmation
 from apps.checkout.forms import CheckoutForm
 from apps.core.mixins import ShopLanguageMixin
 from apps.core.storefront_urls import shop_reverse, shop_reverse_lazy
@@ -47,6 +48,9 @@ class CheckoutView(ShopLanguageMixin, FormView):
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.request.user
+        kwargs["requires_age_confirmation"] = requires_age_confirmation(
+            line.product for line in get_cart(self.request).get_lines()
+        )
         return kwargs
 
     def get_initial(self):
@@ -128,6 +132,7 @@ class CheckoutView(ShopLanguageMixin, FormView):
                 order_notes=form.cleaned_data["order_notes"],
                 payment_method=form.cleaned_data["payment_method"],
                 requested_delivery_date=form.cleaned_data["requested_delivery_date"],
+                age_confirmed=form.cleaned_data.get("confirm_age", False),
             )
         except CheckoutError as exc:
             return self.render_to_response(self.get_context_data(form=form, checkout_error=exc.message))

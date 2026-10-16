@@ -11,6 +11,13 @@ PO_PATH = ROOT / "locale" / "sr" / "LC_MESSAGES" / "django.po"
 
 # English msgid -> Serbian (Latin) msgstr
 TRANSLATIONS: dict[str, str] = {
+    'Require 18+ confirmation': 'Zahtevaj potvrdu 18+',
+    'Require age confirmation at checkout for this category and its subcategories.': 'Zahtevaj potvrdu punoletstva pri poručivanju za ovu kategoriju i njene potkategorije.',
+    'I confirm that I am 18 years of age or older.': 'Potvrđujem da imam najmanje 18 godina.',
+    'To order alcoholic drinks, you must confirm that you are 18 or older.': 'Za poručivanje alkoholnih pića morate potvrditi da imate najmanje 18 godina.',
+    'Your order contains alcoholic drinks.': 'Vaša porudžbina sadrži alkoholna pića.',
+    '18+ confirmation time': 'Vreme potvrde punoletstva (18+)',
+
     "Every day: 07:00–24:00": "Svakog dana: 07:00–24:00",
     'For questions about products, delivery and your order.': 'Za pitanja o proizvodima, dostavi i porudžbinama.',
     'Check using your order number': 'Proverite status pomoću broja porudžbine',
