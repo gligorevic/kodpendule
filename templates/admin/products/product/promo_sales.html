@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="content-main" class="change-form kp-recommended-admin kp-promo-admin">
+<div data-product-picker id="content-main" class="change-form kp-recommended-admin kp-promo-admin">
     <form method="post" novalidate>
         {% csrf_token %}
         <fieldset class="module aligned">
@@ -33,16 +33,21 @@
             </div>
 
             {% if products %}
+            <div class="kp-picker-search">
+                <label for="kp-picker-search">{% trans "Find products" %}</label><input id="kp-picker-search" type="search" data-picker-search placeholder="{% trans 'Name, SKU or category' %}">
+                <label class="kp-picker-check"><input type="checkbox" data-picker-selected> {% trans "Selected only" %}</label>
+                <p role="status" data-picker-status data-selected-label="{% trans 'selected' %}" data-results-label="{% trans 'results' %}"></p>
+            </div>
             <div class="kp-recommended-admin__toolbar">
-                <button type="button" class="button" id="kp-promo-select-all">{% trans "Select all" %}</button>
-                <button type="button" class="button" id="kp-promo-select-none">{% trans "Clear all" %}</button>
+                <button type="button" class="button" id="kp-promo-select-all">{% trans "Select shown" %}</button>
+                <button type="button" class="button" id="kp-promo-select-none">{% trans "Clear shown" %}</button>
                 <button type="button" class="button" id="kp-promo-select-on-promo">{% trans "Select on promo" %}</button>
             </div>
-            <table class="kp-recommended-admin__table">
+            <div class="kp-page-table"><table class="kp-recommended-admin__table">
                 <thead>
                     <tr>
                         <th scope="col" class="kp-recommended-admin__check-col">{% trans "Select" %}</th>
-                        <th scope="col">{% trans "SKU" %}</th>
+                        <th scope="col">{% trans "Product image" %}</th><th scope="col">{% trans "SKU" %}</th>
                         <th scope="col">{% trans "Name" %}</th>
                         <th scope="col">{% trans "Regular price" %}</th>
                         <th scope="col">{% trans "Promo price" %}</th>
@@ -50,7 +55,7 @@
                 </thead>
                 <tbody>
                     {% for product in products %}
-                    <tr{% if product.pk in promo_product_ids %} class="kp-promo-admin__row--active"{% endif %}>
+                    <tr data-picker-category="{{ product.category }}"{% if product.pk in promo_product_ids %} class="kp-promo-admin__row--active"{% endif %}>
                         <td class="kp-recommended-admin__check-col">
                             <input
                                 type="checkbox"
@@ -60,8 +65,8 @@
                                 class="kp-promo-checkbox"
                             >
                         </td>
-                        <td><label for="promo-product-{{ product.pk }}">{{ product.sku }}</label></td>
-                        <td>{{ product }}</td>
+                        <td>{% if product.main_image %}<img class="kp-product-thumb" src="{{ product.main_image.url }}" alt="" width="42" height="42" loading="lazy">{% else %}—{% endif %}</td><td><label for="promo-product-{{ product.pk }}">{{ product.sku }}</label></td>
+                        <td><label for="promo-product-{{ product.pk }}">{{ product }}</label></td>
                         <td>{{ product.price }}</td>
                         <td>
                             {% if product.pk in promo_product_ids %}
@@ -73,7 +78,7 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table></div><p class="kp-picker-empty" data-picker-empty hidden>{% trans "No products match your search." %}</p><nav class="kp-picker-pagination" aria-label="{% trans 'Pagination' %}" data-picker-pagination hidden><button type="button" class="button" data-picker-prev>{% trans "Previous" %}</button><span data-picker-page></span><button type="button" class="button" data-picker-next>{% trans "Next" %}</button></nav>
             {% else %}
             <p>{% trans "No products yet. Add products first, then set promo prices." %}</p>
             {% endif %}
@@ -85,30 +90,4 @@
         </div>
     </form>
 </div>
-<script>
-(function () {
-    var selectAll = document.getElementById("kp-promo-select-all");
-    var selectNone = document.getElementById("kp-promo-select-none");
-    var selectOnPromo = document.getElementById("kp-promo-select-on-promo");
-    var boxes = document.querySelectorAll(".kp-promo-checkbox");
-    if (selectAll) {
-        selectAll.addEventListener("click", function () {
-            boxes.forEach(function (cb) { cb.checked = true; });
-        });
-    }
-    if (selectNone) {
-        selectNone.addEventListener("click", function () {
-            boxes.forEach(function (cb) { cb.checked = false; });
-        });
-    }
-    if (selectOnPromo) {
-        selectOnPromo.addEventListener("click", function () {
-            boxes.forEach(function (cb) {
-                var row = cb.closest("tr");
-                cb.checked = row && row.classList.contains("kp-promo-admin__row--active");
-            });
-        });
-    }
-})();
-</script>
 {% endblock %}

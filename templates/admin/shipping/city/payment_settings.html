@@ -31,6 +31,7 @@
         </fieldset>
     </form>
 
+    <div class="kp-detail-cards kp-detail-cards--two"><section><small>{% trans "Delivery location" %}</small><strong>{{ selected_city.name }}</strong></section><section><small>{% trans "Standard delivery price" %}</small><strong>{{ selected_city.shipping_price|floatformat:"2g" }} RSD</strong><a href="{% url 'admin:shipping_city_change' selected_city.pk %}">{% trans "Edit delivery location" %} →</a></section></div>
     <form method="post" novalidate>
         {% csrf_token %}
         <input type="hidden" name="city" value="{{ selected_city.pk }}">

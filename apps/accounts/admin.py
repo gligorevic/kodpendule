@@ -39,6 +39,7 @@ class UserAdmin(KPModelAdmin, DjangoUserAdmin):
         "customer_contact_link",
     )
     list_filter = ("is_active",)
+    search_help_text = _("Search by name, username or email.")
     ordering = ("-date_joined",)
     search_fields = ("username", "email", "first_name", "last_name")
     inlines = [CustomerProfileInline]
@@ -105,6 +106,14 @@ class CustomerContactAdmin(KPModelAdmin):
         "registered_at",
         "first_seen_at",
         "last_seen_at",
+    )
+    list_filter = (("user", admin.EmptyFieldListFilter), "delivery_city_name")
+    search_help_text = _("Search by customer name, email, phone or delivery address.")
+    fieldsets = (
+        (_("Contact details"), {"fields": ("first_name", "last_name", "email", "phone")}),
+        (_("Delivery"), {"fields": ("delivery_street", "delivery_city_name")}),
+        (_("Account activity"), {"fields": ("user", "order_count", "registered_at", "last_seen_at")}),
+        (_("Timestamps"), {"classes": ("collapse",), "fields": ("first_seen_at",)}),
     )
     list_select_related = ("user",)
     ordering = ("-last_seen_at",)

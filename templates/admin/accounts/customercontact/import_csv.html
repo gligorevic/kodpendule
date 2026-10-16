@@ -11,6 +11,7 @@
 
 {% block content %}
 <div id="content-main" class="change-form kp-customer-import">
+    <ol class="kp-process-steps"><li><b>1</b> {% trans "Prepare CSV" %}</li><li aria-current="step"><b>2</b> {% trans "Upload contacts" %}</li></ol>
     <fieldset class="module aligned">
         <h2 class="fieldset-heading">{% trans "Import customer contacts" %}</h2>
         <p class="description">
@@ -18,7 +19,7 @@
         </p>
         <p class="description">
             <strong>{% trans "Columns" %}:</strong>
-            {{ export_columns|join:", " }}
+            <span class="kp-csv-columns">{% for column in export_columns %}<code>{{ column }}</code>{% endfor %}</span>
         </p>
         <p class="description mb-3">
             <a href="{% url 'admin:accounts_customercontact_export_csv' %}">{% trans "Download current data as CSV" %}</a>

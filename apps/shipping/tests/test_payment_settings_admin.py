@@ -42,3 +42,14 @@ class CityPaymentSettingsAdminTests(TestCase):
         self.city.refresh_from_db()
         self.assertEqual(self.city.promo_cart_threshold, Decimal("1500.00"))
         self.assertEqual(self.city.promo_discounted_shipping_price, Decimal("199.00"))
+
+    def test_staff_without_change_permission_cannot_change_delivery_rules(self):
+        from django.contrib.auth.models import Permission
+        viewer = get_user_model().objects.create_user(username="delivery-viewer", is_staff=True)
+        viewer.user_permissions.add(Permission.objects.get(content_type__app_label="shipping", codename="view_city"))
+        self.client.force_login(viewer)
+        url = reverse("admin:shipping_city_payment_settings")
+        self.assertEqual(self.client.get(url).status_code, 403)
+        self.assertEqual(self.client.post(url, {"city": self.city.pk, "promo_cart_threshold": "1", "promo_shipping_mode": "free"}).status_code, 403)
+        self.city.refresh_from_db()
+        self.assertIsNone(self.city.promo_cart_threshold)

@@ -1,5 +1,9 @@
 {% extends "admin/change_form.html" %}
 {% load i18n admin_urls %}
+{% block form_top %}
+{% if original %}<div class="kp-detail-cards"><section><small>{% trans "Order" %}</small><strong>{{ original.order_number }}</strong>{% include "admin/includes/_order_status_badge.html" with status=original.status %}</section><section><small>{% trans "Customer" %}</small><strong>{{ original.customer_full_name }}</strong><span>{{ original.phone }}</span></section><section><small>{% trans "Delivery" %}</small><strong>{{ original.shipping_city_name }}</strong><span>{{ original.shipping_street }}</span></section><section><small>{% trans "Total" %}</small><strong>{{ original.total|floatformat:"2g" }} RSD</strong><span>{{ original.get_payment_method_display }}</span></section></div>{% endif %}
+{{ block.super }}
+{% endblock %}
 
 {% block breadcrumbs %}
 <div class="breadcrumbs">

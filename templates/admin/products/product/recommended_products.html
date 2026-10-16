@@ -10,7 +10,7 @@
 {% endblock %}
 
 {% block content %}
-<div id="content-main" class="change-form kp-recommended-admin">
+<div data-product-picker id="content-main" class="change-form kp-recommended-admin">
     <form method="post" novalidate>
         {% csrf_token %}
         <fieldset class="module aligned">
@@ -20,15 +20,20 @@
             </p>
 
             {% if products %}
-            <div class="kp-recommended-admin__toolbar">
-                <button type="button" class="button" id="kp-recommended-select-all">{% trans "Select all" %}</button>
-                <button type="button" class="button" id="kp-recommended-select-none">{% trans "Clear all" %}</button>
+            <div class="kp-picker-search">
+                <label for="kp-picker-search">{% trans "Find products" %}</label><input id="kp-picker-search" type="search" data-picker-search placeholder="{% trans 'Name, SKU or category' %}">
+                <label class="kp-picker-check"><input type="checkbox" data-picker-selected> {% trans "Selected only" %}</label>
+                <p role="status" data-picker-status data-selected-label="{% trans 'selected' %}" data-results-label="{% trans 'results' %}"></p>
             </div>
-            <table class="kp-recommended-admin__table">
+            <div class="kp-recommended-admin__toolbar">
+                <button type="button" class="button" id="kp-recommended-select-all">{% trans "Select shown" %}</button>
+                <button type="button" class="button" id="kp-recommended-select-none">{% trans "Clear shown" %}</button>
+            </div>
+            <div class="kp-page-table"><table class="kp-recommended-admin__table">
                 <thead>
                     <tr>
                         <th scope="col" class="kp-recommended-admin__check-col">{% trans "Recommended" %}</th>
-                        <th scope="col">{% trans "SKU" %}</th>
+                        <th scope="col">{% trans "Product image" %}</th><th scope="col">{% trans "SKU" %}</th>
                         <th scope="col">{% trans "Name" %}</th>
                         <th scope="col">{% trans "Category" %}</th>
                         <th scope="col">{% trans "Stock" %}</th>
@@ -36,7 +41,7 @@
                 </thead>
                 <tbody>
                     {% for product in products %}
-                    <tr>
+                    <tr data-picker-category="{{ product.category }}">
                         <td class="kp-recommended-admin__check-col">
                             <input
                                 type="checkbox"
@@ -47,14 +52,14 @@
                                 {% if product.pk in selected_ids %}checked{% endif %}
                             >
                         </td>
-                        <td><label for="recommended-{{ product.pk }}">{{ product.sku }}</label></td>
-                        <td>{{ product }}</td>
+                        <td>{% if product.main_image %}<img class="kp-product-thumb" src="{{ product.main_image.url }}" alt="" width="42" height="42" loading="lazy">{% else %}—{% endif %}</td><td><label for="recommended-{{ product.pk }}">{{ product.sku }}</label></td>
+                        <td><label for="recommended-{{ product.pk }}">{{ product }}</label></td>
                         <td>{{ product.category }}</td>
                         <td>{{ product.stock }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table></div><p class="kp-picker-empty" data-picker-empty hidden>{% trans "No products match your search." %}</p><nav class="kp-picker-pagination" aria-label="{% trans 'Pagination' %}" data-picker-pagination hidden><button type="button" class="button" data-picker-prev>{% trans "Previous" %}</button><span data-picker-page></span><button type="button" class="button" data-picker-next>{% trans "Next" %}</button></nav>
             {% else %}
             <p>{% trans "No products yet. Add products first, then mark them as recommended." %}</p>
             {% endif %}
@@ -65,21 +70,4 @@
         </div>
     </form>
 </div>
-<script>
-(function () {
-    var selectAll = document.getElementById("kp-recommended-select-all");
-    var selectNone = document.getElementById("kp-recommended-select-none");
-    var boxes = document.querySelectorAll(".kp-recommended-checkbox");
-    if (selectAll) {
-        selectAll.addEventListener("click", function () {
-            boxes.forEach(function (cb) { cb.checked = true; });
-        });
-    }
-    if (selectNone) {
-        selectNone.addEventListener("click", function () {
-            boxes.forEach(function (cb) { cb.checked = false; });
-        });
-    }
-})();
-</script>
 {% endblock %}

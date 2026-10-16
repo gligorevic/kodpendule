@@ -1,0 +1,7 @@
+{% load i18n %}
+{% if opts.model_name == 'order' %}<p class="kp-page-guide">{% trans "Start with unread orders, then filter by status. Open an order to review its items, delivery and customer details." %}</p>
+{% elif opts.model_name == 'category' %}<p class="kp-page-guide">{% trans "Build your catalog hierarchy, set category images and choose the display order. A parent category groups its subcategories." %}</p>
+{% elif opts.model_name == 'city' %}<div class="kp-page-guide"><p>{% trans "Manage delivery locations and their standard prices. Promotional delivery rules are configured per city." %}</p>{% if perms.shipping.change_city %}<a href="{% url 'admin:shipping_city_payment_settings' %}">{% trans "Payment settings" %} →</a>{% endif %}</div>
+{% elif opts.model_name == 'customercontact' %}<p class="kp-page-guide">{% trans "Search customer contact details and delivery addresses. Use CSV export for the current filtered list, or import contacts by email." %}</p>
+{% elif opts.model_name == 'user' %}<p class="kp-page-guide">{% trans "Registered shop accounts. Search by name or email, check account activity and open the linked customer contact." %}</p>
+{% elif opts.model_name == 'group' %}<p class="kp-page-guide">{% trans "Groups collect permissions for staff roles. Open a group to review exactly which actions its members can perform." %}</p>{% endif %}

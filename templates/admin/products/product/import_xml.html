@@ -8,6 +8,7 @@
 {% endblock %}
 {% block content %}
 <div class="kp-inventory-import">
+    <ol class="kp-process-steps" aria-label="{% trans 'Import steps' %}"><li{% if upload_form %} aria-current="step"{% endif %}><b>1</b> {% trans "Upload XML" %}</li><li{% if not upload_form and not batch.applied_at %} aria-current="step"{% endif %}><b>2</b> {% trans "Review and categorize" %}</li><li{% if batch.applied_at %} aria-current="step"{% endif %}><b>3</b> {% trans "Apply changes" %}</li></ol>
     <p>{% trans "Match by SKU and verify product identity. Existing products: update stock only when it differs. Prices, descriptions, images and categories stay unchanged. Products missing from the XML stay unchanged." %}</p>
     <p>{% trans "New products require a category and use the XML name, barcode and price. Invalid or restricted records are excluded and listed for review." %}</p>
     {% if upload_form %}
@@ -25,10 +26,10 @@
     </form>
     {% if recent_batches %}
     <h2>{% trans "Recent imports" %}</h2>
-    <ul>{% for recent in recent_batches %}<li><a href="{% url 'admin:products_product_xml_preview' recent.pk %}">{{ recent.filename }}</a> — {{ recent.created_at|date:"d/m/Y H:i" }} — {% if recent.applied_at %}{% trans "Applied" %}{% else %}{% trans "Preview" %}{% endif %}</li>{% endfor %}</ul>
+    <div class="kp-page-table"><table><thead><tr><th>{% trans "File" %}</th><th>{% trans "Date" %}</th><th>{% trans "Status" %}</th></tr></thead><tbody>{% for recent in recent_batches %}<tr><td><a href="{% url 'admin:products_product_xml_preview' recent.pk %}">{{ recent.filename }}</a></td><td>{{ recent.created_at|date:"d/m/Y H:i" }}</td><td><span class="kp-badge">{% if recent.applied_at %}{% trans "Applied" %}{% else %}{% trans "Preview" %}{% endif %}</span></td></tr>{% endfor %}</tbody></table></div>
     {% endif %}
     {% else %}
-    <p><strong>{{ batch.filename }}</strong> · {% trans "Total records" %}: {{ batch.payload.total }} · {% trans "New" %}: {{ batch.payload.counts.new|default:0 }} · {% trans "Stock changes" %}: {{ batch.payload.counts.changed|default:0 }} · {% trans "Unchanged" %}: {{ batch.payload.counts.unchanged|default:0 }} · {% trans "Excluded" %}: {{ batch.payload.rejected|length }}</p>
+    <h2>{{ batch.filename }}</h2><div class="kp-detail-cards"><section><small>{% trans "Total records" %}</small><strong>{{ batch.payload.total }}</strong></section><section><small>{% trans "New" %}</small><strong>{{ batch.payload.counts.new|default:0 }}</strong></section><section><small>{% trans "Stock changes" %}</small><strong>{{ batch.payload.counts.changed|default:0 }}</strong></section><section><small>{% trans "Excluded" %}</small><strong>{{ batch.payload.rejected|length }}</strong></section></div>
     {% if error %}<p class="errornote" role="alert">{{ error }}</p>{% endif %}
     {% if batch.applied_at %}
         <div class="messagelist"><p class="success">{% trans "Import applied" %} — {{ batch.applied_at|date:"d/m/Y H:i" }}. {% trans "New" %}: {{ batch.result.created }} · {% trans "Stock changes" %}: {{ batch.result.updated }} · {% trans "Unchanged" %}: {{ batch.result.unchanged }} · {% trans "Excluded" %}: {{ batch.result.rejected }}.</p></div>

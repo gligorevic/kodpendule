@@ -4926,3 +4926,154 @@ msgstr "Brze radnje"
 
 msgid "Unread orders"
 msgstr "Nepročitane porudžbine"
+
+msgid "Account activity"
+msgstr "Aktivnost naloga"
+
+msgid "Adjust quantities before continuing."
+msgstr "Proverite količine pre nastavka."
+
+msgid "Apply changes"
+msgstr "Primena izmena"
+
+msgid ""
+"Build your catalog hierarchy, set category images and choose the display "
+"order. A parent category groups its subcategories."
+msgstr ""
+"Uredite raspored kategorija, njihove slike i redosled prikaza. Nadređena "
+"kategorija objedinjuje svoje potkategorije."
+
+msgid "Category image"
+msgstr "Slika kategorije"
+
+msgid "Category structure"
+msgstr "Raspored kategorije"
+
+msgid "Choose your delivery city in the next step to see the final total."
+msgstr ""
+"U sledećem koraku izaberite mesto dostave da biste videli konačan iznos."
+
+msgid "Clear shown"
+msgstr "Poništi prikazane"
+
+msgid "Confirmation"
+msgstr "Potvrda"
+
+msgid "Contact details"
+msgstr "Kontakt podaci"
+
+msgid "Delivery details"
+msgstr "Podaci za dostavu"
+
+msgid "Delivery location"
+msgstr "Mesto dostave"
+
+msgid "Edit delivery location"
+msgstr "Izmeni mesto dostave"
+
+msgid "Everything for your next order."
+msgstr "Sve za vašu sledeću porudžbinu."
+
+msgid "File"
+msgstr "Datoteka"
+
+msgid "Find products"
+msgstr "Pronađite proizvode"
+
+msgid ""
+"Groups collect permissions for staff roles. Open a group to review exactly "
+"which actions its members can perform."
+msgstr ""
+"Grupe objedinjuju ovlašćenja zaposlenih. Otvorite grupu da proverite koje "
+"radnje njeni članovi mogu da obavljaju."
+
+msgid "Import steps"
+msgstr "Koraci uvoza"
+
+msgid ""
+"Manage delivery locations and their standard prices. Promotional delivery "
+"rules are configured per city."
+msgstr ""
+"Uredite mesta dostave i njihove redovne cene. Pogodnosti za dostavu "
+"podešavaju se zasebno za svako mesto."
+
+msgid "Name, SKU or category"
+msgstr "Naziv, šifra ili kategorija"
+
+msgid "No products match your search."
+msgstr "Nema proizvoda za zadatu pretragu."
+
+msgid "Order steps"
+msgstr "Koraci poručivanja"
+
+msgid "Pay in cash on delivery."
+msgstr "Plaćanje gotovinom pri dostavi."
+
+msgid "Prepare CSV"
+msgstr "Priprema CSV datoteke"
+
+msgid "Price per item"
+msgstr "Cena po komadu"
+
+msgid ""
+"Registered shop accounts. Search by name or email, check account activity "
+"and open the linked customer contact."
+msgstr ""
+"Registrovani kupci prodavnice. Pretražite po imenu ili imejlu, proverite "
+"aktivnost naloga i otvorite povezani kontakt kupca."
+
+msgid "Report sections"
+msgstr "Delovi izveštaja"
+
+msgid "Review and categorize"
+msgstr "Pregled i kategorije"
+
+msgid "Search by customer name, email, phone or delivery address."
+msgstr "Pretraga po imenu kupca, imejlu, telefonu ili adresi dostave."
+
+msgid "Search by name, username or email."
+msgstr "Pretraga po imenu, korisničkom imenu ili imejlu."
+
+msgid "Search categories by name."
+msgstr "Pretražite kategorije po nazivu."
+
+msgid ""
+"Search customer contact details and delivery addresses. Use CSV export for "
+"the current filtered list, or import contacts by email."
+msgstr ""
+"Pronađite kontakt podatke kupaca i adrese dostave. Izvezite filtrirani "
+"spisak u CSV ili uvezite kontakte prema imejl adresi."
+
+msgid "Search delivery locations by name."
+msgstr "Pretražite mesta dostave po nazivu."
+
+msgid "Select shown"
+msgstr "Izaberi prikazane"
+
+msgid "Selected only"
+msgstr "Samo odabrani"
+
+msgid "Standard delivery price"
+msgstr "Redovna cena dostave"
+
+msgid ""
+"Start with unread orders, then filter by status. Open an order to review its"
+" items, delivery and customer details."
+msgstr ""
+"Počnite od nepročitanih porudžbina ili filtrirajte po statusu. Otvorite "
+"porudžbinu za pregled artikala, dostave i podataka kupca."
+
+msgid "Upload XML"
+msgstr "Dodavanje XML datoteke"
+
+msgid "Upload contacts"
+msgstr "Uvoz kontakata"
+
+msgid "Your products"
+msgstr "Vaši proizvodi"
+
+msgid "results"
+msgstr "rezultata"
+
+msgid "selected"
+msgstr "odabrano"
