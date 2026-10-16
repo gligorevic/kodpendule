@@ -1,136 +1,33 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static humanize %}
-
-{% block coltype %}colMS{% endblock %}
-
+{% block coltype %}colM{% endblock %}
 {% block bodyclass %}{{ block.super }} dashboard kp-admin-index{% endblock %}
-
 {% block nav-breadcrumbs %}{% endblock %}
-
-{% block content_title %}
-<h1>{% if index_title %}{{ index_title }}{% else %}{% trans "Store management" %}{% endif %}</h1>
-{% endblock %}
-
 {% block content %}
 <div id="content-main" class="kp-admin-home">
-    <header class="kp-admin-home__header">
-        <p class="kp-admin-home__intro">
-            {% trans "Overview of sales, orders, and inventory. Open the menu button above to reach all sections." %}
-        </p>
-    </header>
-
-    <section class="kp-admin-home__section">
-        <h2 class="kp-admin-home__section-title">{% trans "Overview" %}</h2>
-        <div class="dashboard-kpi-grid kp-admin-home__kpis">
-            {% trans "Today revenue" as kpi_today %}
-            {% trans "RSD, excl. cancelled orders" as hint_today %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_today value=home_overview.today_revenue|floatformat:2|intcomma hint=hint_today %}
-
-            {% trans "This month revenue" as kpi_month %}
-            {% trans "Calendar month" as hint_month %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_month value=home_overview.monthly_revenue|floatformat:2|intcomma hint=hint_month %}
-
-            {% trans "Orders (last 7 days)" as kpi_orders %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_orders value=home_period_7d.order_count hint="" %}
-
-            {% trans "Revenue (last 7 days)" as kpi_rev7 %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_rev7 value=home_period_7d.revenue|floatformat:2|intcomma hint="" %}
-        </div>
+  <p class="kp-admin-home__intro">{% trans "Everything you need for the daily running of your shop." %}</p>
+  <nav class="kp-workspace-actions" aria-label="{% trans 'Quick actions' %}">
+    {% for item in home_actions %}<a href="{{ item.url }}" class="kp-workspace-action"><span class="kp-workspace-action__icon" aria-hidden="true">{{ item.icon }}</span><strong>{{ item.title }}</strong><span>{{ item.description }}</span><span class="kp-workspace-action__arrow" aria-hidden="true">↗</span></a>{% endfor %}
+  </nav>
+  {% if home_attention %}<section class="kp-admin-home__section" aria-labelledby="work-queue-title">
+    <h2 id="work-queue-title" class="kp-admin-home__section-title">{% trans "At a glance" %}</h2>
+    <div class="kp-workspace-metrics">{% for item in home_attention %}<a href="{{ item.url }}"><span>{{ item.label }}</span><strong>{{ item.count }}</strong><small>{% trans "View list" %} →</small></a>{% endfor %}</div>
+  </section>{% endif %}
+  <div class="kp-workspace-panels">
+  {% if home_can_orders %}
+    <section class="kp-card kp-workspace-orders">
+      <div class="kp-panel-heading"><h2>{% trans "Recent orders" %}</h2><a href="{% url 'admin:orders_order_changelist' %}">{% trans "All orders" %} →</a></div>
+      {% if home_recent_orders %}<div class="kp-admin-home__table-wrap"><table class="kp-table"><thead><tr><th>{% trans "Order number" %}</th><th>{% trans "Customer" %}</th><th>{% trans "Status" %}</th><th>{% trans "Total" %}</th></tr></thead><tbody>
+      {% for order in home_recent_orders %}<tr><td><a href="{% url 'admin:orders_order_change' order.pk %}">{{ order.order_number }}</a></td><td>{{ order.customer_full_name }}</td><td>{% include "admin/includes/_order_status_badge.html" with status=order.status %}</td><td>{{ order.total|floatformat:"2g" }} RSD</td></tr>{% endfor %}
+      </tbody></table></div>{% else %}<p class="kp-empty-state">{% trans "No orders yet." %}</p>{% endif %}
     </section>
-
-    <div class="kp-admin-home__grid">
-        <section class="kp-card kp-admin-home__panel">
-            <h2 class="kp-card__title">{% trans "Order pipeline" %}</h2>
-            <ul class="kp-pipeline-list">
-                <li><span class="kp-pipeline-list__label">{% trans "Pending" %}</span><strong>{{ home_pipeline.pending }}</strong></li>
-                <li><span class="kp-pipeline-list__label">{% trans "Shipped" %}</span><strong>{{ home_pipeline.shipped }}</strong></li>
-                <li><span class="kp-pipeline-list__label">{% trans "Delivered" %}</span><strong>{{ home_pipeline.delivered }}</strong></li>
-            </ul>
-        </section>
-
-        <section class="kp-card kp-admin-home__panel">
-            <h2 class="kp-card__title">
-                <a href="{% url 'admin:orders_order_changelist' %}">{% trans "Recent orders" %}</a>
-            </h2>
-            {% if home_recent_orders %}
-            <div class="kp-admin-home__table-wrap">
-                <table class="kp-table">
-                    <thead>
-                        <tr>
-                            <th>{% trans "Order number" %}</th>
-                            <th>{% trans "Customer" %}</th>
-                            <th>{% trans "Status" %}</th>
-                            <th class="text-end">{% trans "Total" %}</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for order in home_recent_orders %}
-                        <tr>
-                            <td><a href="{% url 'admin:orders_order_change' order.pk %}">{{ order.order_number }}</a></td>
-                            <td>{{ order.customer_full_name }}</td>
-                            <td>{% include "admin/includes/_order_status_badge.html" with status=order.status %}</td>
-                            <td class="text-end"><span class="kp-money kp-money--emphasis">{{ order.total|floatformat:2|intcomma }}</span></td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-            <p class="kp-empty-state">{% trans "No orders yet." %}</p>
-            {% endif %}
-        </section>
-
-        <section class="kp-card kp-admin-home__panel" id="kp-home-low-stock">
-            <h2 class="kp-card__title">
-                <a href="{% url 'dashboard:index' %}#kp-low-stock-alerts">{% trans "Low stock alerts" %}</a>
-            </h2>
-            {% if home_low_stock %}
-            <ul class="kp-alert-list">
-                {% for product in home_low_stock %}
-                <li>
-                    <a href="{% url 'admin:products_product_change' product.pk %}">
-                        {{ product }} ({{ product.sku }}) — {% trans "Stock" %}: <strong>{{ product.stock }}</strong>
-                    </a>
-                </li>
-                {% endfor %}
-            </ul>
-            {% else %}
-            <p class="kp-empty-state">{% trans "All products are above the alert level." %}</p>
-            {% endif %}
-        </section>
-    </div>
+  {% endif %}
+  {% if home_can_products %}
+    <section class="kp-card"><div class="kp-panel-heading"><h2>{% trans "Low stock alerts" %}</h2><a href="{% url 'admin:products_product_changelist' %}?stock_state=low&amp;is_archived__exact=0">{% trans "View list" %} →</a></div>
+    {% if home_low_stock %}<ul class="kp-workspace-stock">{% for product in home_low_stock %}<li><a href="{% url 'admin:products_product_change' product.pk %}"><span>{{ product }}<small>{{ product.sku }}</small></span><strong>{{ product.stock }}</strong></a></li>{% endfor %}</ul>{% else %}<p class="kp-empty-state">{% trans "All products are above the alert level." %}</p>{% endif %}</section>
+  {% endif %}
+  </div>
+  {% if home_can_orders %}<section class="kp-card kp-workspace-sales"><h2>{% trans "Sales overview" %}</h2><div><p>{% trans "Today revenue" %}<strong>{{ home_overview.today_revenue|floatformat:"2g" }} RSD</strong></p><p>{% trans "This month revenue" %}<strong>{{ home_overview.monthly_revenue|floatformat:"2g" }} RSD</strong></p><a href="{% url 'dashboard:index' %}">{% trans "Shop analytics" %} →</a></div></section>{% endif %}
 </div>
 {% endblock %}
-
-{% block sidebar %}
-<div id="content-related" class="kp-admin-home-sidebar">
-    <div class="module kp-card" id="recent-actions-module">
-        <h2>{% trans "Recent actions" %}</h2>
-        <h3>{% trans "My changes" %}</h3>
-        {% load log %}
-        {% get_admin_log 8 as admin_log for_user user %}
-        {% if not admin_log %}
-        <p class="kp-empty-state">{% trans "No recent changes yet." %}</p>
-        {% else %}
-        <ul class="actionlist">
-            {% for entry in admin_log %}
-            <li class="{% if entry.is_addition %}addlink{% endif %}{% if entry.is_change %}changelink{% endif %}{% if entry.is_deletion %}deletelink{% endif %}">
-                <span class="visually-hidden">{% if entry.is_addition %}{% trans "Added:" %}{% elif entry.is_change %}{% trans "Changed:" %}{% elif entry.is_deletion %}{% trans "Deleted:" %}{% endif %}</span>
-                {% if entry.is_deletion or not entry.get_admin_url %}
-                    {{ entry.object_repr }}
-                {% else %}
-                    <a href="{{ entry.get_admin_url }}">{{ entry.object_repr }}</a>
-                {% endif %}
-                <br>
-                {% if entry.content_type %}
-                    <span class="mini quiet">{% filter capfirst %}{{ entry.content_type.name }}{% endfilter %}</span>
-                {% else %}
-                    <span class="mini quiet">{% trans "Unknown content" %}</span>
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-    </div>
-</div>
-{% endblock %}
+{% block sidebar %}{% endblock %}

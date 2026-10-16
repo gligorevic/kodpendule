@@ -1992,7 +1992,7 @@ msgstr "Još nema narudžbina."
 
 #: templates/admin/index.html:98
 msgid "All products are above the alert level."
-msgstr "Svi proizvodi su iznad nivoa upozorenja."
+msgstr "Svi proizvodi imaju dovoljno zaliha."
 
 #: templates/admin/index.html:108
 msgid "Recent actions"
@@ -4861,3 +4861,68 @@ msgstr "Vaša porudžbina sadrži alkoholna pića."
 
 msgid "18+ confirmation time"
 msgstr "Vreme potvrde punoletstva (18+)"
+
+msgid "Search, prices, photos and stock"
+msgstr "Pretraga, cene, slike i zalihe"
+
+msgid "Drop a file, review changes, update stock"
+msgstr "Dodajte fajl, proverite izmene i ažurirajte zalihe"
+
+msgid "New orders, delivery and status"
+msgstr "Nove porudžbine, dostava i statusi"
+
+msgid "Organize products and subcategories"
+msgstr "Uredite proizvode i potkategorije"
+
+msgid "Active products"
+msgstr "Aktivni proizvodi"
+
+msgid "Without photo"
+msgstr "Bez slike"
+
+msgid "With photo"
+msgstr "Sa slikom"
+
+msgid "Everything you need for the daily running of your shop."
+msgstr "Sve za svakodnevno upravljanje prodavnicom na jednom mestu."
+
+msgid "At a glance"
+msgstr "Pregled prodavnice"
+
+msgid "View list"
+msgstr "Prikaži spisak"
+
+msgid "All orders"
+msgstr "Sve porudžbine"
+
+msgid "Sales overview"
+msgstr "Pregled prodaje"
+
+msgid "Find a product, check its photo and stock, then open its name to edit."
+msgstr ""
+"Pronađite proizvod, proverite sliku i zalihe, pa kliknite na naziv za "
+"izmenu."
+
+msgid "Quick filters"
+msgstr "Brzi filteri"
+
+msgid "Form sections"
+msgstr "Delovi obrasca"
+
+msgid "Product details"
+msgstr "Osnovni podaci"
+
+msgid "Descriptions"
+msgstr "Opisi"
+
+msgid "Search by product name, SKU or barcode."
+msgstr "Pretražite po nazivu proizvoda, šifri ili barkodu."
+
+msgid "Search by order number, customer name, phone or email."
+msgstr "Pretražite po broju porudžbine, imenu kupca, telefonu ili imejlu."
+
+msgid "Quick actions"
+msgstr "Brze radnje"
+
+msgid "Unread orders"
+msgstr "Nepročitane porudžbine"

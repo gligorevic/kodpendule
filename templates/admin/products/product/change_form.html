@@ -1,0 +1,9 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+{% block form_top %}
+{{ block.super }}
+{% if original %}<div class="kp-product-summary">
+  {% if original.main_image %}<img src="{{ original.main_image.url }}" alt="{{ original }}" width="96" height="96">{% endif %}
+  <div><strong>{{ original }}</strong><p>{% trans "SKU" %}: {{ original.sku }} · {% trans "Stock" %}: {{ original.stock }}</p></div>
+</div>{% endif %}
+{% endblock %}

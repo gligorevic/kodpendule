@@ -12,14 +12,14 @@ from django.utils.translation import gettext_lazy as _
 
 # app_label.model_name -> labels
 CHANGELIST_TITLES: dict[str, str] = {
-    "orders.order": _("Select order to change"),
-    "products.product": _("Select product to change"),
-    "categories.category": _("Select category to change"),
-    "shipping.city": _("Select city to change"),
-    "accounts.customercontact": _("Select customer contact to change"),
-    "accounts.user": _("Select user to change"),
+    "orders.order": _("Orders"),
+    "products.product": _("Products"),
+    "categories.category": _("Categories"),
+    "shipping.city": _("Shipping"),
+    "accounts.customercontact": _("Customers"),
+    "accounts.user": _("Users"),
     "auth.group": _("Select group to change"),
-    "auth.user": _("Select user to change"),
+    "auth.user": _("Users"),
 }
 
 ADD_LABELS: dict[str, str] = {

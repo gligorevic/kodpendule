@@ -1,5 +1,12 @@
 {% extends "admin/change_list.html" %}
 {% load i18n %}
 
-{% block title %}{% trans "Select order to change" %} | {{ site_title|default:_("Django site admin") }}{% endblock %}
-{% block content_title %}{% trans "Select order to change" %}{% endblock %}
+{% block search %}
+<nav class="kp-quick-filters" aria-label="{% trans 'Quick filters' %}">
+  <a href="{% url 'admin:orders_order_changelist' %}">{% trans "All orders" %}</a>
+  <a href="{% querystring is_new__exact='1' p=None %}"{% if request.GET.is_new__exact == '1' %} aria-current="page"{% endif %}>{% trans "Unread orders" %}</a>
+  <a href="{% querystring status__exact='pending' p=None %}"{% if request.GET.status__exact == 'pending' %} aria-current="page"{% endif %}>{% trans "Pending" %}</a>
+  <a href="{% querystring status__exact='shipped' p=None %}"{% if request.GET.status__exact == 'shipped' %} aria-current="page"{% endif %}>{% trans "Shipped" %}</a>
+</nav>
+{{ block.super }}
+{% endblock %}

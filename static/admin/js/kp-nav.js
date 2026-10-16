@@ -4,7 +4,7 @@
 (function () {
     "use strict";
 
-    var MOBILE_MQ = "(max-width: 767px)";
+    var MOBILE_MQ = "(max-width: 1023px)";
     var DESKTOP_MQ = "(min-width: 1024px)";
 
     /* Django's nav_sidebar.js also binds the toggle; replace node to avoid double-toggle on mobile. */
@@ -67,10 +67,11 @@
         }
         main.classList.toggle("shifted", open);
         sidebar.setAttribute("aria-expanded", open ? "true" : "false");
+        sidebar.inert = !open;
         document.body.classList.toggle("kp-admin-nav-open", open);
         setStickyToggleLabel(open);
         try {
-            localStorage.setItem("django.admin.navSidebarIsOpen", open ? "true" : "false");
+            localStorage.setItem("kp.admin.navSidebarIsOpen", open ? "true" : "false");
         } catch (e) {
             /* ignore */
         }
@@ -82,20 +83,7 @@
         if (!main || isMobile()) {
             return;
         }
-        var forceOpen = document.body.classList.contains("kp-admin-analytics");
-        try {
-            if (
-                forceOpen ||
-                (window.matchMedia(DESKTOP_MQ).matches &&
-                    localStorage.getItem("django.admin.navSidebarIsOpen") !== "false")
-            ) {
-                setSidebarOpen(true);
-            }
-        } catch (e) {
-            if (forceOpen) {
-                setSidebarOpen(true);
-            }
-        }
+        if (window.matchMedia(DESKTOP_MQ).matches) setSidebarOpen(true);
     }
 
     function initMobileSidebarState() {
@@ -129,7 +117,9 @@
         if (toggle) {
             toggle.addEventListener("click", function (event) {
                 event.stopPropagation();
-                setSidebarOpen(!main.classList.contains("shifted"));
+                var open = !main.classList.contains("shifted");
+                setSidebarOpen(open);
+                if (open && isMobile()) sidebar.querySelector("button, a, input").focus();
             });
         }
 
@@ -138,6 +128,7 @@
             drawerClose.addEventListener("click", function (event) {
                 event.stopPropagation();
                 setSidebarOpen(false);
+                if (toggle) toggle.focus();
             });
         }
 
@@ -162,6 +153,13 @@
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape" && isMobile() && main.classList.contains("shifted")) {
                 setSidebarOpen(false);
+                if (toggle) toggle.focus();
+            }
+            if (event.key === "Tab" && isMobile() && main.classList.contains("shifted")) {
+                var items = Array.from(sidebar.querySelectorAll("a, button, input")).filter(function (el) { return el.getClientRects().length; });
+                var first = items[0], last = items[items.length - 1];
+                if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+                else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
             }
         });
     }
