@@ -2,5 +2,6 @@
 {% load i18n %}
 {% block form_top %}
 {{ block.super }}
+{% include "admin/includes/page_guide.html" %}
 <nav class="kp-form-sections" id="kp-form-sections" aria-label="{% trans 'Form sections' %}" hidden></nav>
 {% endblock %}

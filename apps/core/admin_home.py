@@ -27,7 +27,7 @@ def build_admin_home_context(request):
             {"label": _("Low stock alerts"), "count": counts["low"], "url": url + "?stock_state=low&is_archived__exact=0"},
             {"label": _("Without photo"), "count": counts["missing"], "url": url + "?photo=missing&is_archived__exact=0"},
         ])
-        context["home_low_stock"] = analytics.low_stock_products(limit=6)
+        context["home_low_stock"] = Product.objects.filter(is_archived=False, stock__lte=F("minimum_stock_alert")).prefetch_related("translations").order_by("stock", "sku")[:6]
     if user.has_perm("products.change_product"):
         actions.append({"title": _("Import inventory XML"), "description": _("Drop a file, review changes, update stock"), "url": reverse("admin:products_product_import_xml"), "icon": "↥"})
     if can_orders:

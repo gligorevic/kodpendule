@@ -16,6 +16,7 @@
 
 {% block content %}
 <div class="dashboard-page" id="content-main">
+    <nav class="kp-form-sections" aria-label="{% trans 'Report sections' %}"><a href="#kp-report-overview">{% trans "Overview" %}</a><a href="#kp-report-charts">{% trans "Charts" %}</a><a href="#kp-report-products">{% trans "Best-selling products" %}</a>{% if low_stock_products %}<a href="#kp-low-stock-alerts">{% trans "Low stock alerts" %}</a>{% endif %}</nav>
     <p class="help">
         {% blocktrans with label=period.label %}Reporting period: <strong>{{ label }}</strong>{% endblocktrans %}
     </p>
@@ -58,23 +59,23 @@
         </div>
     </form>
 
-    <section class="dashboard-section">
+    <section class="dashboard-section" id="kp-report-overview">
         <h2>{% trans "Overview" %}</h2>
         <div class="dashboard-kpi-grid">
             {% trans "Today revenue" as kpi_today_revenue %}
             {% trans "RSD, excl. cancelled orders" as hint_today_revenue %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_today_revenue value=overview.today_revenue|floatformat:2|intcomma hint=hint_today_revenue %}
+            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_today_revenue value=overview.today_revenue|floatformat:"2g" hint=hint_today_revenue %}
 
             {% trans "This month revenue" as kpi_month_revenue %}
             {% trans "Calendar month" as hint_month_revenue %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_month_revenue value=overview.monthly_revenue|floatformat:2|intcomma hint=hint_month_revenue %}
+            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_month_revenue value=overview.monthly_revenue|floatformat:"2g" hint=hint_month_revenue %}
 
             {% trans "Orders in period" as kpi_orders %}
             {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_orders value=period_metrics.order_count hint=period.label %}
 
             {% trans "Avg. order value" as kpi_aov %}
             {% trans "Selected period" as hint_aov %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_aov value=period_metrics.avg_order_value|floatformat:2|intcomma hint=hint_aov %}
+            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_aov value=period_metrics.avg_order_value|floatformat:"2g" hint=hint_aov %}
 
             {% trans "Pending" as kpi_pending %}
             {% trans "Current pipeline" as hint_pipeline %}
@@ -87,7 +88,7 @@
             {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_delivered value=pipeline.delivered hint=hint_pipeline %}
 
             {% trans "Period revenue" as kpi_period_revenue %}
-            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_period_revenue value=period_metrics.revenue|floatformat:2|intcomma hint=period.label %}
+            {% include "admin/dashboard/includes/_kpi_card.html" with label=kpi_period_revenue value=period_metrics.revenue|floatformat:"2g" hint=period.label %}
         </div>
     </section>
 
@@ -106,7 +107,7 @@
     </section>
     {% endif %}
 
-    <section class="dashboard-section">
+    <section class="dashboard-section" id="kp-report-charts">
         <h2>{% trans "Charts" %}</h2>
         <div class="dashboard-charts">
             <div class="dashboard-chart-card">
@@ -146,7 +147,7 @@
         </div>
     </section>
 
-    <section class="dashboard-section dashboard-tables">
+    <section class="dashboard-section dashboard-tables" id="kp-report-products">
         <div class="dashboard-table-wrap">
             <h2>{% trans "Best-selling products" %}</h2>
             <table>
@@ -164,7 +165,7 @@
                         <td>{{ row.name }}</td>
                         <td>{{ row.sku }}</td>
                         <td class="text-end">{{ row.quantity_sold }}</td>
-                        <td class="text-end">{{ row.revenue|floatformat:2|intcomma }}</td>
+                        <td class="text-end">{{ row.revenue|floatformat:"2g" }}</td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="4">{% trans "No sales in this period." %}</td></tr>
@@ -187,7 +188,7 @@
                     <tr>
                         <td>{{ row.name }}</td>
                         <td class="text-end">{{ row.quantity_sold }}</td>
-                        <td class="text-end">{{ row.revenue|floatformat:2|intcomma }}</td>
+                        <td class="text-end">{{ row.revenue|floatformat:"2g" }}</td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="3">{% trans "No category sales in this period." %}</td></tr>
@@ -210,7 +211,7 @@
                     <tr>
                         <td>{{ row.email }}</td>
                         <td class="text-end">{{ row.order_count }}</td>
-                        <td class="text-end">{{ row.revenue|floatformat:2|intcomma }}</td>
+                        <td class="text-end">{{ row.revenue|floatformat:"2g" }}</td>
                     </tr>
                     {% empty %}
                     <tr><td colspan="3">{% trans "No customers in this period." %}</td></tr>

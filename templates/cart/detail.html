@@ -3,11 +3,13 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=20261015-ux3">
+<link rel="stylesheet" href="{% static 'css/cart-page.css' %}?v=20261016-1">
 {% endblock %}
 
 {% block content %}
 <div class="shop-page shop-page--cart">
 <div class="container shop-container py-4 py-lg-5" data-cart-page>
+    <nav class="cart-steps" aria-label="{% trans 'Order steps' %}"><span aria-current="step"><b>1</b> {% trans "Cart" %}</span><span><b>2</b> {% trans "Delivery details" %}</span><span><b>3</b> {% trans "Confirmation" %}</span></nav>
     <header class="shop-page-header mb-4">
         <h1 class="shop-page-header__title">{% trans "Cart" %}</h1>
         <p class="shop-page-header__meta mb-0" data-cart-header-summary>
@@ -19,6 +21,7 @@
     <div class="shop-cart" data-cart-content{% if not cart_lines %} hidden{% endif %}>
         <div class="shop-cart__layout">
             <section class="shop-cart__items" aria-label="{% trans 'Cart items' %}">
+                <div class="cart-section-heading"><h2>{% trans "Your products" %}</h2><span>{% trans "Adjust quantities before continuing." %}</span></div>
                 <ul class="shop-cart-lines list-unstyled mb-0">
                     {% for line in cart_lines %}
                     <li class="shop-cart-line" data-cart-line data-product-id="{{ line.product.pk }}">
@@ -38,7 +41,7 @@
                                     </a>
                                     <p class="shop-cart-line__sku">{% trans "SKU" %}: {{ line.product.sku }}</p>
                                 </div>
-                                <p class="shop-cart-line__unit">{{ line.unit_price|money }}</p>
+                                <div class="cart-unit-price"><small>{% trans "Price per item" %}</small><p class="shop-cart-line__unit">{{ line.unit_price|money }}</p></div>
                             </div>
 
                             <div class="shop-cart-line__actions">
@@ -83,7 +86,8 @@
                         </div>
                     </dl>
 
-                    <p class="shop-summary-card__hint">{% trans "Shipping is calculated at checkout." %}</p>
+                    <div class="cart-delivery-note"><strong>{% trans "Delivery" %}</strong><p>{% trans "Choose your delivery city in the next step to see the final total." %}</p></div>
+                    <p class="cart-cash-note">{% trans "Pay in cash on delivery." %}</p>
 
                     <a href="{% shop_url 'checkout:checkout' %}" data-cart-checkout class="shop-btn shop-btn--primary shop-btn--lg shop-btn--block">
                         {% trans "Proceed to checkout" %}
@@ -98,6 +102,7 @@
         </div>
     </div>
     <div class="shop-empty-cart" data-cart-empty{% if cart_lines %} hidden{% endif %}>
+        <div class="cart-empty-icon" aria-hidden="true"><svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 16h32l-3 25H11L8 16Z"/><path d="M17 18V12a7 7 0 0 1 14 0v6"/></svg></div>
         <h2 class="shop-empty-cart__title">{% trans "Your cart is empty" %}</h2>
         <p class="shop-empty-cart__text">{% trans "Browse our catalog and add products you like. Checkout is simple and secure." %}</p>
         <a href="{% shop_url 'products:list' %}" class="shop-btn shop-btn--primary shop-btn--lg">

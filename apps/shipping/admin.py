@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 from django.http import HttpRequest, HttpResponse
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.translation import gettext_lazy as _
@@ -12,7 +13,14 @@ from apps.shipping.selectors import active_cities
 
 @admin.register(City)
 class CityAdmin(KPModelAdmin):
-    list_display = ("name", "slug", "shipping_price", "is_active", "sort_order")
+    list_display = ("name", "shipping_price", "promo_cart_threshold", "is_active", "sort_order")
+    list_filter = ("is_active",)
+    search_help_text = _("Search delivery locations by name.")
+    fieldsets = (
+        (_("Delivery location"), {"fields": ("name", "shipping_price", "is_active", "sort_order")}),
+        (_("Promotional delivery"), {"fields": ("promo_cart_threshold", "promo_shipping_mode", "promo_discounted_shipping_price")}),
+        (_("SEO"), {"classes": ("collapse",), "fields": ("slug",)}),
+    )
     search_fields = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
     ordering = ("sort_order", "name")
@@ -29,6 +37,8 @@ class CityAdmin(KPModelAdmin):
         return custom + urls
 
     def payment_settings_view(self, request: HttpRequest) -> HttpResponse:
+        if not self.has_change_permission(request):
+            raise PermissionDenied
         cities = list(active_cities())
         if not cities:
             messages.warning(

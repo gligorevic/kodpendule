@@ -37,4 +37,4 @@ class ShopUserAdminTests(TestCase):
 
     def test_changelist_uses_serbian_title(self) -> None:
         response = self.client.get(reverse("admin:accounts_user_changelist"))
-        self.assertContains(response, "Izaberite korisnika za izmenu")
+        self.assertContains(response, "<h1>Korisnici</h1>")

@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db.models import Count
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from apps.categories.models import Category
@@ -15,18 +17,28 @@ class CategoryAdmin(KPTranslatableAdmin):
         "meta_title",
         "meta_description",
     )
-    list_display = ("name", "slug_display", "parent", "is_active", "sort_order")
+    list_display = ("image_preview", "name", "parent", "product_count", "is_active", "sort_order")
+    list_display_links = ("name",)
+    list_filter = ("is_active", ("parent", admin.EmptyFieldListFilter))
+    search_help_text = _("Search categories by name.")
     search_fields = ("translations__name", "translations__slug")
     list_select_related = ("parent",)
     fieldsets = (
-        (
-            _("Name & URL"),
-            {
-                "fields": ("name", "slug", "description"),
-            },
-        ),
-        (None, {"fields": ("parent", "image", "is_active", "sort_order", "requires_age_confirmation")}),
+        (_("Category structure"), {"fields": ("name", "parent", "is_active", "sort_order", "requires_age_confirmation")}),
+        (_("Category image"), {"fields": ("image",)}),
+        (_("Descriptions"), {"classes": ("collapse",), "fields": ("description",)}),
+        (_("SEO"), {"classes": ("collapse",), "fields": ("slug", "meta_title", "meta_description")}),
     )
+
+    @admin.display(description=_("Category image"))
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html('<img class="kp-product-thumb" src="{}" alt="" loading="lazy" width="48" height="48">', obj.image.url)
+        return "—"
+
+    @admin.display(description=_("Products"))
+    def product_count(self, obj):
+        return obj.product_total
 
     def get_form(self, request, obj=None, **kwargs):
         form_class = super().get_form(request, obj, **kwargs)
@@ -46,5 +58,6 @@ class CategoryAdmin(KPTranslatableAdmin):
             super()
             .get_queryset(request)
             .select_related("parent")
+            .annotate(product_total=Count("products", distinct=True))
             .prefetch_related("translations", "parent__translations")
         )

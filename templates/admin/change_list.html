@@ -4,7 +4,7 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="{% static 'admin/css/changelist-table.css' %}">
-<link rel="stylesheet" href="{% static 'admin/css/workspace.css' %}?v=20261016-1">
+<link rel="stylesheet" href="{% static 'admin/css/workspace.css' %}?v=20261016-2">
 {% endblock %}
 
 {% block extrahead %}
@@ -27,6 +27,7 @@
 
 {% block filters %}{% endblock %}
 {% block search %}
+{% include "admin/includes/page_guide.html" %}
 {{ block.super }}
 {% if cl.has_filters %}
 <nav id="changelist-filter" aria-label="{% trans 'Filter' %}">
