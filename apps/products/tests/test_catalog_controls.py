@@ -133,6 +133,39 @@ class CatalogControlsTests(TestCase):
         self.assertContains(response, "Clear filters")
         self.assertContains(response, "Browse all products")
 
+    def test_subcategory_chips_preserve_filters_and_filter_products(self):
+        self.category("Hidden", parent=self.root, is_active=False)
+        response = self.client.get(self.url, {
+            "kategorija": self.root.slug, "q": "Tea", "available": "1",
+            "sort": "price_asc", "page": "1",
+        })
+        nav = response.content.decode().split('class="shop-catalog-subcategories', 1)[1].split("</nav>", 1)[0]
+        self.assertNotIn("Hidden", nav)
+        links = [html.unescape(href) for href in re.findall(r'href="([^"]+)"', nav)]
+        child_link = next(href for href in links if parse_qs(urlsplit(href).query).get("kategorija") == [self.child.slug])
+        self.assertEqual(parse_qs(urlsplit(child_link).query), {
+            "kategorija": [self.child.slug], "q": ["Tea"], "available": ["1"], "sort": ["price_asc"],
+        })
+        child_response = self.client.get(child_link)
+        self.assertEqual(self.ids(child_response), [self.tea.pk])
+        self.assertEqual(child_response.context["active_category_root_id"], self.root.pk)
+        self.assertContains(child_response, 'class="shop-chip shop-chip--illustrated is-active"')
+
+    def test_nested_subcategories_keep_parent_and_sibling_navigation(self):
+        grandchild = self.category("Tea", parent=self.child)
+        sibling = self.category("Juice", parent=self.child)
+        response = self.client.get(self.url, {"kategorija": grandchild.slug})
+        groups = response.context["subcategory_groups"]
+        self.assertEqual([group["parent"].pk for group in groups], [self.root.pk, self.child.pk])
+        self.assertEqual([c.pk for c in groups[1]["children"]], [grandchild.pk, sibling.pk])
+        self.assertEqual(response.context["active_category_path_ids"], {self.root.pk, self.child.pk, grandchild.pk})
+
+    def test_unselected_catalog_and_leaf_root_have_no_subcategory_row(self):
+        for query in ({}, {"kategorija": self.other.slug}):
+            response = self.client.get(self.url, query)
+            self.assertEqual(response.context["subcategory_groups"], [])
+            self.assertNotContains(response, 'class="shop-catalog-subcategories')
+
     def test_empty_category_search_clear_preserves_category(self):
         response = self.client.get(self.url, {"q": "nothing-matches", "kategorija": self.root.slug})
         self.assertContains(response, f'href="{self.url}?kategorija={self.root.slug}#catalog-results"')

@@ -4,7 +4,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView
 
-from apps.categories.selectors import get_category_by_slug
+from apps.categories.selectors import get_category_by_slug, get_child_categories
 from apps.core.breadcrumbs import (
     category_breadcrumb_items,
     home_crumb,
@@ -89,9 +89,23 @@ class ProductListView(CatalogControlsMixin, ShopLanguageMixin, ListView):
         context = super().get_context_data(**kwargs)
         query = self.catalog_filters["query"]
         active_category = self.active_category
-        root = active_category
-        while root and root.parent_id:
-            root = root.parent
+        category_chain = []
+        current = active_category
+        seen = set()
+        while current and current.pk not in seen:
+            seen.add(current.pk)
+            activate_parler_language(current, self.shop_language)
+            category_chain.append(current)
+            current = current.parent if current.parent_id else None
+        category_chain.reverse()
+        root = category_chain[0] if category_chain else None
+        subcategory_groups = []
+        for parent in category_chain:
+            children = list(get_child_categories(parent, self.shop_language))
+            for child in children:
+                activate_parler_language(child, self.shop_language)
+            if children:
+                subcategory_groups.append({"parent": parent, "children": children})
 
         if query:
             meta_title = _("Search results for “%(query)s”") % {"query": query}
@@ -114,6 +128,8 @@ class ProductListView(CatalogControlsMixin, ShopLanguageMixin, ListView):
                 "search_query": query,
                 "active_category": active_category,
                 "active_category_root_id": root.pk if root else None,
+                "active_category_path_ids": seen,
+                "subcategory_groups": subcategory_groups,
                 "catalog_has_categories": True,
                 "breadcrumb_items": breadcrumbs,
                 "meta_title": meta_title,

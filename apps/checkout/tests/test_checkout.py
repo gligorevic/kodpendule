@@ -182,7 +182,7 @@ class CheckoutServiceTests(TestCase):
                 "shipping_street": "St",
                 "delivery_timing": DeliveryTiming.SAME_DAY,
                 "order_notes": "",
-                "payment_method": PaymentMethod.CARD,
+                "payment_method": PaymentMethod.CASH,
                 "accept_legal": True,
             },
             user=None,
@@ -206,6 +206,27 @@ class CheckoutServiceTests(TestCase):
         )
         self.assertFalse(form.is_valid())
         self.assertIn("payment_method", form.errors)
+
+    def test_checkout_offers_cash_only_and_rejects_card(self) -> None:
+        form = CheckoutForm()
+        self.assertEqual(list(form.fields["payment_method"].choices), [(PaymentMethod.CASH, PaymentMethod.CASH.label)])
+        self.assertEqual(form["payment_method"].value(), PaymentMethod.CASH)
+        form = CheckoutForm(data=_checkout_post_data(self.city.pk, payment_method=PaymentMethod.CARD))
+        self.assertFalse(form.is_valid())
+        self.assertIn("payment_method", form.errors)
+
+    def test_order_service_rejects_card_without_creating_order_or_changing_stock(self) -> None:
+        count = Order.objects.count()
+        with self.assertRaises(CheckoutError):
+            create_order_from_checkout(
+                cart=get_cart(self.request), user=None, guest_email="guest@example.com",
+                first_name="Pera", last_name="Perić", phone="123",
+                shipping_city=self.city, shipping_street="Ulica 1", order_notes="",
+                payment_method=PaymentMethod.CARD,
+            )
+        self.assertEqual(Order.objects.count(), count)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.stock, 10)
 
     def test_checkout_form_requires_date_for_scheduled_delivery(self) -> None:
         form = CheckoutForm(
