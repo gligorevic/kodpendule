@@ -247,3 +247,26 @@ class CatalogControlsTests(TestCase):
                 self.assertEqual(catalog_return_url(value), "")
         for value in ("/products/?page=3&q=tea&sort=price_desc", "/proizvodi/?page=4&kategorija=pice", "/promo-akcije/?page=2"):
             self.assertEqual(catalog_return_url(value), value)
+
+
+    def test_category_breadcrumb_returns_to_originating_parent_listing(self):
+        source = self.url + "?kategorija=" + self.root.slug + "&page=3&sort=price_asc&available=1"
+        response = self.client.get(shop_reverse("products:detail", language="en", slug=self.tea.slug), {"from": source})
+        self.assertEqual(response.context["breadcrumb_items"][-2], (self.root.name, source))
+        self.assertContains(response, 'href="' + html.escape(source, quote=True) + '" data-catalog-back>Food</a>')
+        self.assertNotEqual(response.context["breadcrumb_items"][-2][1], self.child.get_absolute_url())
+
+    def test_direct_category_breadcrumb_keeps_pagination_and_filters(self):
+        source = shop_reverse("categories:detail", language="en", category_path=self.root.slug) + "?page=2&q=Tea&sort=price_desc"
+        response = self.client.get(shop_reverse("products:detail", language="en", slug=self.tea.slug), {"from": source})
+        self.assertEqual(response.context["breadcrumb_items"][-2], (self.root.name, source))
+        self.assertContains(response, 'href="' + html.escape(source, quote=True) + '" data-catalog-back>Food</a>')
+
+    def test_search_breadcrumb_returns_to_search_and_direct_product_keeps_category(self):
+        source = self.url + "?q=Tea&page=2"
+        response = self.client.get(shop_reverse("products:detail", language="en", slug=self.tea.slug), {"from": source})
+        self.assertEqual(str(response.context["breadcrumb_items"][-2][0]), "Search")
+        self.assertContains(response, 'href="' + html.escape(source, quote=True) + '" data-catalog-back>Search</a>')
+        direct = self.detail()
+        self.assertEqual(direct.context["breadcrumb_items"][-2][0], self.child.name)
+        self.assertNotContains(direct, 'data-catalog-back>Drinks</a>')

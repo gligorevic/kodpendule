@@ -3,7 +3,7 @@
     <ol class="breadcrumb mb-0">
         {% for label, url in breadcrumbs %}
             {% if url and not forloop.last %}
-                <li class="breadcrumb-item"><a href="{{ url }}">{{ label }}</a></li>
+                <li class="breadcrumb-item"><a href="{{ url }}"{% if catalog_return_url and url == catalog_return_url %} data-catalog-back{% endif %}>{{ label }}</a></li>
             {% else %}
                 <li class="breadcrumb-item active" aria-current="page">{{ label }}</li>
             {% endif %}
