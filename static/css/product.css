@@ -323,3 +323,5 @@
     .shop-buybox__cta { min-height: 44px; padding: 10px 8px; font-size: 14px; }
     .shop-pdp__trust { margin-top: 18px; }
 }
+
+.shop-pdp-back { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 20px; min-height: 44px; color: #284b34; font-size: 14px; font-weight: 600; text-underline-offset: 4px; }

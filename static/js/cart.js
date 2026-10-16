@@ -6,7 +6,8 @@
     var drawer;
     var page;
     var drawerOpener;
-    var drawerHasFreshState = false;
+    var confirmationTimer;
+    var confirmationOpener;
     var rowSelector = "[data-cart-line], [data-cart-drawer-line]";
 
     function label(key) { return drawer ? drawer.getAttribute("data-i18n-" + key) || "" : ""; }
@@ -37,26 +38,31 @@
             ? drawer.querySelector("[data-cart-status]") : document.querySelector("[data-cart-page] [data-cart-status]");
         if (region) { region.textContent = ""; window.setTimeout(function () { region.textContent = message; }, 20); }
     }
+    function hideConfirmation(restoreFocus) {
+        var notice = document.querySelector("[data-cart-confirmation]");
+        window.clearTimeout(confirmationTimer);
+        if (notice) notice.hidden = true;
+        if (restoreFocus && confirmationOpener && confirmationOpener.isConnected) confirmationOpener.focus();
+    }
+    function scheduleConfirmationHide() {
+        window.clearTimeout(confirmationTimer);
+        confirmationTimer = window.setTimeout(function () {
+            var notice = document.querySelector("[data-cart-confirmation]");
+            if (notice && !notice.contains(document.activeElement) && !notice.matches(":hover")) notice.hidden = true;
+        }, 6500);
+    }
     function showAdded(data, opener) {
-        var notice = drawer.querySelector("[data-cart-added]");
-        notice.textContent = data.message;
+        confirmationOpener = opener;
+        var notice = document.querySelector("[data-cart-confirmation]");
+        if (!notice) return;
+        notice.querySelector("[data-cart-confirmation-message]").textContent = data.message;
+        notice.querySelector("[data-cart-confirmation-total]").textContent = data.subtotal_display;
+        var line = data.lines.find(function (item) { return String(item.product_id) === String(data.product_id); });
+        var image = notice.querySelector("img");
+        image.hidden = !line || !line.image_url;
+        if (line && line.image_url) image.src = line.image_url;
         notice.hidden = false;
-        drawer.querySelectorAll("[data-cart-drawer-line]").forEach(function (row) {
-            row.classList.toggle("is-just-added", row.dataset.productId === String(data.product_id));
-        });
-        if (window.bootstrap && window.bootstrap.Offcanvas) {
-            drawerHasFreshState = true;
-            window.bootstrap.Offcanvas.getOrCreateInstance(drawer).show(opener);
-        } else {
-            // Keep an actionable confirmation when the Bootstrap CDN is unavailable.
-            var fallback = document.createElement("p");
-            fallback.className = "shop-cart-add-fallback"; fallback.setAttribute("role", "status");
-            fallback.textContent = data.message + " ";
-            var link = document.createElement("a"); link.href = drawer.getAttribute("data-cart-detail-url");
-            link.textContent = label("open"); fallback.appendChild(link);
-            var form = opener && opener.closest("form");
-            if (form) { var old = form.querySelector(".shop-cart-add-fallback"); if (old) old.remove(); form.appendChild(fallback); }
-        }
+        scheduleConfirmationHide();
     }
     function cancelRemoval(form) {
         var confirmation = form.querySelector("[data-cart-remove-confirm]");
@@ -212,7 +218,7 @@
             return request(form.action, body).then(function (result) {
                 applyState(result.data, row, focused);
                 if (!result.ok) { showError(container, result.data.error || label("error")); return; }
-                if (add) showAdded(result.data, focused === document.body ? form.querySelector("button[type=submit], button") : focused); else announce(result.data.message || label("updated"));
+                if (add) showAdded(result.data, focused); else announce(result.data.message || label("updated"));
             }).catch(function () {
                 // A lost response may follow a successful write; read back, never repeat the POST.
                 return request(drawer.getAttribute("data-cart-state-url")).then(function (result) {
@@ -247,14 +253,8 @@
         document.querySelectorAll("[data-cart-save]").forEach(function (button) { button.hidden = true; });
         var fab = document.getElementById("shopCartFab");
         if (fab && document.querySelector(".shop-page--cart, .shop-page--checkout")) { fab.hidden = true; fab.classList.remove("is-visible"); }
-        drawer.addEventListener("show.bs.offcanvas", function (event) { drawerOpener = event.relatedTarget || document.activeElement; });
-        drawer.addEventListener("shown.bs.offcanvas", function () {
-            if (drawerHasFreshState) {
-                drawerHasFreshState = false;
-                var added = drawer.querySelector(".is-just-added");
-                if (added) added.scrollIntoView({ block: "nearest" });
-            } else loadDrawer();
-        });
+        drawer.addEventListener("show.bs.offcanvas", function (event) { drawerOpener = event.relatedTarget || document.activeElement; hideConfirmation(); });
+        drawer.addEventListener("shown.bs.offcanvas", loadDrawer);
         drawer.addEventListener("hidden.bs.offcanvas", function () {
             drawer.querySelector("[data-cart-added]").hidden = true;
             drawer.querySelectorAll(".is-just-added").forEach(function (row) { row.classList.remove("is-just-added"); });
@@ -266,7 +266,19 @@
             }
         });
         drawer.querySelector("[data-cart-retry]").addEventListener("click", loadDrawer);
+        var confirmation = document.querySelector("[data-cart-confirmation]");
+        if (confirmation) {
+            confirmation.addEventListener("mouseenter", function () { window.clearTimeout(confirmationTimer); });
+            confirmation.addEventListener("mouseleave", scheduleConfirmationHide);
+            confirmation.addEventListener("focusin", function () { window.clearTimeout(confirmationTimer); });
+            confirmation.addEventListener("focusout", scheduleConfirmationHide);
+        }
         document.addEventListener("click", function (event) {
+            if (event.target.closest("[data-cart-confirmation-close]")) { hideConfirmation(true); return; }
+            var preview = event.target.closest("[data-cart-preview]");
+            if (preview && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && window.bootstrap && window.bootstrap.Offcanvas) {
+                event.preventDefault(); window.bootstrap.Offcanvas.getOrCreateInstance(drawer).show(preview); return;
+            }
             var headerCart = event.target.closest(".shop-header__cart");
             if (headerCart && !page && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && window.bootstrap && window.bootstrap.Offcanvas) {
                 event.preventDefault(); window.bootstrap.Offcanvas.getOrCreateInstance(drawer).show(headerCart); return;

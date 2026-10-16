@@ -224,3 +224,26 @@ class CatalogControlsTests(TestCase):
         self.tea.refresh_from_db()
         self.assertEqual(self.tea.main_image_attribution, "Example manufacturer")
         self.assertEqual(self.tea.main_image_source_url, "https://example.com/original-product")
+
+    def test_detail_link_and_return_keep_page_and_filters(self):
+        with patch.object(ProductListView, "paginate_by", 1):
+            response = self.client.get(self.url, {"q": "Tea", "page": 2, "sort": "price_asc", "available": "1"})
+        source = response.context["catalog_return_url"]
+        self.assertIn("page=2", source)
+        content = html.unescape(response.content.decode())
+        links = re.findall(r'href="([^"]+)" data-product-link', content)
+        self.assertTrue(links)
+        self.assertEqual(parse_qs(urlsplit(links[0]).query)["from"], [source])
+        detail = self.client.get(links[0])
+        self.assertEqual(detail.status_code, 200)
+        self.assertEqual(detail.context["catalog_return_url"], source)
+        self.assertContains(detail, 'href="' + html.escape(source, quote=True) + '" class="shop-pdp-back"')
+        self.assertNotIn("?", detail.context["canonical_url"])
+
+    def test_return_destination_only_accepts_local_catalog_routes(self):
+        from apps.products.views import catalog_return_url
+        for value in ("https://evil.example/products/", "//evil.example/products/", "/admin/", "/\\evil.example/", "/products/\n", "/products/made-up/"):
+            with self.subTest(value=value):
+                self.assertEqual(catalog_return_url(value), "")
+        for value in ("/products/?page=3&q=tea&sort=price_desc", "/proizvodi/?page=4&kategorija=pice", "/promo-akcije/?page=2"):
+            self.assertEqual(catalog_return_url(value), value)

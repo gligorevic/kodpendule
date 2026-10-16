@@ -24,7 +24,7 @@
 
     <div class="shop-product-card__body">
         <h3 class="shop-product-card__title">
-            <a href="{{ product.get_absolute_url }}" class="shop-product-card__title-link">
+            <a href="{{ product.get_absolute_url }}{% if catalog_return_url %}?from={{ catalog_return_url|urlencode }}{% endif %}" data-product-link class="shop-product-card__title-link">
                 {{ product.name }}
             </a>
         </h3>
@@ -62,7 +62,7 @@
                     </div>
                 </form>
                 {% else %}
-                <a href="{{ product.get_absolute_url }}" class="shop-btn shop-btn--secondary shop-btn--sm shop-product-card__details">
+                <a href="{{ product.get_absolute_url }}{% if catalog_return_url %}?from={{ catalog_return_url|urlencode }}{% endif %}" data-product-link class="shop-btn shop-btn--secondary shop-btn--sm shop-product-card__details">
                     {% trans "Details" %}
                 </a>
                 {% endif %}

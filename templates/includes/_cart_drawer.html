@@ -51,3 +51,13 @@
         <button type="button" class="cart-continue" data-bs-dismiss="offcanvas">{% trans "Continue shopping" %}</button>
     </div>
 </div>
+
+<aside class="cart-confirmation" data-cart-confirmation hidden aria-label="{% trans 'Cart' %}">
+    <img class="cart-confirmation__image" alt="" hidden>
+    <div class="cart-confirmation__body">
+        <p role="status" aria-live="polite" aria-atomic="true" data-cart-confirmation-message></p>
+        <span>{% trans "Items total" %}: <strong data-cart-confirmation-total></strong></span>
+        <a href="{% shop_url 'cart:detail' %}" data-cart-preview>{% trans "Open cart" %} <span aria-hidden="true">→</span></a>
+    </div>
+    <button type="button" class="cart-confirmation__close" data-cart-confirmation-close aria-label="{% trans 'Close' %}">×</button>
+</aside>

@@ -1,3 +1,5 @@
+from urllib.parse import urlsplit
+
 from django.conf import settings
 from django.http import Http404
 from django.utils.functional import cached_property
@@ -11,6 +13,7 @@ from apps.core.breadcrumbs import (
     products_crumb,
 )
 from apps.core.mixins import ShopLanguageMixin
+from apps.core.storefront_urls import resolve_storefront_route
 from apps.core.utils import activate_parler_language
 from apps.core.templatetags.shop_tags import product_meta_title
 from apps.products.models import Product
@@ -23,6 +26,22 @@ from apps.products.selectors import (
     recommended_products_qs,
     related_products,
 )
+
+
+def catalog_return_url(value):
+    """Only allow local catalog destinations, never arbitrary redirect links."""
+    if not value or len(value) > 2500 or not value.startswith("/") or value.startswith("//") or "\\" in value or any(ord(c) < 32 for c in value):
+        return ""
+    try:
+        parts = urlsplit(value)
+        route = resolve_storefront_route(parts.path)
+    except ValueError:
+        return ""
+    if parts.scheme or parts.netloc or not route or route.viewname not in {
+        "products:list", "products:promo", "products:recommended", "categories:detail"
+    }:
+        return ""
+    return value
 
 
 class CatalogControlsMixin:
@@ -61,6 +80,7 @@ class CatalogControlsMixin:
             "catalog_sort_options": self.sort_options,
             "has_catalog_filters": bool(filters["query"] or filters["available_only"] or filters["sort"] != "default"),
             "catalog_form_action": self.request.path,
+            "catalog_return_url": self.request.get_full_path(),
         })
         return context
 
@@ -218,6 +238,7 @@ class ProductDetailView(ShopLanguageMixin, DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["catalog_return_url"] = catalog_return_url(self.request.GET.get("from", ""))
         product: Product = self.object
         gallery = list(product.gallery_images.all())
         context["gallery_images"] = gallery
@@ -239,5 +260,5 @@ class ProductDetailView(ShopLanguageMixin, DetailView):
             product.safe_translation_getter("meta_description")
             or product.safe_translation_getter("short_description", "")
         )
-        context["canonical_url"] = self.request.build_absolute_uri()
+        context["canonical_url"] = self.request.build_absolute_uri(self.request.path)
         return context
