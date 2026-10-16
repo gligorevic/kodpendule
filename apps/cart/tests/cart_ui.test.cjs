@@ -10,15 +10,15 @@ function fixture() {
     function element(extra={}) { return Object.assign({dataset:{},disabled:false,isConnected:true,attrs:{},classList:{toggle(){},add(){},remove(){},contains(){return false;}},setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k]||null;},removeAttribute(k){delete this.attrs[k];},querySelector(){return null;},querySelectorAll(){return [];},appendChild(){},remove(){},addEventListener(){},closest(){return null;}},extra); }
     const body=element(), nodes={};
     const drawer=element({getAttribute(name){return name==='data-cart-state-url'?'/state':'Please review your cart';},querySelector(selector){return nodes[selector]||(nodes[selector]=element());}});
-    const events={}, calls=[];
+    const events={}, calls=[], opened=[];
     const document={body,readyState:'complete',activeElement:body,querySelector:s=>s==='[data-cart-drawer]'?drawer:null,querySelectorAll:()=>[],getElementById:()=>null,createElement:()=>element(),addEventListener:(name,fn)=>events[name]=fn};
     const fetch=(url,options)=>new Promise((resolve,reject)=>calls.push({url,options,resolve,reject}));
-    const window={fetch,FormData:class{},setTimeout(){},requestAnimationFrame:fn=>fn()};
+    const window={bootstrap:{Offcanvas:{getOrCreateInstance:()=>({show:opener=>opened.push(opener)})}},fetch,FormData:class{},setTimeout(){},requestAnimationFrame:fn=>fn()};
     vm.runInNewContext(source,{document,window,fetch,FormData:class {constructor(form){this.source=form.action;}},Promise,Array,Number,String,Error,Event:class{}});
     function form(id) {const button=element();return element({action:'/add/'+id,button,matches(){return true;},hasAttribute(name){return name==='data-shop-add-cart';},querySelectorAll:s=>s==='button, input:not([type=hidden])'?[button]:[]});}
     const submit=form=>events.submit({target:form,preventDefault(){}});
     const finish=(call, overrides={})=>call.resolve({ok:true,json:async()=>({ok:true,lines:[],item_count:0,subtotal_display:'0,00 RSD',message:'Added',...overrides})});
-    return {calls,form,submit,finish,nodes,element};
+    return {calls,form,submit,finish,nodes,element,events,opened,document};
 }
 test('two additions are serialized so the second request cannot overwrite an earlier cart session',async()=>{
     const f=fixture(), first=f.form('a'), second=f.form('b');
@@ -51,4 +51,42 @@ test('refresh updates existing row unit price and total together without replaci
     f.finish(f.calls[0],{item_count:1,subtotal_display:'125,50 RSD',lines:[{product_id:1,name:'Current name',url:'/current/',image_url:'',quantity:1,stock:5,unit_price_display:'125,50 RSD',line_total_display:'125,50 RSD'}]});
     await tick(); assert.equal(unit.textContent,'125,50 RSD'); assert.equal(total.textContent,'125,50 RSD');
     assert.equal(input.value,'1'); assert.equal(name.textContent,'Current name'); assert.equal(name.href,'/current/');
+});
+
+
+test('successful addition opens an actionable cart confirmation; rejected addition does not', async()=>{
+    const f=fixture(), form=f.form('a'); f.submit(form); await tick();
+    assert.equal(f.opened.length,0);
+    f.finish(f.calls[0]); await tick();
+    assert.equal(f.opened.length,1);
+    assert.equal(f.nodes['[data-cart-added]'].textContent,'Added');
+    f.submit(form); await tick(); f.finish(f.calls[1],{ok:false,error:'Out of stock'}); await tick();
+    assert.equal(f.opened.length,1);
+});
+
+test('removal waits for an explicit confirmation and ignores a double confirmation',async()=>{
+    const f=fixture(), trigger=f.element(), cancel=f.element({focus(){}});
+    const panel=f.element({querySelector:()=>cancel});
+    f.document.createElement=()=>panel;
+    const form=f.form('remove');
+    form.hasAttribute=name=>name==='data-cart-remove-form';
+    let confirmation=null;
+    form.querySelector=selector=>selector==='button[type=submit]'?trigger:selector==='[data-cart-remove-confirm]'?confirmation:null;
+    form.appendChild=node=>confirmation=node;
+    f.submit(form); await tick();
+    assert.equal(f.calls.length,0); assert.equal(trigger.hidden,true);
+    const target=f.element({closest:selector=>selector==='[data-cart-remove-yes]'?target:selector==='form'?form:null});
+    f.events.click({target}); f.events.click({target}); await tick();
+    assert.equal(f.calls.length,1); f.finish(f.calls[0]); await tick();
+});
+
+
+test('generic submit feedback leaves cart controls to the cart interaction handler',()=>{
+    const attached=[];
+    const forms=['data-shop-add-cart','data-cart-quantity-form','data-cart-remove-form','ordinary'];
+    const document={addEventListener:(event,init)=>init(),querySelectorAll:()=>forms.map(type=>({
+        hasAttribute:name=>name===type,closest:()=>null,addEventListener:()=>attached.push(type)
+    }))};
+    vm.runInNewContext(fs.readFileSync(path.resolve(__dirname,'../../../static/js/main.js'),'utf8'),{document});
+    assert.deepEqual(attached,['ordinary']);
 });

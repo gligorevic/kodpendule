@@ -28,7 +28,6 @@
 .shop-page--cart .shop-cart-line__total-label { display: block; font-size: 10px; color: #798078; }
 .shop-page--cart .shop-cart-line__total-value { font-size: 19px; white-space: nowrap; }
 .shop-page--cart .shop-cart-line__remove-form { margin: 0; }
-.shop-page--cart .shop-cart-line__remove-form button { padding: 4px 0; min-height: 32px; border: 0; color: #707b70; font-size: 12px; text-decoration: underline; text-underline-offset: 3px; }
 .shop-page--cart .shop-qty { background: #f6f8f3; border: 1px solid #d7dfd0; border-radius: 9px; overflow: hidden; }
 .shop-page--cart .shop-qty__btn { background: transparent; color: #173d2b; min-width: 36px; }
 .shop-page--cart .shop-qty__input { background: transparent; width: 46px; }

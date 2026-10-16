@@ -7,6 +7,8 @@
      data-i18n-dec="{% trans 'Decrease quantity' %}"
      data-i18n-inc="{% trans 'Increase quantity' %}"
      data-i18n-qty="{% trans 'Quantity' %}"
+     data-i18n-remove-question="{% trans 'Remove this product?' %}"
+     data-i18n-keep="{% trans 'Keep it' %}"
      data-i18n-remove="{% trans 'Remove' %}"
      data-i18n-empty="{% trans 'Your cart is empty' %}"
      data-i18n-subtotal="{% trans 'Items total' %}"
@@ -19,6 +21,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{% trans 'Close' %}"></button>
     </div>
     <div class="offcanvas-body shop-cart-drawer__body">
+        <p class="cart-added-notice" data-cart-added role="status" aria-live="polite" hidden></p>
         <div class="shop-cart-drawer__loading" data-cart-drawer-loading role="status" hidden>
             <span class="shop-cart-drawer__spinner" aria-hidden="true"></span>
             <span>{% trans "Loading your cart…" %}</span>
@@ -41,8 +44,10 @@
             <dd data-cart-drawer-subtotal>·</dd>
         </dl>
         <p class="shop-cart-drawer__shipping">{% trans "Shipping is calculated at checkout." %}</p>
-        <a class="shop-btn shop-btn--primary shop-btn--block shop-cart-drawer__open" href="{% shop_url 'cart:detail' %}" data-cart-drawer-open-link>
+        <a class="shop-btn shop-btn--primary shop-btn--block" href="{% shop_url 'checkout:checkout' %}" data-cart-checkout>{% trans "Proceed to checkout" %} <span aria-hidden="true">→</span></a>
+        <a class="shop-btn shop-btn--secondary shop-btn--block shop-cart-drawer__open" href="{% shop_url 'cart:detail' %}" data-cart-drawer-open-link>
             {% trans "Open cart" %}
         </a>
+        <button type="button" class="cart-continue" data-bs-dismiss="offcanvas">{% trans "Continue shopping" %}</button>
     </div>
 </div>

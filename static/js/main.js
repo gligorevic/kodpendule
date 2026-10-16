@@ -8,6 +8,8 @@
         document.querySelectorAll("form").forEach(function (form) {
             if (
                 form.hasAttribute("data-shop-add-cart")
+                || form.hasAttribute("data-cart-quantity-form")
+                || form.hasAttribute("data-cart-remove-form")
                 || form.closest(".shop-header")
                 || form.closest(".shop-offcanvas")
                 || form.closest(".shop-header-panel")

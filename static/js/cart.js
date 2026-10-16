@@ -6,6 +6,7 @@
     var drawer;
     var page;
     var drawerOpener;
+    var drawerHasFreshState = false;
     var rowSelector = "[data-cart-line], [data-cart-drawer-line]";
 
     function label(key) { return drawer ? drawer.getAttribute("data-i18n-" + key) || "" : ""; }
@@ -36,16 +37,42 @@
             ? drawer.querySelector("[data-cart-status]") : document.querySelector("[data-cart-page] [data-cart-status]");
         if (region) { region.textContent = ""; window.setTimeout(function () { region.textContent = message; }, 20); }
     }
-    function toast(message) {
-        var root = document.getElementById("shop-toast-root");
-        if (!root) {
-            root = document.createElement("div"); root.id = "shop-toast-root"; root.className = "shop-toast-root";
-            root.setAttribute("aria-live", "polite"); document.body.appendChild(root);
+    function showAdded(data, opener) {
+        var notice = drawer.querySelector("[data-cart-added]");
+        notice.textContent = data.message;
+        notice.hidden = false;
+        drawer.querySelectorAll("[data-cart-drawer-line]").forEach(function (row) {
+            row.classList.toggle("is-just-added", row.dataset.productId === String(data.product_id));
+        });
+        if (window.bootstrap && window.bootstrap.Offcanvas) {
+            drawerHasFreshState = true;
+            window.bootstrap.Offcanvas.getOrCreateInstance(drawer).show(opener);
+        } else {
+            // Keep an actionable confirmation when the Bootstrap CDN is unavailable.
+            var fallback = document.createElement("p");
+            fallback.className = "shop-cart-add-fallback"; fallback.setAttribute("role", "status");
+            fallback.textContent = data.message + " ";
+            var link = document.createElement("a"); link.href = drawer.getAttribute("data-cart-detail-url");
+            link.textContent = label("open"); fallback.appendChild(link);
+            var form = opener && opener.closest("form");
+            if (form) { var old = form.querySelector(".shop-cart-add-fallback"); if (old) old.remove(); form.appendChild(fallback); }
         }
-        var el = document.createElement("p"); el.className = "shop-toast shop-toast--success";
-        el.textContent = message; root.appendChild(el);
-        window.requestAnimationFrame(function () { el.classList.add("is-visible"); });
-        window.setTimeout(function () { el.remove(); }, 5000);
+    }
+    function cancelRemoval(form) {
+        var confirmation = form.querySelector("[data-cart-remove-confirm]");
+        if (confirmation) confirmation.remove();
+        var trigger = form.querySelector("button[type=submit]");
+        if (trigger) { trigger.hidden = false; trigger.focus(); }
+    }
+    function confirmRemoval(form) {
+        if (form.querySelector("[data-cart-remove-confirm]")) return;
+        var panel = document.createElement("div");
+        panel.className = "cart-remove-confirm"; panel.setAttribute("data-cart-remove-confirm", "");
+        panel.innerHTML = '<span>' + escapeHtml(label("remove-question")) + '</span><div>' +
+            '<button type="button" data-cart-remove-cancel>' + escapeHtml(label("keep")) + '</button>' +
+            '<button type="button" data-cart-remove-yes>' + escapeHtml(label("remove")) + '</button></div>';
+        form.querySelector("button[type=submit]").hidden = true;
+        form.appendChild(panel); panel.querySelector("[data-cart-remove-cancel]").focus();
     }
     function clearError(container) {
         var error = container.querySelector("[data-cart-error]"); if (error) error.remove();
@@ -90,7 +117,7 @@
             '<button type="button" class="shop-qty__btn" data-cart-inc aria-label="' + escapeHtml(label("inc")) + ': ' + name + '">+</button></div></form>' +
             '<div class="shop-cart-drawer-line__bottom"><strong class="shop-cart-drawer-line__total" data-cart-line-total></strong>' +
             '<form method="post" action="' + escapeHtml(line.remove_url) + '" class="shop-cart-drawer-line__remove-form" data-cart-remove-form>' + token +
-            '<button type="submit" class="shop-btn shop-btn--ghost shop-btn--sm" aria-label="' + escapeHtml(label("remove")) + ': ' + name + '">' + escapeHtml(label("remove")) + '</button></form></div></div>';
+            '<button type="submit" class="shop-btn shop-btn--ghost shop-btn--sm" aria-label="' + escapeHtml(label("remove")) + ': ' + name + '">' + '<svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7m4-7v7"/></svg><span>' + escapeHtml(label("remove")) + '</span></button></form></div></div>';
         return row;
     }
     function syncRows(root, lines, current, create, previousFocus) {
@@ -176,12 +203,16 @@
         var body = new FormData(form); // Capture before disabling controls.
         var add = form.hasAttribute("data-shop-add-cart");
         var focused = document.activeElement;
+        if (!add) {
+            drawer.querySelector("[data-cart-added]").hidden = true;
+            drawer.querySelectorAll(".is-just-added").forEach(function (line) { line.classList.remove("is-just-added"); });
+        }
         clearError(container); setBusy(container, true); pending += 1; syncCheckoutLink();
         enqueue(function () {
             return request(form.action, body).then(function (result) {
                 applyState(result.data, row, focused);
                 if (!result.ok) { showError(container, result.data.error || label("error")); return; }
-                if (add) toast(result.data.message); else announce(result.data.message || label("updated"));
+                if (add) showAdded(result.data, focused === document.body ? form.querySelector("button[type=submit], button") : focused); else announce(result.data.message || label("updated"));
             }).catch(function () {
                 // A lost response may follow a successful write; read back, never repeat the POST.
                 return request(drawer.getAttribute("data-cart-state-url")).then(function (result) {
@@ -217,8 +248,17 @@
         var fab = document.getElementById("shopCartFab");
         if (fab && document.querySelector(".shop-page--cart, .shop-page--checkout")) { fab.hidden = true; fab.classList.remove("is-visible"); }
         drawer.addEventListener("show.bs.offcanvas", function (event) { drawerOpener = event.relatedTarget || document.activeElement; });
-        drawer.addEventListener("shown.bs.offcanvas", loadDrawer);
+        drawer.addEventListener("shown.bs.offcanvas", function () {
+            if (drawerHasFreshState) {
+                drawerHasFreshState = false;
+                var added = drawer.querySelector(".is-just-added");
+                if (added) added.scrollIntoView({ block: "nearest" });
+            } else loadDrawer();
+        });
         drawer.addEventListener("hidden.bs.offcanvas", function () {
+            drawer.querySelector("[data-cart-added]").hidden = true;
+            drawer.querySelectorAll(".is-just-added").forEach(function (row) { row.classList.remove("is-just-added"); });
+            if (drawerOpener && drawerOpener.isConnected && drawerOpener.getClientRects().length) drawerOpener.focus();
             // The floating opener disappears when the last item is removed.
             if (drawerOpener && (!drawerOpener.isConnected || !drawerOpener.getClientRects().length)) {
                 var fallback = document.querySelector(".shop-header__cart");
@@ -227,6 +267,14 @@
         });
         drawer.querySelector("[data-cart-retry]").addEventListener("click", loadDrawer);
         document.addEventListener("click", function (event) {
+            var headerCart = event.target.closest(".shop-header__cart");
+            if (headerCart && !page && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && window.bootstrap && window.bootstrap.Offcanvas) {
+                event.preventDefault(); window.bootstrap.Offcanvas.getOrCreateInstance(drawer).show(headerCart); return;
+            }
+            var cancel = event.target.closest("[data-cart-remove-cancel]");
+            if (cancel) { cancelRemoval(cancel.closest("form")); return; }
+            var remove = event.target.closest("[data-cart-remove-yes]");
+            if (remove) { mutate(remove.closest("form")); return; }
             var checkout = event.target.closest("[data-cart-checkout]");
             if (checkout && pending) { event.preventDefault(); announce(label("saving")); }
             var button = event.target.closest("[data-cart-dec], [data-cart-inc]");
@@ -236,13 +284,19 @@
             input.value = String(Math.max(Number(input.min), Math.min(Number(input.max), current + (button.hasAttribute("data-cart-inc") ? 1 : -1))));
             input.dispatchEvent(new Event("change", { bubbles: true }));
         });
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" && event.target.closest("[data-cart-remove-confirm]")) {
+                event.preventDefault(); event.stopPropagation(); cancelRemoval(event.target.closest("form"));
+            }
+        }, true);
         document.addEventListener("change", function (event) {
             if (event.target.matches('[data-cart-qty] input[name="quantity"]')) mutate(event.target.form);
         });
         document.addEventListener("submit", function (event) {
             var form = event.target;
             if (!form.matches("[data-shop-add-cart], [data-cart-quantity-form], [data-cart-remove-form]")) return;
-            event.preventDefault(); mutate(form);
+            event.preventDefault();
+            if (form.hasAttribute("data-cart-remove-form")) confirmRemoval(form); else mutate(form);
         });
     }
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init); else init();
