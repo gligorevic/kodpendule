@@ -2,7 +2,7 @@
 {% load static shop_urls i18n %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux8">
+<link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261016-subcategories">
 {% endblock %}
 
 {% block content %}
@@ -23,6 +23,7 @@
     <div class="shop-catalog-layout{% if hide_category_nav %} shop-catalog-layout--full{% endif %}">
       {% if not hide_category_nav %}<aside class="shop-catalog-sidebar">{% include "includes/_category_nav.html" %}</aside>{% endif %}
       <div class="shop-catalog-main">
+        {% include "products/_subcategory_chips.html" %}
         {% include "products/_catalog_controls.html" %}
         <section id="catalog-results" class="shop-catalog-results" aria-label="{% trans 'Products' %}" tabindex="-1">
           {% include "products/_result_count.html" %}

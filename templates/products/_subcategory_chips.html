@@ -1,0 +1,19 @@
+{% load i18n %}
+{% for group in subcategory_groups %}
+<nav class="shop-catalog-subcategories shop-category-subcategories" aria-labelledby="subcategory-heading-{{ group.parent.pk }}">
+    <h2 id="subcategory-heading-{{ group.parent.pk }}" class="shop-category-subcategories__label">{{ group.parent.name }} · {% trans "Subcategories" %}</h2>
+    <ul class="shop-category-chips list-unstyled mb-0">
+        <li><a class="shop-chip{% if active_category.pk == group.parent.pk %} is-active{% endif %}"
+            href="{{ catalog_form_action }}{% querystring kategorija=group.parent.slug page=None %}"
+            {% if active_category.pk == group.parent.pk %}aria-current="true"{% endif %}>{% trans "All products" %}</a></li>
+        {% for child in group.children %}
+        <li><a class="shop-chip shop-chip--illustrated{% if child.pk in active_category_path_ids %} is-active{% endif %}"
+            href="{{ catalog_form_action }}{% querystring kategorija=child.slug page=None %}"
+            {% if active_category.pk == child.pk %}aria-current="true"{% endif %}>
+            {% if child.image %}<img src="{{ child.image.url }}" alt="" width="32" height="32" loading="lazy">{% endif %}
+            <span>{{ child.name }}</span>
+        </a></li>
+        {% endfor %}
+    </ul>
+</nav>
+{% endfor %}

@@ -54,7 +54,7 @@ def create_order_from_checkout(
     if not lines:
         raise CheckoutError(_("Your cart is empty."))
 
-    if payment_method not in PaymentMethod.values:
+    if payment_method != PaymentMethod.CASH:
         raise CheckoutError(_("Please select how you want to pay."))
 
     _validate_stock(lines)

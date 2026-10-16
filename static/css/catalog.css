@@ -98,6 +98,12 @@
 .shop-catalog-results__summary { padding-block: 13px; font-size: 12px; }
 .shop-category-subcategories { padding-block: 0 8px; }
 .shop-category-subcategories__label { margin: 0 0 10px; color: #627066; font-size: 12px; }
+.shop-catalog-subcategories { margin-bottom: 12px; }
+.shop-catalog-subcategories .shop-category-subcategories__label { font-weight: 600; line-height: 1.5; }
+.shop-catalog-subcategories .shop-chip { min-height: 44px; }
+.shop-catalog-subcategories .shop-chip--illustrated { padding-inline: 12px; }
+.shop-catalog-subcategories .shop-chip img { object-fit: contain; background: white; }
+.shop-catalog-subcategories .shop-chip:focus-visible { outline: 2px solid #ac8952; outline-offset: 3px; }
 .shop-chip--illustrated { gap: 9px; padding: 5px 12px 5px 5px; font-size: 13px; min-height: 44px; }
 .shop-chip--illustrated img, .shop-chip__icon { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; object-fit: cover; background: #e9eddf; }
 .shop-chip__icon { display: grid; place-items: center; }

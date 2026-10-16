@@ -74,7 +74,8 @@ class CheckoutForm(forms.Form):
 
     payment_method = forms.ChoiceField(
         label=_("Payment method"),
-        choices=PaymentMethod.choices,
+        choices=[(PaymentMethod.CASH, PaymentMethod.CASH.label)],
+        initial=PaymentMethod.CASH,
         widget=forms.RadioSelect(attrs={"class": "shop-payment-method__input"}),
         error_messages={
             "required": _("Please select how you want to pay."),
