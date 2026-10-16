@@ -13,6 +13,10 @@ class Category(TranslatableModel):
     )
     image = models.ImageField(_("Image"), upload_to="categories/", blank=True)
     is_active = models.BooleanField(_("Active"), default=True)
+    requires_age_confirmation = models.BooleanField(
+        _("Require 18+ confirmation"), default=False,
+        help_text=_("Require age confirmation at checkout for this category and its subcategories."),
+    )
     sort_order = models.PositiveIntegerField(_("Sort order"), default=0)
     created_at = models.DateTimeField(_("Created at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("Updated at"), auto_now=True)

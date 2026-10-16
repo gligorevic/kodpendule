@@ -59,7 +59,7 @@ class OrderAdmin(KPModelAdmin):
         "user__email",
         "user__username",
     )
-    readonly_fields = ("created_at", "updated_at", "is_new")
+    readonly_fields = ("created_at", "updated_at", "is_new", "age_confirmed_at")
     list_select_related = ("user", "shipping_city")
     list_filter = ("is_new", "status")
     inlines = [OrderItemInline]
@@ -81,6 +81,7 @@ class OrderAdmin(KPModelAdmin):
                     "status",
                     "is_new",
                     "payment_method",
+                    "age_confirmed_at",
                 ),
             },
         ),

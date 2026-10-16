@@ -105,6 +105,18 @@
 
                 <section class="shop-checkout-section shop-checkout-section--legal" aria-labelledby="checkout-legal-heading">
                     <h2 id="checkout-legal-heading" class="visually-hidden">{% trans "Legal consent" %}</h2>
+                    {% if form.confirm_age %}
+                    <div id="checkout-field-confirm_age" class="shop-checkout-legal{% if form.confirm_age.errors %} shop-field--invalid{% endif %}">
+                        <p>{% trans "Your order contains alcoholic drinks." %}</p>
+                        <label class="shop-checkout-legal__option" for="{{ form.confirm_age.id_for_label }}">
+                            {{ form.confirm_age }}
+                            <span class="shop-checkout-legal__text">{{ form.confirm_age.label }}</span>
+                        </label>
+                        {% if form.confirm_age.errors %}<div id="{{ form.confirm_age.auto_id }}_errors">
+                        {% for error in form.confirm_age.errors %}<p class="shop-field__error" role="alert">{{ error }}</p>{% endfor %}
+                        </div>{% endif %}
+                    </div>
+                    {% endif %}
                     <div id="checkout-field-accept_legal">{% include "includes/_checkout_legal_consent.html" with field=form.accept_legal %}</div>
                 </section>
 

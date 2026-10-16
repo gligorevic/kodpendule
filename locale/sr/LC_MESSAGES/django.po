@@ -4838,3 +4838,26 @@ msgstr ""
 
 msgid "Every day: 07:00–24:00"
 msgstr "Svakog dana: 07:00–24:00"
+
+msgid "Require 18+ confirmation"
+msgstr "Zahtevaj potvrdu 18+"
+
+msgid ""
+"Require age confirmation at checkout for this category and its "
+"subcategories."
+msgstr ""
+"Zahtevaj potvrdu punoletstva pri poručivanju za ovu kategoriju i njene "
+"potkategorije."
+
+msgid "I confirm that I am 18 years of age or older."
+msgstr "Potvrđujem da imam najmanje 18 godina."
+
+msgid "To order alcoholic drinks, you must confirm that you are 18 or older."
+msgstr ""
+"Za poručivanje alkoholnih pića morate potvrditi da imate najmanje 18 godina."
+
+msgid "Your order contains alcoholic drinks."
+msgstr "Vaša porudžbina sadrži alkoholna pića."
+
+msgid "18+ confirmation time"
+msgstr "Vreme potvrde punoletstva (18+)"

@@ -4,10 +4,12 @@ import secrets
 from decimal import Decimal
 
 from django.db import transaction
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from apps.accounts.services import archive_customer_from_checkout
 from apps.cart.cart import Cart, CartLine
+from apps.categories.age_confirmation import requires_age_confirmation
 from apps.core.checkout_settings import checkout_today, resolve_checkout_shipping_price
 from apps.orders.models import Order, OrderItem, OrderStatus, PaymentMethod
 from apps.orders.payments.cod import CashOnDeliveryProvider
@@ -46,6 +48,7 @@ def create_order_from_checkout(
     order_notes: str,
     payment_method: str,
     requested_delivery_date=None,
+    age_confirmed=False,
 ) -> Order:
     lines = cart.get_lines()
     if not lines:
@@ -65,6 +68,18 @@ def create_order_from_checkout(
     )
     total = subtotal + shipping_price
 
+    # Re-read products under the same locks used for stock updates. The form is
+    # not authoritative: categories may change between rendering and submission.
+    locked_products = {
+        product.pk: product
+        for product in Product.objects.select_for_update()
+        .filter(pk__in=[line.product.pk for line in lines], is_archived=False)
+        .order_by("pk")
+    }
+    age_required = requires_age_confirmation(locked_products.values())
+    if age_required and age_confirmed is not True:
+        raise CheckoutError(_("To order alcoholic drinks, you must confirm that you are 18 or older."))
+
     order = Order.objects.create(
         order_number=generate_order_number(),
         user=user if user and user.is_authenticated else None,
@@ -76,6 +91,7 @@ def create_order_from_checkout(
         shipping_city_name=shipping_city.name,
         shipping_city=shipping_city,
         order_notes=order_notes,
+        age_confirmed_at=timezone.now() if age_required else None,
         requested_delivery_date=delivery_date,
         shipping_price=shipping_price,
         payment_method=payment_method,
@@ -86,12 +102,6 @@ def create_order_from_checkout(
 
     # Use the same lock order as inventory imports and other checkouts, even when
     # the customer's cart order differs. Retain that cart order for order items.
-    locked_products = {
-        product.pk: product
-        for product in Product.objects.select_for_update()
-        .filter(pk__in=[line.product.pk for line in lines], is_archived=False)
-        .order_by("pk")
-    }
     for line in lines:
         product = locked_products.get(line.product.pk)
         if product is None:
