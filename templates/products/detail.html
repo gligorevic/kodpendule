@@ -4,7 +4,7 @@
 {% block extra_css %}
 {% load static %}
 <link rel="stylesheet" href="{% static 'css/catalog.css' %}?v=20261015-ux8">
-<link rel="stylesheet" href="{% static 'css/product.css' %}?v=20261015-ux7">
+<link rel="stylesheet" href="{% static 'css/product.css' %}?v=20261016-3">
 {% endblock %}
 
 {% block content %}
@@ -12,6 +12,7 @@
 <div class="container py-4 py-lg-5">
     {% include "includes/_breadcrumb.html" with breadcrumbs=breadcrumb_items %}
 
+    <a href="{{ catalog_return_url|default:product.category.get_absolute_url }}" class="shop-pdp-back" data-catalog-back><span aria-hidden="true">←</span> {% trans "Back to products" %}</a>
     <div class="shop-pdp">
         <div class="shop-pdp__gallery">
             <div id="productGallery" class="carousel slide shop-gallery" data-bs-ride="false" aria-label="{% trans 'Product gallery' %}">
@@ -151,8 +152,8 @@
             {% endif %}
 
             <div class="shop-pdp__more">
-                <a href="{{ product.category.get_absolute_url }}" class="shop-btn shop-btn--secondary shop-btn--sm">
-                    {% trans "More in" %} {{ product.category.name }}
+                <a href="{{ catalog_return_url|default:product.category.get_absolute_url }}" data-catalog-back class="shop-btn shop-btn--secondary shop-btn--sm">
+                    {% trans "Back to products" %}
                 </a>
             </div>
         </div>

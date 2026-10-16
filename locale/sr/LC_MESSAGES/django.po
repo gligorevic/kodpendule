@@ -5083,3 +5083,6 @@ msgstr "Ukloniti ovaj proizvod?"
 
 msgid "Keep it"
 msgstr "Zadrži"
+
+msgid "Back to products"
+msgstr "Nazad na proizvode"
