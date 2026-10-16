@@ -5077,3 +5077,9 @@ msgstr "rezultata"
 
 msgid "selected"
 msgstr "odabrano"
+
+msgid "Remove this product?"
+msgstr "Ukloniti ovaj proizvod?"
+
+msgid "Keep it"
+msgstr "Zadrži"

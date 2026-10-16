@@ -3,7 +3,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=20261015-ux3">
-<link rel="stylesheet" href="{% static 'css/cart-page.css' %}?v=20261016-1">
+<link rel="stylesheet" href="{% static 'css/cart-page.css' %}?v=20261016-2">
 {% endblock %}
 
 {% block content %}
@@ -65,7 +65,7 @@
                                 <form method="post" action="{% shop_url 'cart:remove' product_id=line.product.pk %}" class="shop-cart-line__remove-form" data-cart-remove-form>
                                     {% csrf_token %}
                                     <button type="submit" class="shop-btn shop-btn--ghost shop-btn--sm" aria-label="{% trans 'Remove' %}: {{ line.product.name }}">
-                                        {% trans "Remove" %}
+                                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 10v7m4-7v7"/></svg><span>{% trans "Remove" %}</span>
                                     </button>
                                 </form>
                             </div>
