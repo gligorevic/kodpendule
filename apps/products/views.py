@@ -1,4 +1,4 @@
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
 from django.http import Http404
@@ -6,7 +6,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import gettext_lazy as _
 from django.views.generic import DetailView, ListView
 
-from apps.categories.selectors import get_category_by_slug, get_child_categories
+from apps.categories.selectors import get_category_by_path, get_category_by_slug, get_child_categories
 from apps.core.breadcrumbs import (
     category_breadcrumb_items,
     home_crumb,
@@ -42,6 +42,36 @@ def catalog_return_url(value):
     }:
         return ""
     return value
+
+
+def product_breadcrumb_items(product, language, return_url):
+    """Show the listing the customer came from, with its exact return URL."""
+    if not return_url:
+        return category_breadcrumb_items(product.category, language, link_current_category=True)
+
+    parts = urlsplit(return_url)
+    route = resolve_storefront_route(parts.path)
+    query = parse_qs(parts.query)
+    category = None
+    if route.viewname == "categories:detail":
+        category = get_category_by_path(route.kwargs["category_path"], language)
+    elif route.viewname == "products:list" and query.get("kategorija"):
+        category = get_category_by_slug(query["kategorija"][0], language)
+
+    if category:
+        items = category_breadcrumb_items(category, language, link_current_category=True)
+        items[-1] = (items[-1][0], return_url)
+        return items
+
+    if route.viewname == "products:promo":
+        label = _("Promo sales")
+    elif route.viewname == "products:recommended":
+        label = _("Recommended products")
+    elif query.get("q"):
+        label = _("Search")
+    else:
+        return [home_crumb(), (_("Products"), return_url)]
+    return [home_crumb(), products_crumb(), (label, return_url)]
 
 
 class CatalogControlsMixin:
@@ -247,10 +277,8 @@ class ProductDetailView(ShopLanguageMixin, DetailView):
         context["product_description"] = (product.safe_translation_getter("description", "") or "").strip()
         context["related_products"] = related_products(product, self.shop_language)
         activate_parler_language(product.category, self.shop_language)
-        context["breadcrumb_items"] = category_breadcrumb_items(
-            product.category,
-            self.shop_language,
-            link_current_category=True,
+        context["breadcrumb_items"] = product_breadcrumb_items(
+            product, self.shop_language, context["catalog_return_url"]
         )
         context["breadcrumb_items"].append((product.name, None))
         context["meta_title"] = product_meta_title(
